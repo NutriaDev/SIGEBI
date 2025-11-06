@@ -1,0 +1,8 @@
+spring:
+  main:
+    web-application-type: servlet  # Eureka es tradicionalmente servlet
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
