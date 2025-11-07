@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
 
 @Entity
 @Table(name = "role")
@@ -23,16 +22,4 @@ public class RoleEntity {
 
     @Column(nullable = false)
     private Boolean status;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.DETACH})
-    @JoinTable(
-            name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "idPermission", referencedColumnName = "idPermission")
-    )
-
-    private Set<PermissionEntity> permissions;
-
-
-
 }
