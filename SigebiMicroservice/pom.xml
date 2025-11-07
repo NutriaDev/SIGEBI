@@ -17,9 +17,10 @@
   <packaging>pom</packaging>
 
   <modules>
-      <module>gateway/gateway</module>
-      <module>eureka/eureka</module>
-      <module>config/config</module>
+      <module>gateway</module>
+      <module>eureka</module>
+      <module>config</module>
+      <module>users</module>
   </modules>
 
 
