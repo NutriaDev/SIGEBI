@@ -22,7 +22,7 @@ public class RoleEntity {
     private String nameRole;
 
     @Column(nullable = false)
-    private String status;
+    private Boolean status;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.DETACH})
     @JoinTable(

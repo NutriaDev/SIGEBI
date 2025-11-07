@@ -17,7 +17,7 @@ public class PermissionEntity {
     private Integer idPermission;
 
     @Column(nullable = false)
-    private String name;
+    private String namePermission;
 
     private String description;
 }

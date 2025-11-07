@@ -46,6 +46,9 @@ public class UserEntity {
     @Column(nullable = false, name ="password")
     private String password;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private RoleEntity role;
