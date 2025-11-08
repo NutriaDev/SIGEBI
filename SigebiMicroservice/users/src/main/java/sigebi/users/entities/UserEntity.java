@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idUsers", unique = true)
-    private String idUsers;
+    private Long idUsers;
 
     @Column(nullable = false, name ="name")
     private String name;
@@ -41,7 +43,7 @@ public class UserEntity {
     private String email;
 
     @Column(nullable = false, name ="company")
-    private String company;
+    private String idCompany;
 
     @Column(nullable = false, name ="password")
     private String password;
@@ -52,5 +54,15 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private RoleEntity role;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
 }

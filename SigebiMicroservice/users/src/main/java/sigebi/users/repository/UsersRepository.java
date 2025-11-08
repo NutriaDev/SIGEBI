@@ -6,7 +6,7 @@ import sigebi.users.entities.UserEntity;
 import java.util.List;
 import java.util.Optional;
 
-public interface UsersRepository extends JpaRepository<UserEntity, String> {
+public interface UsersRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 
     List<UserEntity> findAllByStatus(Boolean active);
