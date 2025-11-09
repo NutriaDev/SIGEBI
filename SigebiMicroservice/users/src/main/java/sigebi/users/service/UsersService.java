@@ -1,6 +1,7 @@
 package sigebi.users.service;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sigebi.users.dtoRequest.UsersRequest;
@@ -18,7 +19,11 @@ public class UsersService {
 
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
     private RoleService roleService;
+
+    @Autowired
     private EncryptService encryptService;
 
     public UserEntity createUser(@Valid UsersRequest request){
@@ -43,28 +48,28 @@ public class UsersService {
     }
 
     public List<UserResponse> getAllUsers(){
-        return usersRepository.findAll(
+        return usersRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
-        )
+
     }
 
-    public UserEntity getUserById(Long id){
-        Optional<UserEntity> userOptional = usersRepository.findById(id);
-        return userOptional.orElse(null);
+    public UserResponse getUserById(Long id){
+        return usersRepository.findById(id)
+                .map(this::mapToResponse)
+                .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
-    public Optional<UserEntity> getUserByEmail(String email) {
-        return usersRepository.findByEmail(email);
+    public Optional<UserResponse> getUserByEmail(String email) {
+
+        return usersRepository.findByEmail(email).map(this::mapToResponse);
     }
 
     //findAllByStatus pendiente en master class
 
-    //existsByEmail pendiente en master class
-
     //Editar información de usuario
-    public UserEntity updateUser(
+    public UserResponse updateUser(
             Long id,
             UsersRequest updatedUserRequest
     ){
@@ -82,7 +87,8 @@ public class UsersService {
                     existing.setIdCompany(updatedUserRequest.getIdCompany());
                     existing.setActive(updatedUserRequest.getActive());
 
-                    return usersRepository.save(existing);
+                    UserEntity updatedUser = usersRepository.save(existing);
+                    return mapToResponse(updatedUser);
 
 
                 })
@@ -91,16 +97,26 @@ public class UsersService {
 
     //Activar / desactivar usuarios (soft delete)
 
-    public void deactiveUser(Long id){
-        usersRepository.findById(id).ifPresent(user -> {
-            user.setActive(false);
-            usersRepository.save(user);
-        });
+    public UserResponse toggleUserStatus(Long id, boolean active){
+        return usersRepository.findById(id)
+                .map(user -> {
+                    user.setActive(active);
+                    UserEntity updated = usersRepository.save(user);
+                    return mapToResponse(updated);
+        })
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
     }
 
-    public void deleteUser(Long id){
-        usersRepository.deleteById(id);
+    public UserResponse deleteUser(Long id) {
+        return usersRepository.findById(id)
+                .map(user -> {
+                    usersRepository.delete(user); // ✅ elimina con seguridad
+                    return mapToResponse(user);   // Devuelve el usuario eliminado (por auditoría)
+                })
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
     }
+
 
     //Asignar roles o cambiar permisos
 
@@ -116,11 +132,13 @@ public class UsersService {
                 .birthDate(entity.getBirthDate())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
-                .company(entity.getIdCompany())
+                .id(entity.getId())
+                .idCompany(entity.getIdCompany())
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
                 .build();
     }
+
 
 
 }

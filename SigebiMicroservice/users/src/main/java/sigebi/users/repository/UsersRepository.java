@@ -11,5 +11,5 @@ public interface UsersRepository extends JpaRepository<UserEntity, Long> {
 
     List<UserEntity> findAllByActive(Boolean active);
 
-    boolean existsByEmail(String email);
+
 }
