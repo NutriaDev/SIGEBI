@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sigebi.users.constants.ErrorTitles;
-import sigebi.users.dtoRequest.RoleRequest;
+import sigebi.users.dto_request.RoleRequest;
 import sigebi.users.dto_request.UsersRequest;
 import sigebi.users.dto_response.Response;
 import sigebi.users.dto_response.RoleResponse;

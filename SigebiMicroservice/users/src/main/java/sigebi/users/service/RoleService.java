@@ -2,7 +2,6 @@ package sigebi.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sigebi.users.dtoRequest.RoleRequest;
 import sigebi.users.dto_response.RoleResponse;
 import sigebi.users.entities.RoleEntity;
 import sigebi.users.exception.RoleNotFoundException;
