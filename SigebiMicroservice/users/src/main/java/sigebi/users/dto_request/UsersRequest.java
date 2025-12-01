@@ -1,4 +1,4 @@
-package sigebi.users.dtoRequest;
+package sigebi.users.dto_request;
 
 
 import jakarta.validation.constraints.Email;

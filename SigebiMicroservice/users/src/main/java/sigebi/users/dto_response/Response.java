@@ -1,4 +1,4 @@
-package sigebi.users.dtoResponse;
+package sigebi.users.dto_response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;

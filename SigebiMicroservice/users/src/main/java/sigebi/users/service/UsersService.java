@@ -1,13 +1,13 @@
 package sigebi.users.service;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sigebi.users.dtoRequest.UsersRequest;
-import sigebi.users.dtoResponse.UserResponse;
+import sigebi.users.dto_request.UsersRequest;
+import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.RoleEntity;
 import sigebi.users.entities.UserEntity;
+import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class UsersService {
     public UserResponse getUserById(Long id){
         return usersRepository.findById(id)
                 .map(this::mapToResponse)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UserNotFoundException("User not found"));
     }
 
     public Optional<UserResponse> getUserByEmail(String email) {
@@ -92,7 +92,7 @@ public class UsersService {
 
 
                 })
-                .orElseThrow(() -> new RuntimeException("user not found"));
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
     //Activar / desactivar usuarios (soft delete)
@@ -104,7 +104,7 @@ public class UsersService {
                     UserEntity updated = usersRepository.save(user);
                     return mapToResponse(updated);
         })
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
     }
 
@@ -114,7 +114,7 @@ public class UsersService {
                     usersRepository.delete(user); // ✅ elimina con seguridad
                     return mapToResponse(user);   // Devuelve el usuario eliminado (por auditoría)
                 })
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
     }
 
 
