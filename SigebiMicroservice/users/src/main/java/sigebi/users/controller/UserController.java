@@ -91,7 +91,7 @@ public class UserController {
         try {
             var userByEmail = usersService.getUserByEmail(email);
 
-            if(userByEmail == null){
+            if(userByEmail.isEmpty()){
                 return ApiResponse.notFound(ErrorTitles.USER_NOT_FOUND, "No user found with email: " + email);
             }
 
