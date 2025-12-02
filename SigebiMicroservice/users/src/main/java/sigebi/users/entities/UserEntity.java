@@ -34,16 +34,16 @@ public class UserEntity {
     private Date birthDate;
 
     @Column(nullable = false, name ="phone")
-    private Integer phone;
+    private Long phone;
 
     @Column(nullable = false, name ="ID", unique = true)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, name ="email", unique = true)
     private String email;
 
     @Column(nullable = false, name ="company")
-    private String idCompany;
+    private Long idCompany;
 
     @Column(nullable = false, name ="password")
     private String password;

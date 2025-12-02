@@ -37,7 +37,7 @@ public class UsersService {
                 .birthDate(request.getBirthDate())
                 .phone(request.getPhone())
                 .id(request.getId())
-                .email(request.getIdCompany())
+                .email(request.getEmail())
                 .idCompany(request.getIdCompany())
                 .password(hashedPassword)
                 .active(request.getActive())

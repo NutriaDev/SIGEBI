@@ -28,17 +28,17 @@ public class UsersRequest {
 
     @NotNull(message = "Phone number is required")
     @Min(value = 1000000, message = "Phone number must be valid")
-    private Integer phone;
+    private Long phone;
 
     @NotNull(message = "Identification number is required")
-    private Integer id;
+    private Long id;
 
     @Email(message = "Email must be valid")
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Company name is required")
-    private String idCompany;
+    @NotNull(message = "Company name is required")
+    private Long idCompany;
 
     @NotBlank(message = "Password is required")
     private String password;

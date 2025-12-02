@@ -15,10 +15,10 @@ public class UserResponse {
     private String name;
     private String lastname;
     private Date birthDate;
-    private Integer phone;
+    private Long phone;
     private String email;
-    private Integer id;
-    private String idCompany;
+    private Long id;
+    private Long idCompany;
     private Boolean active;
     private String roleName;
 }
