@@ -1,16 +1,23 @@
 spring:
   application:
     name: users
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/users
-    username: ######
-    password: ######
+    username: #######
+    password: #######
+
   jpa:
     hibernate:
-      ddl-auto: create
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+      ddl-auto: update   # create | create-drop | update | validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   config:
     import: optional:configserver:http://localhost:8888
 
