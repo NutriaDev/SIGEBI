@@ -26,7 +26,7 @@ public class UsersService {
     @Autowired
     private EncryptService encryptService;
 
-    public UserEntity createUser(@Valid UsersRequest request){
+    public UserResponse createUser(@Valid UsersRequest request){
         RoleEntity role = roleService.getRoleById(request.getIdRole());
 
         String hashedPassword = encryptService.createdHash(request.getPassword());
@@ -44,7 +44,9 @@ public class UsersService {
                 .role(role)
                 .build();
 
-        return usersRepository.save(user);
+        UserEntity saved = usersRepository.save(user);
+
+        return mapToResponse(saved);
     }
 
     public List<UserResponse> getAllUsers(){
