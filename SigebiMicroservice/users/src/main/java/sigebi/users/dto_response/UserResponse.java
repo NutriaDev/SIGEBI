@@ -15,7 +15,7 @@ public class UserResponse {
     private String name;
     private String lastname;
     private Date birthDate;
-    private Long phone;
+    private String phone;
     private String email;
     private Long id;
     private Long idCompany;

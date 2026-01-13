@@ -28,7 +28,7 @@ public class UsersRequest {
 
     @NotNull(message = "Phone number is required")
     @Min(value = 1000000, message = "Phone number must be valid")
-    private Long phone;
+    private String phone;
 
     @NotNull(message = "Identification number is required")
     private Long id;

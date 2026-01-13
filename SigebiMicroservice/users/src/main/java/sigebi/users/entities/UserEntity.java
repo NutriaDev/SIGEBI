@@ -34,7 +34,7 @@ public class UserEntity {
     private Date birthDate;
 
     @Column(nullable = false, name ="phone")
-    private Long phone;
+    private String phone;
 
     @Column(nullable = false, name ="ID", unique = true)
     private Long id;
