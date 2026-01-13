@@ -38,7 +38,7 @@ public class UsersService {
                 .phone(request.getPhone())
                 .id(request.getId())
                 .email(request.getEmail())
-                .idCompany(request.getIdCompany())
+                .CompanyId(request.getCompanyId())
                 .password(hashedPassword)
                 .active(request.getActive())
                 .role(role)
@@ -86,7 +86,7 @@ public class UsersService {
                         existing.setPassword(encryptService.createdHash(updatedUserRequest.getPassword()));
                     }
 
-                    existing.setIdCompany(updatedUserRequest.getIdCompany());
+                    existing.setCompanyId(updatedUserRequest.getCompanyId());
                     existing.setActive(updatedUserRequest.getActive());
 
                     UserEntity updatedUser = usersRepository.save(existing);
@@ -135,12 +135,9 @@ public class UsersService {
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .id(entity.getId())
-                .idCompany(entity.getIdCompany())
+                .CompanyId(entity.getCompanyId())
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
                 .build();
     }
-
-
-
 }
