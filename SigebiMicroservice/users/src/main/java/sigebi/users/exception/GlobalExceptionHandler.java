@@ -32,6 +32,18 @@ public class GlobalExceptionHandler {
                 .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
     }
 
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<Response> handleEmail(EmailException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Response> handleEmail(BusinessException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -7,11 +7,14 @@ import sigebi.users.dto_request.UsersRequest;
 import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.RoleEntity;
 import sigebi.users.entities.UserEntity;
+import sigebi.users.exception.BusinessException;
+import sigebi.users.exception.EmailException;
 import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,10 +29,49 @@ public class UsersService {
     @Autowired
     private EncryptService encryptService;
 
+    //validators
+
+    private static final Set<String> BLOCKED_EMAIL_DOMAINS = Set.of(
+            "yopmail.com",
+            "guerrillamail.com",
+            "tempmail.com",
+            "mailinator.com"
+    );
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
+    }
+
+    private void validateEmailDomain(String email) {
+        String domain = email.substring(email.indexOf("@") + 1);
+        if (BLOCKED_EMAIL_DOMAINS.contains(domain)) {
+            throw new EmailException("Disposable email domains are not allowed");
+        }
+    }
+
     public UserResponse createUser(@Valid UsersRequest request){
         RoleEntity role = roleService.getRoleById(request.getIdRole());
 
         String hashedPassword = encryptService.createdHash(request.getPassword());
+
+        String email = normalizeEmail(request.getEmail());
+
+        validateEmailDomain(email);
+
+        if (usersRepository.existByEmail(email)) {
+            throw new EmailException("Email already exists");
+        }
+
+        if (!email.contains("@")) {
+            throw new EmailException("Invalid email format");
+        }
+
+        String phone = request.getPhone();
+
+        if (usersRepository.existByPhone(phone)) {
+            throw new BusinessException("Phone number already registered");
+        }
+
 
         UserEntity user = UserEntity.builder()
                 .name(request.getName())
@@ -37,7 +79,7 @@ public class UsersService {
                 .birthDate(request.getBirthDate())
                 .phone(request.getPhone())
                 .id(request.getId())
-                .email(request.getEmail())
+                .email(email)
                 .CompanyId(request.getCompanyId())
                 .password(hashedPassword)
                 .active(request.getActive())
@@ -65,10 +107,26 @@ public class UsersService {
 
     public Optional<UserResponse> getUserByEmail(String email) {
 
-        return usersRepository.findByEmail(email).map(this::mapToResponse);
+        String normalizedEmail = normalizeEmail(email);
+        validateEmailDomain(normalizedEmail);
+
+        return usersRepository
+                .findByEmailIgnoreCase(normalizedEmail)
+                .map(this::mapToResponse);
     }
 
-    //findAllByStatus pendiente en master class
+
+    //controller
+    public List<UserResponse> findUsersByActive(Boolean active){
+        return usersRepository.findAllByActive(active)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
+
 
     //Editar información de usuario
     public UserResponse updateUser(
@@ -96,6 +154,9 @@ public class UsersService {
                 })
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
+
+
+
 
     //Activar / desactivar usuarios (soft delete)
 

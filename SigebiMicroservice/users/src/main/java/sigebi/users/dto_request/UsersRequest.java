@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.UniqueElements;
 
 
 import java.util.Date;
@@ -28,13 +29,15 @@ public class UsersRequest {
 
     @NotNull(message = "Phone number is required")
     @Min(value = 1000000, message = "Phone number must be valid")
+    @UniqueElements
     private String phone;
 
     @NotNull(message = "Identification number is required")
     private Long id;
 
-    @Email(message = "Email must be valid")
+    @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
+    @NotBlank
     private String email;
 
     @NotNull(message = "Company name is required")
