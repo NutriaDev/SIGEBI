@@ -12,6 +12,10 @@ import sigebi.users.exception.EmailException;
 import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,29 +53,51 @@ public class UsersService {
         }
     }
 
-    public UserResponse createUser(@Valid UsersRequest request){
-        RoleEntity role = roleService.getRoleById(request.getIdRole());
+    private void validateMinimumAge(Date birthDate) {
 
-        String hashedPassword = encryptService.createdHash(request.getPassword());
+        if (birthDate == null) {
+            throw new IllegalArgumentException("Birth date is required");
+        }
+
+        LocalDate birthLocalDate = birthDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate today = LocalDate.now();
+
+        if (birthLocalDate.isAfter(today)) {
+            throw new IllegalArgumentException("Birth date cannot be in the future");
+        }
+
+        if (Period.between(birthLocalDate, today).getYears() < 14) {
+            throw new IllegalArgumentException("User must be at least 14 years old");
+        }
+    }
+
+
+    public UserResponse createUser(@Valid UsersRequest request) {
+
+
+        validateMinimumAge(request.getBirthDate());
 
         String email = normalizeEmail(request.getEmail());
-
         validateEmailDomain(email);
 
         if (usersRepository.existByEmail(email)) {
             throw new EmailException("Email already exists");
         }
 
-        if (!email.contains("@")) {
-            throw new EmailException("Invalid email format");
+        if (usersRepository.existByPhone(request.getPhone())) {
+            throw new IllegalArgumentException("Phone number already exists");
         }
 
-        String phone = request.getPhone();
 
-        if (usersRepository.existByPhone(phone)) {
-            throw new BusinessException("Phone number already registered");
-        }
+        if (!usersRepository.existById(request.getCompanyId())){
+            throw new BusinessException("the company is required");
+        };
 
+        RoleEntity role = roleService.getRoleById(request.getIdRole());
+        String hashedPassword = encryptService.createdHash(request.getPassword());
 
         UserEntity user = UserEntity.builder()
                 .name(request.getName())
@@ -86,10 +112,9 @@ public class UsersService {
                 .role(role)
                 .build();
 
-        UserEntity saved = usersRepository.save(user);
-
-        return mapToResponse(saved);
+        return mapToResponse(usersRepository.save(user));
     }
+
 
     public List<UserResponse> getAllUsers(){
         return usersRepository.findAll()

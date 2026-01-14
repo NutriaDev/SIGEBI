@@ -1,13 +1,10 @@
 package sigebi.users.dto_request;
 
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.UniqueElements;
+
 
 
 import java.util.Date;
@@ -27,9 +24,11 @@ public class UsersRequest {
     @NotNull(message = "Birth date is required")
     private Date birthDate;
 
-    @NotNull(message = "Phone number is required")
-    @Min(value = 1000000, message = "Phone number must be valid")
-    @UniqueElements
+    @NotBlank(message = "Phone number is required")
+    @Pattern(
+            regexp = "^\\+?[0-9]{7,15}$",
+            message = "Invalid phone number"
+    )
     private String phone;
 
     @NotNull(message = "Identification number is required")
@@ -37,7 +36,6 @@ public class UsersRequest {
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
-    @NotBlank
     private String email;
 
     @NotNull(message = "Company name is required")
