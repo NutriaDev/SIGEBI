@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop        # 🔒  borra tablas en cada inicio
+      ddl-auto: update  #create-drop         🔒  borra tablas en cada inicio
     show-sql: true
     properties:
       hibernate:
