@@ -18,7 +18,7 @@ public class CompanyEntity {
     @Column(name = "company_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name= "name", nullable = false, unique = true)
     private String nameCompany;
 
     @Column(nullable = false)

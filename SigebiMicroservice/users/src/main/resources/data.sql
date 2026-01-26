@@ -1,11 +1,14 @@
-INSERT INTO role (role_id, name_role, status) VALUES
-(0, 'SUPERADMIN', true),
-(1, 'ADMIN', true),
-(2, 'SUPERVISOR', true),
-(3, 'TECNICO', true);
+INSERT INTO role (name_role, status) VALUES
+('SUPERADMIN', true),
+('ADMIN', true),
+('SUPERVISOR', true),
+('TECNICO', true);
 
-INSERT INTO company (company_id, name, status) VALUES
-(0, 'SIGEBI', true),
-(1, 'DRAGONESDEV', true),
-(2, 'SANITAS', true),
-(3, 'CLINICAX', true);
+
+
+
+INSERT INTO company ( name, status) VALUES
+('SIGEBI', true),
+('DRAGONESDEV', true),
+('SANITAS', true),
+('CLINICAX', true);
