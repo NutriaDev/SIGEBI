@@ -26,12 +26,6 @@ public class CreateUserUnderAgeTest {
     UsersRepository usersRepository;
 
     @Mock
-    RoleService roleService;
-
-    @Mock
-    CompanyService companyService;
-
-    @Mock
     EncryptService encryptService;
 
     @InjectMocks
