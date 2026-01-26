@@ -15,6 +15,9 @@ public class UsersRequest {
     @NotNull(message = "Role is required")
     private Integer idRole;
 
+    @NotNull(message = "Company name is required")
+    private Long companyId;
+
     @NotBlank(message = "First name is required")
     private String name;
 
@@ -37,9 +40,6 @@ public class UsersRequest {
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     private String email;
-
-    @NotNull(message = "Company name is required")
-    private Long companyId;
 
     @NotBlank(message = "Password is required")
     private String password;

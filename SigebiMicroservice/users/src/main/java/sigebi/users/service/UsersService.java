@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sigebi.users.dto_request.UsersRequest;
+import sigebi.users.dto_response.CompanyResponse;
 import sigebi.users.dto_response.UserResponse;
+import sigebi.users.entities.CompanyEntity;
 import sigebi.users.entities.RoleEntity;
 import sigebi.users.entities.UserEntity;
 import sigebi.users.exception.BusinessException;
@@ -29,6 +31,9 @@ public class UsersService {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private CompanyService companyService;
 
     @Autowired
     private EncryptService encryptService;
@@ -91,13 +96,7 @@ public class UsersService {
             throw new IllegalArgumentException("Phone number already exists");
         }
 
-        if (request.getCompanyId() == null) {
-            throw new BusinessException("the company is required");
-        }
-
-
-
-
+        CompanyEntity company = companyService.getCompanyById(request.getCompanyId());
         RoleEntity role = roleService.getRoleById(request.getIdRole());
         String hashedPassword = encryptService.createdHash(request.getPassword());
 
@@ -108,7 +107,7 @@ public class UsersService {
                 .phone(request.getPhone())
                 .id(request.getId())
                 .email(email)
-                .companyId(request.getCompanyId())
+                .companyId(company)
                 .password(hashedPassword)
                 .active(request.getActive())
                 .role(role)
@@ -187,12 +186,10 @@ public class UsersService {
         }
 
         // 4️⃣ Empresa obligatoria
-        if (request.getCompanyId() == null ||
-                usersRepository.findById(request.getCompanyId()).isEmpty()) {
-            throw new BusinessException("the company is required");
+        if (request.getCompanyId() != null){
+            CompanyEntity company = companyService.getCompanyById(request.getCompanyId());
+            existing.setCompanyId(company);
         }
-
-        existing.setCompanyId(request.getCompanyId());
 
         // 5️⃣ Rol
         if (request.getIdRole() != null) {
@@ -255,7 +252,7 @@ public class UsersService {
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .id(entity.getId())
-                .CompanyId(entity.getCompanyId())
+                .CompanyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
                 .build();

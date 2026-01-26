@@ -42,8 +42,9 @@ public class UserEntity {
     @Column(nullable = false, name ="email", unique = true)
     private String email;
 
-    @Column(nullable = false, name ="company")
-    private Long companyId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", nullable = false)
+    private CompanyEntity companyId;
 
     @Column(nullable = false, name ="password")
     private String password;

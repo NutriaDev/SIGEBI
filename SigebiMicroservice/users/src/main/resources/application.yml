@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ${DB_NAME}
+    name: users
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -10,13 +10,16 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create #update    | create-drop | update | validate
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update        # 🔒 NO borra tablas
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true  # ✅ data.sql después del schema
+
+  sql:
+    init:
+      mode: always            # ✅ Ejecuta data.sql SIEMPRE
 
   config:
     import: optional:configserver:http://localhost:8888
@@ -26,5 +29,3 @@ eureka:
     hostname: localhost
   client:
     enabled: false
-    service-url:
-      default-zone: http://localhost:8761/eureka

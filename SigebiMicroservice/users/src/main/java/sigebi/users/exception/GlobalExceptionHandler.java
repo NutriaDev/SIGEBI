@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
                 .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
     }
 
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<Response> handleCompanyNotFound(CompanyNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(ErrorTitles.COMPANY_NOT_FOUND, ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<Response> handleEmail(EmailException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
