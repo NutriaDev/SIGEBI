@@ -259,11 +259,7 @@ public class UsersService {
     }
 
 
-    //Asignar roles o cambiar permisos
 
-    // ========================================
-    // 🔹 Conversor interno (Entity → Response)
-    // ========================================
 
     private UserResponse mapToResponse(UserEntity entity){
         return UserResponse.builder()
