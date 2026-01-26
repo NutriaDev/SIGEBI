@@ -58,26 +58,24 @@ public class UsersService {
         }
     }
 
-    private void validateMinimumAge(Date birthDate) {
+    private static final int MIN_AGE = 18;
 
+    private void validateMinimumAge(Date birthDate) {
         if (birthDate == null) {
             throw new IllegalArgumentException("Birth date is required");
         }
 
-        LocalDate birthLocalDate = birthDate.toInstant()
+        LocalDate birth = birthDate.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
 
-        LocalDate today = LocalDate.now();
+        int age = Period.between(birth, LocalDate.now()).getYears();
 
-        if (birthLocalDate.isAfter(today)) {
-            throw new IllegalArgumentException("Birth date cannot be in the future");
-        }
-
-        if (Period.between(birthLocalDate, today).getYears() < 14) {
-            throw new IllegalArgumentException("User must be at least 14 years old");
+        if (age < MIN_AGE) {
+            throw new IllegalArgumentException("User must be at least " + MIN_AGE + " years old");
         }
     }
+
 
     private void validatePasswordSecurity(String password) {
         if (password.length() < 8) {
