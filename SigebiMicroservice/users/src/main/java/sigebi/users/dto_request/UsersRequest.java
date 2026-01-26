@@ -39,7 +39,7 @@ public class UsersRequest {
     private String email;
 
     @NotNull(message = "Company name is required")
-    private Long CompanyId;
+    private Long companyId;
 
     @NotBlank(message = "Password is required")
     private String password;

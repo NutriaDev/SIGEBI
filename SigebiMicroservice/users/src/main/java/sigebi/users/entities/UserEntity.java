@@ -43,7 +43,7 @@ public class UserEntity {
     private String email;
 
     @Column(nullable = false, name ="company")
-    private Long CompanyId;
+    private Long companyId;
 
     @Column(nullable = false, name ="password")
     private String password;

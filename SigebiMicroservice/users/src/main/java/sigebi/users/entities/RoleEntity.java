@@ -14,16 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "name_role", nullable = false, unique = true) // 👈 CLAVE
     private String nameRole;
 
     @Column(nullable = false)
     private Boolean status;
-
-
 }

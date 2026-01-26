@@ -83,18 +83,20 @@ public class UsersService {
         String email = normalizeEmail(request.getEmail());
         validateEmailDomain(email);
 
-        if (usersRepository.existByEmail(email)) {
+        if (usersRepository.existsByEmail(email)) {
             throw new EmailException("Email already exists");
         }
 
-        if (usersRepository.existByPhone(request.getPhone())) {
+        if (usersRepository.existsByPhone(request.getPhone())) {
             throw new IllegalArgumentException("Phone number already exists");
         }
 
-
-        if (!usersRepository.existById(request.getCompanyId())){
+        if (request.getCompanyId() == null) {
             throw new BusinessException("the company is required");
-        };
+        }
+
+
+
 
         RoleEntity role = roleService.getRoleById(request.getIdRole());
         String hashedPassword = encryptService.createdHash(request.getPassword());
@@ -106,7 +108,7 @@ public class UsersService {
                 .phone(request.getPhone())
                 .id(request.getId())
                 .email(email)
-                .CompanyId(request.getCompanyId())
+                .companyId(request.getCompanyId())
                 .password(hashedPassword)
                 .active(request.getActive())
                 .role(role)
@@ -149,35 +151,67 @@ public class UsersService {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
     //Editar información de usuario
-    public UserResponse updateUser(
-            Long id,
-            UsersRequest updatedUserRequest
-    ){
-        return usersRepository.findById(id)
-                .map(existing -> {
-                    existing.setName(updatedUserRequest.getName());
-                    existing.setLastname(updatedUserRequest.getLastName());
-                    existing.setPhone(updatedUserRequest.getPhone());
-                    existing.setRole(roleService.getRoleById((updatedUserRequest.getIdRole())));
+    public UserResponse updateUser(Long id, @Valid UsersRequest request) {
 
-                    if(updatedUserRequest.getPassword() != null && !updatedUserRequest.getPassword().isBlank()) {
-                        existing.setPassword(encryptService.createdHash(updatedUserRequest.getPassword()));
-                    }
-
-                    existing.setCompanyId(updatedUserRequest.getCompanyId());
-                    existing.setActive(updatedUserRequest.getActive());
-
-                    UserEntity updatedUser = usersRepository.save(existing);
-                    return mapToResponse(updatedUser);
-
-
-                })
+        UserEntity existing = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+        // 1️⃣ Edad mínima (solo si viene informada)
+        if (request.getBirthDate() != null) {
+            validateMinimumAge(request.getBirthDate());
+            existing.setBirthDate(request.getBirthDate());
+        }
+
+        // 2️⃣ Email (normalizar + validar dominio + unicidad)
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            String email = normalizeEmail(request.getEmail());
+            validateEmailDomain(email);
+
+            if (!email.equals(existing.getEmail())
+                    && usersRepository.existsByEmail(email)) {
+                throw new EmailException("Email already exists");
+            }
+
+            existing.setEmail(email);
+        }
+
+        // 3️⃣ Teléfono (validar unicidad)
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            if (!request.getPhone().equals(existing.getPhone())
+                    && usersRepository.existsByPhone(request.getPhone())) {
+                throw new IllegalArgumentException("Phone number already exists");
+            }
+
+            existing.setPhone(request.getPhone());
+        }
+
+        // 4️⃣ Empresa obligatoria
+        if (request.getCompanyId() == null ||
+                usersRepository.findById(request.getCompanyId()).isEmpty()) {
+            throw new BusinessException("the company is required");
+        }
+
+        existing.setCompanyId(request.getCompanyId());
+
+        // 5️⃣ Rol
+        if (request.getIdRole() != null) {
+            RoleEntity role = roleService.getRoleById(request.getIdRole());
+            existing.setRole(role);
+        }
+
+        // 6️⃣ Password (solo si se envía)
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            existing.setPassword(encryptService.createdHash(request.getPassword()));
+        }
+
+        // 7️⃣ Datos básicos
+        existing.setName(request.getName());
+        existing.setLastname(request.getLastName());
+        existing.setActive(request.getActive());
+
+        UserEntity updatedUser = usersRepository.save(existing);
+        return mapToResponse(updatedUser);
     }
 
 

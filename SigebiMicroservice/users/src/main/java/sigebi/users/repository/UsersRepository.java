@@ -14,10 +14,10 @@ public interface UsersRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmailIgnoreCase(String email);
 
-    boolean existByEmail(String email);
+    boolean existsByEmail(String email);
 
-    boolean existByPhone(String phone);
+    boolean existsByPhone(String phone);
 
-    boolean existById(Long CompanyId);
+
 
 }
