@@ -21,4 +21,6 @@ public class UserResponse {
     private Long CompanyId;
     private Boolean active;
     private String roleName;
+    private Date createdAt;
+    private Date updatedAt;
 }

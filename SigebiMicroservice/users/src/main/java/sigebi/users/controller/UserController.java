@@ -7,7 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sigebi.users.constants.ErrorTitles;
 import sigebi.users.dto_request.RoleRequest;
-import sigebi.users.dto_request.UsersRequest;
+import sigebi.users.dto_request.CreateUsersRequest;
+import sigebi.users.dto_request.UpdateUserRequest;
 import sigebi.users.dto_response.Response;
 import sigebi.users.dto_response.RoleResponse;
 import sigebi.users.dto_response.UserResponse;
@@ -29,10 +30,10 @@ public class UserController {
 
     @PostMapping("api/users-create")
     public ResponseEntity<Response> userCreate(
-            @Valid @RequestBody UsersRequest usersRequest
+            @Valid @RequestBody CreateUsersRequest createUsersRequest
     ){
         try{
-            var user = usersService.createUser(usersRequest);
+            var user = usersService.createUser(createUsersRequest);
 
             return ApiResponse.success("User Created", "User registered correctly", user);
 
@@ -152,11 +153,11 @@ public class UserController {
 
     @PatchMapping("api/edit-user/{id}")
     public ResponseEntity<Response> updateUser(
-            @Valid @RequestBody UsersRequest usersRequest,
+            @Valid @RequestBody UpdateUserRequest updateUserRequest,
             @PathVariable Long id
     ){
         try {
-            var updatedUser = usersService.updateUser(id, usersRequest);
+            var updatedUser = usersService.updateUser(id, updateUserRequest);
 
             return ApiResponse.success("User updated", "user updated correctly", updatedUser);
 

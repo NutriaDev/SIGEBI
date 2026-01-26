@@ -3,8 +3,8 @@ package sigebi.users.service;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sigebi.users.dto_request.UsersRequest;
-import sigebi.users.dto_response.CompanyResponse;
+import sigebi.users.dto_request.CreateUsersRequest;
+import sigebi.users.dto_request.UpdateUserRequest;
 import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.CompanyEntity;
 import sigebi.users.entities.RoleEntity;
@@ -79,9 +79,21 @@ public class UsersService {
         }
     }
 
+    private void validatePasswordSecurity(String password) {
+        if (password.length() < 8) {
+            throw new BusinessException("Password must be at least 8 characters");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            throw new BusinessException("Password must contain at least one uppercase letter");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            throw new BusinessException("Password must contain at least one number");
+        }
+    }
 
-    public UserResponse createUser(@Valid UsersRequest request) {
 
+
+    public UserResponse createUser(@Valid CreateUsersRequest request) {
 
         validateMinimumAge(request.getBirthDate());
 
@@ -100,21 +112,22 @@ public class UsersService {
         RoleEntity role = roleService.getRoleById(request.getIdRole());
         String hashedPassword = encryptService.createdHash(request.getPassword());
 
-        UserEntity user = UserEntity.builder()
-                .name(request.getName())
-                .lastname(request.getLastName())
-                .birthDate(request.getBirthDate())
-                .phone(request.getPhone())
-                .id(request.getId())
-                .email(email)
-                .companyId(company)
-                .password(hashedPassword)
-                .active(request.getActive())
-                .role(role)
-                .build();
+        UserEntity user = new UserEntity();
+        user.setName(request.getName());
+        user.setLastname(request.getLastName());
+        user.setBirthDate(request.getBirthDate());
+        user.setPhone(request.getPhone());
+        user.setId(request.getId());
+        user.setEmail(email);
+        user.setCompanyId(company);
+        user.setPasswordHash(hashedPassword);
+        user.setActive(request.getActive());
+        user.setRole(role);
 
-        return mapToResponse(usersRepository.save(user));
+        UserEntity savedUser = usersRepository.save(user);
+        return mapToResponse(savedUser);
     }
+
 
 
     public List<UserResponse> getAllUsers(){
@@ -151,18 +164,18 @@ public class UsersService {
     }
 
     //Editar información de usuario
-    public UserResponse updateUser(Long id, @Valid UsersRequest request) {
+    public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
 
         UserEntity existing = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        // 1️⃣ Edad mínima (solo si viene informada)
+        /* 1️⃣ Fecha de nacimiento (editable si sigue siendo mayor de edad) */
         if (request.getBirthDate() != null) {
             validateMinimumAge(request.getBirthDate());
             existing.setBirthDate(request.getBirthDate());
         }
 
-        // 2️⃣ Email (normalizar + validar dominio + unicidad)
+        /* 2️⃣ Email (editable + normalización + dominio + unicidad) */
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
             String email = normalizeEmail(request.getEmail());
             validateEmailDomain(email);
@@ -175,37 +188,48 @@ public class UsersService {
             existing.setEmail(email);
         }
 
-        // 3️⃣ Teléfono (validar unicidad)
+        /* 3️⃣ Teléfono (editable + unicidad) */
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
             if (!request.getPhone().equals(existing.getPhone())
                     && usersRepository.existsByPhone(request.getPhone())) {
-                throw new IllegalArgumentException("Phone number already exists");
+                throw new BusinessException("Phone number already exists");
             }
 
             existing.setPhone(request.getPhone());
         }
 
-        // 4️⃣ Empresa obligatoria
-        if (request.getCompanyId() != null){
-            CompanyEntity company = companyService.getCompanyById(request.getCompanyId());
-            existing.setCompanyId(company);
+        /* 4️⃣ Empresa ❌ NO editable */
+        if (request.getCompanyId() != null &&
+                !request.getCompanyId().equals(existing.getCompanyId().getId())) {
+            throw new BusinessException("Company cannot be changed. User must be deactivated instead.");
         }
 
-        // 5️⃣ Rol
+        /* 5️⃣ Rol (editable) */
         if (request.getIdRole() != null) {
             RoleEntity role = roleService.getRoleById(request.getIdRole());
             existing.setRole(role);
         }
 
-        // 6️⃣ Password (solo si se envía)
+        /* 6️⃣ Password (editable + validación de seguridad) */
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            existing.setPassword(encryptService.createdHash(request.getPassword()));
+            validatePasswordSecurity(request.getPassword());
+            existing.setPasswordHash(
+                    encryptService.createdHash(request.getPassword())
+            );
         }
 
-        // 7️⃣ Datos básicos
-        existing.setName(request.getName());
-        existing.setLastname(request.getLastName());
-        existing.setActive(request.getActive());
+        /* 7️⃣ Datos básicos */
+        if (request.getName() != null) {
+            existing.setName(request.getName());
+        }
+
+        if (request.getLastName() != null) {
+            existing.setLastname(request.getLastName());
+        }
+
+        if (request.getActive() != null) {
+            existing.setActive(request.getActive());
+        }
 
         UserEntity updatedUser = usersRepository.save(existing);
         return mapToResponse(updatedUser);
@@ -255,6 +279,8 @@ public class UsersService {
                 .CompanyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 }

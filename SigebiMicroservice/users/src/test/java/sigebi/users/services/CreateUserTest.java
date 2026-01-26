@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sigebi.users.dto_request.UsersRequest;
+import sigebi.users.dto_request.CreateUsersRequest;
 import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.CompanyEntity;
 import sigebi.users.entities.RoleEntity;
@@ -18,7 +18,6 @@ import sigebi.users.service.CompanyService;
 import sigebi.users.service.EncryptService;
 import sigebi.users.service.RoleService;
 import sigebi.users.service.UsersService;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -31,7 +30,6 @@ public class CreateUserTest {
 
     @Mock
     UsersRepository usersRepository;
-
     @Mock
     RoleService roleService;
 
@@ -43,11 +41,12 @@ public class CreateUserTest {
 
     @InjectMocks
     UsersService usersService;
-
     @Test
-   void createUser(){
-        UsersRequest request = new UsersRequest();
+    void createUser(){
+        CreateUsersRequest request = new CreateUsersRequest();
         request.setIdRole(3);
+        request.setName("Raul");
+        request.setLastName("Olivares");
         request.setName("Luis");
         request.setLastName("Hurtado");
         request.setBirthDate(Date.from(
@@ -56,6 +55,9 @@ public class CreateUserTest {
                         .toInstant()
         ));
         request.setPhone("3332769321");
+        request.setId(52080881L);
+        request.setEmail("diana@gmail.com");
+        request.setPassword("1233444");
         request.setId(521552321L);
         request.setEmail("luishurtado@gmail.com");
         request.setCompanyId(3L);
@@ -86,7 +88,14 @@ public class CreateUserTest {
         when(companyService.getCompanyById(3L)).thenReturn(company);
         when(roleService.getRoleById(3)).thenReturn(role);
         when(encryptService.createdHash("47585Lu*.")).thenReturn("HASHED_PASSWORD");
-        when(usersRepository.save(any(UserEntity.class))).thenReturn(savedUser);
+        when(usersRepository.save(any(UserEntity.class)))
+                .thenAnswer(invocation -> {
+                    UserEntity u = invocation.getArgument(0);
+                    u.setIdUsers(5L);
+                    u.setCreatedAt(new Date()); // ⬅️ SIMULA @CreationTimestamp
+                    return u;
+                });
+
 
         // ========= WHEN =========
         UserResponse response = usersService.createUser(request);
@@ -98,12 +107,14 @@ public class CreateUserTest {
         assertEquals("SUPERVISOR", response.getRoleName());
         assertEquals(3L, response.getCompanyId());
         assertTrue(response.getActive());
+        assertNotNull(response.getCreatedAt());
+        assertNull(response.getUpdatedAt());
 
         verify(usersRepository).save(any(UserEntity.class));
         verify(encryptService).createdHash("47585Lu*.");
         verify(roleService).getRoleById(3);
         verify(companyService).getCompanyById(3L);
 
-   }
+    }
 
 }

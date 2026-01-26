@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-
+import java.nio.file.FileStore;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class UsersRequest {
+public class CreateUsersRequest {
     @NotNull(message = "Role is required")
     private Integer idRole;
 
