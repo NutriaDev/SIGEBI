@@ -29,6 +29,9 @@ principales del sistema.
 
 <!-- Aquí va la imagen del diagrama UML -->
 
+<img width="1224" height="573" alt="image" src="https://github.com/user-attachments/assets/87495e0b-cb56-4db1-bb56-74a3cff778b7" />
+
+
 </details>
 
 ---
