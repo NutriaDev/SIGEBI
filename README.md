@@ -1,2 +1,3 @@
-# SIGEBI
-Proyecto educativo del SENA, interfaz biomédica
+<div align="center">
+    
+</div>
