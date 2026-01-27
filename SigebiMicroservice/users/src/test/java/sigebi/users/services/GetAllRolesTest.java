@@ -15,7 +15,7 @@ import sigebi.users.service.RoleService;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-public class GetAllRoles {
+public class GetAllRolesTest {
 
     @InjectMocks
     RoleService roleService;
