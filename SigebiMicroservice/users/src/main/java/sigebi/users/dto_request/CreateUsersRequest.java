@@ -1,21 +1,22 @@
-package sigebi.users.dtoRequest;
+package sigebi.users.dto_request;
 
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.nio.file.FileStore;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class UsersRequest {
+public class CreateUsersRequest {
     @NotNull(message = "Role is required")
     private Integer idRole;
+
+    @NotNull(message = "Company name is required")
+    private Long companyId;
 
     @NotBlank(message = "First name is required")
     private String name;
@@ -26,19 +27,19 @@ public class UsersRequest {
     @NotNull(message = "Birth date is required")
     private Date birthDate;
 
-    @NotNull(message = "Phone number is required")
-    @Min(value = 1000000, message = "Phone number must be valid")
-    private Integer phone;
+    @NotBlank(message = "Phone number is required")
+    @Pattern(
+            regexp = "^\\+?[0-9]{7,15}$",
+            message = "Invalid phone number"
+    )
+    private String phone;
 
     @NotNull(message = "Identification number is required")
-    private Integer id;
+    private Long id;
 
-    @Email(message = "Email must be valid")
+    @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     private String email;
-
-    @NotBlank(message = "Company name is required")
-    private String idCompany;
 
     @NotBlank(message = "Password is required")
     private String password;
