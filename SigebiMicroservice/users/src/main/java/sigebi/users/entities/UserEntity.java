@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -34,34 +34,33 @@ public class UserEntity {
     private Date birthDate;
 
     @Column(nullable = false, name ="phone")
-    private Integer phone;
+    private String phone;
 
     @Column(nullable = false, name ="ID", unique = true)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, name ="email", unique = true)
     private String email;
 
-    @Column(nullable = false, name ="company")
-    private String idCompany;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", nullable = false)
+    private CompanyEntity companyId;
 
-    @Column(nullable = false, name ="password")
-    private String password;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
     @Column(nullable = false)
     private Boolean active = true;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
     private Date createdAt;
 
     @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updatedAt;
 

@@ -2,7 +2,7 @@ package sigebi.users.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import sigebi.users.dtoResponse.Response;
+import sigebi.users.dto_response.Response;
 
 public class ApiResponse {
     private ApiResponse() {} // 🔒 Evita instanciación

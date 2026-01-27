@@ -1,4 +1,4 @@
-package sigebi.users.dtoResponse;
+package sigebi.users.dto_response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResponse {
+public class CompanyResponse {
     private Long id;
-    private String nameRole;
+    private String nameCompany;
     private Boolean status;
 }

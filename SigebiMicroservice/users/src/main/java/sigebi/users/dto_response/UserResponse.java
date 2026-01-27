@@ -1,4 +1,4 @@
-package sigebi.users.dtoResponse;
+package sigebi.users.dto_response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +15,12 @@ public class UserResponse {
     private String name;
     private String lastname;
     private Date birthDate;
-    private Integer phone;
+    private String phone;
     private String email;
-    private Integer id;
-    private String idCompany;
+    private Long id;
+    private Long CompanyId;
     private Boolean active;
     private String roleName;
+    private Date createdAt;
+    private Date updatedAt;
 }

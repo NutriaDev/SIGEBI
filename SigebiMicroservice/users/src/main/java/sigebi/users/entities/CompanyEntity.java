@@ -1,7 +1,6 @@
 package sigebi.users.entities;
 
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,20 +8,19 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @Entity
-@Table(name = "role")
+@Table(name = "company")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleEntity {
-
+public class CompanyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "role_id")
+    @Column(name = "company_id")
     private Long id;
 
-    @Column(name = "name_role", nullable = false, unique = true) // 👈 CLAVE
-    private String nameRole;
+    @Column(name= "name", nullable = false, unique = true)
+    private String nameCompany;
 
     @Column(nullable = false)
-    private Boolean status;
+    private Boolean status = true;
 }
