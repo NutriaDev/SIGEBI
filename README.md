@@ -270,10 +270,10 @@ Cliente
 <h3>⚙️ Validaciones y decisiones técnicas</h3>
 
 <ul align="left">
-  <li>✔ Validación de unicidad de<strong>correo electrónico</strong></li>
-  <li>✔ Validación de unicidad de<strong>número telefónico</strong></li>
-  <li>✔ Validación de existencia de<strong>IdRol</strong></li>
-  <li>✔ Validación de existencia de<strong>IdEntidad</strong></li>
+  <li>✔ Validación de unicidad de <strong>correo electrónico</strong></li>
+  <li>✔ Validación de unicidad de <strong>número telefónico</strong></li>
+  <li>✔ Validación de existencia de <strong>IdRol</strong></li>
+  <li>✔ Validación de existencia de <strong>IdEntidad</strong></li>
   <li>✔ Validación de fecha de nacimiento (no fechas futuras)</li>
   <li>✔ Validación de edad mínima permitida</li>
   <li>✔ Normalización de correo electrónico (trim, lowercase)</li>
@@ -286,7 +286,6 @@ Cliente
 
 <ul align="left">
   <li>Pruebas unitarias</li>
-  <li>Pruebas de integración</li>
   <li>Pipeline CI obligatorio para merge</li>
 </ul>
 
