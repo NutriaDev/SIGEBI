@@ -71,6 +71,89 @@ de infraestructura en los distintos entornos.
   <li>IntelliJ IDEA (recomendado)</li>
 </ul>
 
+## 🛠️ Crear un nuevo Microservicio en SIGEBI  
+### Guía para desarrolladores
+
+---
+
+### 📥 Clonar el repositorio principal y acceder al proyecto
+
+```bash
+git clone [URL_DEL_REPO]
+cd SigebiMicroservice
+```
+
+### ⚙️ Ejecutar el build general del proyecto
+
+```bash
+mvn clean install
+```
+<p>✅ En consola debe aparecer algo similar a:</p>
+
+```bash
+[INFO] Building config 0.0.1-SNAPSHOT
+[INFO] Building eureka 0.0.1-SNAPSHOT
+[INFO] Building gateway 0.0.1-SNAPSHOT
+[INFO] Building users 0.0.1-SNAPSHOT
+[INFO] Building equipment 0.0.1-SNAPSHOT
+[INFO] BUILD SUCCESS
+```
+### ❌ Si alguno de los módulos falla, revisar los logs ubicados en:
+
+```bash
+SigebiMicroservice/<modulo>/target/surefire-reports/
+```
+<p>y solucionar el inconveniente antes de continuar (puedes apoyarte en IA).</p>
+
+
+### 🌱 Crear una nueva rama desde develop
+
+```bash
+git checkout develop
+git pull origin develop
+git flow feature start new-branch
+
+```
+<p>NOTA: Es importante tener git flow iniciado</p>
+
+
+### 🧩 Crear un nuevo Microservicio
+
+
+<strong>1.</strong> Ingresa a 👉 https://start.spring.io/
+<strong>2.</strong> Configura el proyecto con los siguientes valores:
+
+  ```bash
+Project:        Maven
+Language:       Java
+Spring Boot:    4.0.2
+Java:           21
+Packaging:      Jar
+Configuration:  YAML
+Group:          sigebi
+Artifact / Name: equipment (o el MS correspondiente)
+Description:    descripcion del microservicio
+ ```
+<strong>3.</strong> 📦 Dependencias obligatorias del microservicio
+
+<ul align="left">
+  <li>Spring Web</li>
+  <li>Spring Data JPA</li>
+  <li>Spring Boot Actuator</li>
+  <li>Eureka Discovery Client</li>
+  <li>PostgreSQL Driver</li>
+  <li>Validation (Jakarta Validation)</li>
+  <li>Spring Boot Starter Test</li>
+</ul>
+
+<strong>4.</strong> Descarga el proyecto y ubícalo dentro del directorio:
+```bash
+SigebiMicroservice/
+```
+
+
+---
+
 </details>
 
 ---
