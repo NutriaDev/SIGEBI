@@ -3,6 +3,15 @@
 <h1>SIGEBI</h1>
 <h3>Sistema de Interfaz de Gestión de Equipos Biomédicos</h3>
 
+<p>
+SIGEBI es un sistema orientado a la <strong>gestión, control y auditoría de equipos biomédicos,</strong> diseñado para instituciones de salud.
+Permite llevar trazabilidad completa sobre usuarios, equipos, inventarios, mantenimientos, reportes y auditorías, cumpliendo buenas prácticas de seguridad, integridad de datos y escalabilidad.
+
+<br>
+
+El sistema está pensado como una solución empresarial, con control de accesos por roles y registro detallado de eventos para soportar procesos de auditoría y normativas de seguridad.
+</p>
+
 </div>
 
 ---
