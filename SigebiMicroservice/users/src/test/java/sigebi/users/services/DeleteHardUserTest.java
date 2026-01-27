@@ -7,9 +7,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.UserEntity;
 import sigebi.users.repository.UsersRepository;
-import sigebi.users.service.CompanyService;
-import sigebi.users.service.EncryptService;
-import sigebi.users.service.RoleService;
 import sigebi.users.service.UsersService;
 
 import java.util.Optional;
@@ -22,14 +19,6 @@ public class DeleteHardUserTest {
 
     @Mock
     UsersRepository usersRepository;
-    @Mock
-    RoleService roleService;
-
-    @Mock
-    CompanyService companyService;
-
-    @Mock
-    EncryptService encryptService;
 
     @InjectMocks
     UsersService usersService;
