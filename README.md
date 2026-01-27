@@ -270,14 +270,14 @@ Cliente
 <h3>⚙️ Validaciones y decisiones técnicas</h3>
 
 <ul align="left">
-  <li>✔ Emisión de <strong>Access Token</strong> y <strong>Refresh Token</strong></li>
-  <li>✔ Rotación segura de Refresh Tokens</li>
-  <li>✔ Revocación individual de sesión (logout)</li>
-  <li>✔ Prevención de <em>refresh token replay attacks</em></li>
-  <li>✔ Cookies <code>httpOnly</code> con <code>SameSite=Strict</code></li>
-  <li>✔ Hash de Refresh Tokens con <strong>Argon2</strong></li>
-  <li>✔ Uso de identificadores únicos (<code>tid</code>)</li>
-  <li>✔ JWT <strong>stateless</strong> y payload mínimo</li>
+  <li>✔ Validación de unicidad de<strong>correo electrónico</strong></li>
+  <li>✔ Validación de unicidad de<strong>número telefónico</strong></li>
+  <li>✔ Validación de existencia de<strong>IdRol</strong></li>
+  <li>✔ Validación de existencia de<strong>IdEntidad</strong></li>
+  <li>✔ Validación de fecha de nacimiento (no fechas futuras)</li>
+  <li>✔ Validación de edad mínima permitida</li>
+  <li>✔ Normalización de correo electrónico (trim, lowercase)</li>
+  <li>✔ Prevención de registros con campos vacíos o inválidos</li>  
 </ul>
 
 ---
