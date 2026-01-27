@@ -192,14 +192,35 @@ Este microservicio es responsable de la gestión de usuarios del sistema, incluy
 <p>
 <strong>⚠️ Este microservicio NO maneja autenticación ni emisión de tokens.</strong>
 </p>
+
 ---
 
-<h3>🎯 Flujo General</h3>
 
-<p>
-El flujo principal cubre la creación, autenticación, habilitación/deshabilitación
-y auditoría de usuarios.
-</p>
+<h3>🔄 Flujo General</h3>
+<h2><strong>(Viaje de los datos dentro del sistema)</strong></h2>
+
+<p>Este microservicio sigue una <strong>arquitectura en capas</strong>, donde los datos viajan de forma controlada desde la entrada (HTTP) hasta la base de datos y de regreso al cliente.</p>
+
+```bash
+Cliente
+  ↓
+Controller
+  ↓
+DTO Request
+  ↓
+Service (reglas de negocio)
+  ↓
+Util / Constants
+  ↓
+Repository
+  ↓
+Entity
+  ↓
+DTO Response
+  ↓
+Cliente
+
+```
 
 ---
 
