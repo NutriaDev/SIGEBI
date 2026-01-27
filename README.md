@@ -232,12 +232,36 @@ Cliente
     <th>Descripción</th>
   </tr>
   <tr>
-    <td><strong>POST /users</strong></td>
+    <td><strong>POST **Ruta:** `/users-create`</strong></td>
     <td>Creación de un nuevo usuario</td>
   </tr>
   <tr>
-    <td><strong>GET /users/{id}</strong></td>
-    <td>Obtiene la información de un usuario</td>
+    <td><strong>PATCH **Ruta:** `/edit-user/{id}`</strong></td>
+    <td>Edita la informacion de un usuario guardando el campo cambiado sin cambiar todo el objeto</td>
+  </tr>
+  <tr>
+    <td><strong>GET **Ruta:** `/get-all-users`</strong></td>
+    <td>Obtiene todos los usuarios</td>
+  </tr>
+  <tr>
+    <td><strong>GET **Ruta:** `/get-user-by-id/{id}`</strong></td>
+    <td>Obtiene un usuario por su id</td>
+  </tr>
+  <tr>
+    <td><strong>GET **Ruta:** `/get-user-by-email/sigebi@sigebi.com`</strong></td>
+    <td>Obtiene la información de un usuario por su email</td>
+  </tr>
+  <tr>
+    <td><strong>PATCH **Ruta:** `/deactive-user/{id}`</strong></td>
+    <td>Desactiva un usuario - soft delete</td>
+  </tr>
+  <tr>
+    <td><strong>PATCH **Ruta:** `/activate-user/{id}`</strong></td>
+    <td>Activa un usuario que estaba desactivado</td>
+  </tr>
+  <tr>
+    <td><strong>DELETE **Ruta:** `/deletehard-user/{id}`</strong></td>
+    <td>Elimina un usuario definitivamente - hard delete</td>
   </tr>
 </table>
 
