@@ -38,6 +38,8 @@ principales del sistema.
 
 <!-- Aquí va la imagen del diagrama UML -->
 
+
+
 </details>
 
 ---
@@ -51,6 +53,8 @@ de infraestructura en los distintos entornos.
 </p>
 
 <!-- Aquí va la imagen del diagrama de despliegue -->
+
+<img width="726" height="1045" alt="image" src="https://github.com/user-attachments/assets/35e72529-8eef-4fba-8f1f-40e73586c4b9" />
 
 </details>
 
