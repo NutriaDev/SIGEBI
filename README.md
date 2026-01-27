@@ -151,9 +151,6 @@ Description:    descripcion del microservicio
 SigebiMicroservice/
 ```
 
-
----
-
 </details>
 
 ---
@@ -180,10 +177,21 @@ SigebiMicroservice/
 <h3>📖 Descripción</h3>
 
 <p>
-Este microservicio es responsable de la gestión de usuarios del sistema,
-incluyendo roles, permisos, autenticación y control de acceso.
+Este microservicio es responsable de la gestión de usuarios del sistema, incluyendo:
 </p>
 
+<ul align="left">
+  <li>Creación, actualización y desactivación de usuarios</li>
+  <li>Asignación de roles definidos por el sistema</li>
+  <li>Validación de datos críticos antes de su persistencia</li>
+  <li>Control del ciclo de vida del usuario</li>  
+</ul>
+
+<br>
+
+<p>
+<strong>⚠️ Este microservicio NO maneja autenticación ni emisión de tokens.</strong>
+</p>
 ---
 
 <h3>🎯 Flujo General</h3>
