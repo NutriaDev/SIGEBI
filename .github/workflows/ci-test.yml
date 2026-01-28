@@ -47,4 +47,4 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: mvn -f SigebiMicroservice/pom.xml -pl users -am test
+        run: mvn -f SigebiMicroservice/pom.xml -pl ${{ matrix.service }} -am test
