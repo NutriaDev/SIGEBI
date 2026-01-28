@@ -286,6 +286,7 @@ Cliente
 
 <ul align="left">
   <li>Pruebas unitarias</li>
+  <img width="1042" height="283" alt="image" src="https://github.com/user-attachments/assets/9648fd46-9237-427b-ad89-b2993c60315b" />
   <li>Pipeline CI obligatorio para merge</li>
 </ul>
 
