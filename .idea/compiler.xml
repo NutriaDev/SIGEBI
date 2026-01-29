@@ -9,7 +9,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="config" />
         <module name="eureka" />
-        <module name="users" />
+      </profile>
+      <profile name="Annotation profile for report-ms" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="report-ms" />
       </profile>
       <profile name="Annotation profile for SigebiMicroservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -17,9 +25,17 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
         <module name="gateway" />
+      </profile>
+      <profile name="Annotation profile for users" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="users" />
       </profile>
     </annotationProcessing>
   </component>
@@ -28,6 +44,7 @@
       <module name="config" options="-parameters" />
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="report-ms" options="-parameters" />
       <module name="users" options="-parameters" />
     </option>
   </component>
