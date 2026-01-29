@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-public class RevokedToken {
+public class RevokedTokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
