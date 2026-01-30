@@ -8,7 +8,6 @@ import java.util.UUID;
 @Entity
 public class HabeasConsentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UUID")
     private UUID id;
 

@@ -12,14 +12,15 @@ import lombok.*;
 
 @Entity
 @Table(name = "sessions")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SessionEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)

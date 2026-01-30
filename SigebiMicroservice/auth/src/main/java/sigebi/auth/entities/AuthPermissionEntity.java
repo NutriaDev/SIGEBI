@@ -17,7 +17,6 @@ import java.util.UUID;
 public class AuthPermissionEntity {
 
     @Id
-    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

@@ -21,7 +21,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RolePermissionEntity {
     @Id
-    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

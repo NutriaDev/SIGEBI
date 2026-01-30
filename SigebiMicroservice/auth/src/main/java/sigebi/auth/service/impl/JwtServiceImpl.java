@@ -1,11 +1,13 @@
 package sigebi.auth.service.impl;
 
+import org.springframework.stereotype.Service;
 import sigebi.auth.service.JwtService;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+@Service
 public class JwtServiceImpl implements JwtService {
 
     private static final long EXPIRATION_MINUTES = 30;

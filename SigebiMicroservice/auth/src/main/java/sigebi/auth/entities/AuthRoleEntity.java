@@ -16,7 +16,6 @@ import java.util.UUID;
 public class AuthRoleEntity {
 
     @Id
-    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

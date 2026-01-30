@@ -17,6 +17,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public SessionEntity create(Long userId) {
         SessionEntity session = SessionEntity.builder()
+                .id(UUID.randomUUID())
                 .userId(userId)
                 .loginAt(Instant.now())
                 .active(true)

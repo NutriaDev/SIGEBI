@@ -9,7 +9,6 @@ import java.util.UUID;
 public class RevokedTokenEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UUID")
     private UUID id;
 

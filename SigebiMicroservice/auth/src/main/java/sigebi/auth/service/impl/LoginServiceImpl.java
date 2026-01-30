@@ -5,11 +5,12 @@ import org.springframework.stereotype.Service;
 import sigebi.auth.DTO.response.LoginResponse;
 import sigebi.auth.entities.SessionEntity;
 import sigebi.auth.service.JwtService;
+import sigebi.auth.service.LoginService;
 import sigebi.auth.service.SessionService;
 
 @Service
 @RequiredArgsConstructor
-public class LoginServiceImpl {
+public class LoginServiceImpl implements LoginService {
     private final SessionService sessionService;
     private final JwtService jwtService;
 
