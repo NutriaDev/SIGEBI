@@ -29,4 +29,6 @@ public class SessionServiceImpl implements SessionService {
     public void close(UUID sessionId) {
         // implementación dummy por ahora (FASE 1)
     }
-}
+
+    }
+
