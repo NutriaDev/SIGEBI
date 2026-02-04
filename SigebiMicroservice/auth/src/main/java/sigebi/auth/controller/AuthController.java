@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import sigebi.auth.DTO.request.LoginRequest;
 import sigebi.auth.DTO.response.LoginResponse;
 import sigebi.auth.DTO.response.Response;
@@ -46,6 +44,16 @@ public class AuthController {
                     e.getMessage()
             );
         }
+    }
+
+    @GetMapping("/secure-test")
+    public ResponseEntity<String> secureTest() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        return ResponseEntity.ok(
+                "UserId=" + auth.getPrincipal()
+                        + " | Roles=" + auth.getAuthorities()
+        );
     }
 
 }

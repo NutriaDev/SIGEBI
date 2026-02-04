@@ -1,8 +1,6 @@
 spring:
   application:
     name: auth
-  security:
-    enabled: false
 
   datasource:
     driver-class-name: org.postgresql.Driver
