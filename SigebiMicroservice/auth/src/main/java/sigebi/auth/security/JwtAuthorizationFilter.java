@@ -14,6 +14,7 @@ import sigebi.auth.service.JwtService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +26,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getRequestURI().startsWith("/auth/login");
     }
-
 
     @Override
     protected void doFilterInternal(
@@ -50,9 +50,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         Long userId = jwtService.getUserId(token);
         List<String> roles = jwtService.getRoles(token);
+        List<String> permissions = jwtService.getPermissions(token);
 
-        var authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
+        var authorities = Stream.concat(
+                        roles.stream(),
+                        permissions.stream()
+                ).map(SimpleGrantedAuthority::new)
                 .toList();
 
         var auth = new UsernamePasswordAuthenticationToken(
@@ -64,7 +67,5 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
     }
-
-
-
 }
+

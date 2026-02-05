@@ -26,10 +26,8 @@ public class AuthController {
             @Valid @RequestBody LoginRequest loginRequest
     ) {
         try {
-            // 🔴 FASE 2: userId dummy
-            Long userId = 1L;
 
-            LoginResponse loginResponse = loginService.login(userId);
+            LoginResponse loginResponse = loginService.login(loginRequest);
 
             return ApiResponse.success(
                     "user login",
@@ -48,7 +46,9 @@ public class AuthController {
 
     @GetMapping("/secure-test")
     public ResponseEntity<String> secureTest() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
 
         return ResponseEntity.ok(
                 "UserId=" + auth.getPrincipal()

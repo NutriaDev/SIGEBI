@@ -18,16 +18,29 @@ public class JwtServiceImpl implements JwtService {
     private static final long EXPIRATION_MS = 1000 * 60 * 15;
 
     @Override
-    public String generate(Long userId, UUID sessionId) {
+    public String generate(
+            Long userId,
+            UUID sessionId,
+            List<String> roles,
+            List<String> permissions
+    ) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("sessionId", sessionId.toString())
-                .claim("roles", List.of("ADMIN")) // dummy por ahora
+                .claim("roles", roles)
+                .claim("permissions", permissions)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
                 .compact();
     }
+
+    @Override
+    public List<String> getPermissions(String token) {
+        return parse(token).get("permissions", List.class);
+    }
+
+
 
     @Override
     public Instant getExpiration() {

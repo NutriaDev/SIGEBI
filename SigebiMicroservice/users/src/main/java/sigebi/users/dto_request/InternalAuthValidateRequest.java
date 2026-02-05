@@ -1,11 +1,9 @@
-package sigebi.auth.DTO.request;
-
+package sigebi.users.dto_request;
 
 import lombok.Data;
 
-
 @Data
-public class LoginRequest {
+public class InternalAuthValidateRequest {
     private String email;
     private String password;
 }
