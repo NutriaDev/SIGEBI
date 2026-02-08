@@ -31,7 +31,6 @@ public class InternalAuthService {
         return UserAuthDataResponse.builder()
                 .userId(user.getIdUsers())
                 .roles(List.of(user.getRole().getNameRole()))
-                // permissions luego (FASE 4.2)
                 .build();
 
     }

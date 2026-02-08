@@ -10,5 +10,5 @@ import java.util.List;
 public class UserAuthDataResponse {
     private Long userId;
     private List<String> roles;
-    private List<String> permissions;
+
 }
