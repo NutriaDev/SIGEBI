@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import sigebi.auth.DTO.request.InternalAuthValidateRequest;
 import sigebi.auth.DTO.response.UserAuthDataResponse;
 
-@FeignClient(name = "users-ms")
+@FeignClient(
+        name = "ms-users",
+        url = "http://localhost:8090"
+)
 public interface UserInternalClient {
     @PostMapping("/internal/auth/validate")
     UserAuthDataResponse validate(
