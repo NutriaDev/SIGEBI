@@ -1,6 +1,8 @@
+server:
+  port: 9090
 spring:
   application:
-    name: auth
+    name: ms-auth
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -20,12 +22,9 @@ spring:
   sql:
     init:
       mode: always
-
-  config:
-    import: optional:configserver:http://localhost:8888
-
 eureka:
   instance:
     hostname: localhost
   client:
-    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka

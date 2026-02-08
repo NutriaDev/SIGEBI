@@ -1,16 +1,17 @@
-package sigebi.auth.security;
+package sigebi.users.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import sigebi.users.security.JwtAuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -21,16 +22,13 @@ public class SecurityConfig {
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(form -> form.disable())
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers("/internal/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -40,7 +38,11 @@ public class SecurityConfig {
                 .build();
     }
 
-}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    }
 
 
 

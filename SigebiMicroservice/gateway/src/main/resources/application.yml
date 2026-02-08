@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: ms-users
+          uri: http://localhost:8090
+          predicates:
+            - Path=/internal/auth/**
+        - id: ms-auth
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/**

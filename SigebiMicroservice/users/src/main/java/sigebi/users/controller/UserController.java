@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sigebi.users.constants.ErrorTitles;
 import sigebi.users.dto_request.RoleRequest;
@@ -28,6 +29,7 @@ public class UserController {
     @Autowired
     private RoleService roleService;
 
+    @PreAuthorize("hasAuthority('users.create')")
     @PostMapping("api/users-create")
     public ResponseEntity<Response> userCreate(
             @Valid @RequestBody CreateUsersRequest createUsersRequest
@@ -45,10 +47,6 @@ public class UserController {
     }
 
 
-
-
-
-
     @GetMapping("api/get-all-users")
     public ResponseEntity<Response> getAllUsers(){
         try {
@@ -64,6 +62,7 @@ public class UserController {
 
     }
 
+    @PreAuthorize("hasAuthority('users.read')")
     @GetMapping("api/get-user-by-id/{id}")
     public ResponseEntity<Response> getUserById(
             @PathVariable Long id
@@ -85,6 +84,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('users.read')")
     @GetMapping("api/get-user-by-email/{email}")
     public ResponseEntity<Response> getUserByEmail(
             @PathVariable String email
@@ -120,6 +120,7 @@ public class UserController {
 
     //roles
 
+    @PreAuthorize("hasAuthority('roles.read')")
     @GetMapping("api/get-all-roles")
     public ResponseEntity<Response> getAllRoles(){
         try {
@@ -130,6 +131,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('roles.create')")
     @PostMapping("api/save-rol")
     public ResponseEntity<Response> saveRole(@RequestBody RoleRequest body) {
         try {
@@ -146,11 +148,7 @@ public class UserController {
         }
     }
 
-
-
-
-
-
+    @PreAuthorize("hasAuthority('users.update')")
     @PatchMapping("api/edit-user/{id}")
     public ResponseEntity<Response> updateUser(
             @Valid @RequestBody UpdateUserRequest updateUserRequest,
@@ -168,7 +166,7 @@ public class UserController {
     }
 
 
-
+    @PreAuthorize("hasAuthority('users.update')")
     @PatchMapping("api/deactive-user/{id}")
     public ResponseEntity<Response> deactiveUser(
             @PathVariable Long id
@@ -186,6 +184,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('users.update')")
     @PatchMapping("api/activate-user/{id}")
     public ResponseEntity<Response> activateUser(
             @PathVariable Long id
@@ -204,6 +203,7 @@ public class UserController {
 
 
 
+    @PreAuthorize("hasAuthority('users.delete')")
     @DeleteMapping("api/deletehard-user/{id}")
     public ResponseEntity<Response> deleteUser(@PathVariable Long id) {
         try {
@@ -220,6 +220,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAuthority('roles.delete')")
     @DeleteMapping("api/deletehard-role/{id}")
     public ResponseEntity<Response> deleteRole(@PathVariable int id) {
         try {
