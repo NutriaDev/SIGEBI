@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: report-ms
+  profiles:
+    default: defaulf
+  config:
+    import: optional:configserver:http://localhost:8888
+server:
+  servlet:
+    context-path: /report-ms
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    enabled: false
