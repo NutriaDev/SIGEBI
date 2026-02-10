@@ -38,6 +38,20 @@
           <artifactId>lombok</artifactId>
           <optional>true</optional>
       </dependency>
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.sigebi.users</groupId>
+          <artifactId>users</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
 
   </dependencies>
 
@@ -51,5 +65,15 @@
               </plugin>
           </plugins>
       </pluginManagement>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>8</source>
+                  <target>8</target>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
 </project>
