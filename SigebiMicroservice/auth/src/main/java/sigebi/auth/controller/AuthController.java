@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import sigebi.auth.DTO.request.LoginRequest;
+import sigebi.auth.DTO.request.RefreshRequest;
 import sigebi.auth.DTO.response.LoginResponse;
 import sigebi.auth.DTO.response.Response;
 import sigebi.auth.constants.ErrorTitles;
@@ -43,6 +44,14 @@ public class AuthController {
             );
         }
     }
+
+    @PostMapping(value = "refresh")
+    public ResponseEntity<Response> refresh(
+            @Valid @RequestBody RefreshRequest refreshRequest
+            ){
+
+    }
+
 
     @GetMapping("/secure-test")
     public ResponseEntity<String> secureTest() {
