@@ -13,9 +13,11 @@ import sigebi.auth.repository.RefreshTokenRepository;
 import sigebi.auth.service.JwtService;
 import sigebi.auth.service.RefreshTokenService;
 import sigebi.auth.service.SessionService;
+import sigebi.auth.service.UserPermissionService;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
     private final SessionService sessionService;
+    private final UserPermissionService userPermissionService;
 
     @Override
     @Transactional
@@ -42,7 +45,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // 3️⃣ Validar que el token NO haya expirado
         if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
-            // Revocar automáticamente tokens expirados
             refreshToken.setActive(false);
             refreshTokenRepository.save(refreshToken);
             throw new ExpiredRefreshTokenException("Refresh token expired");
@@ -51,46 +53,46 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         // 4️⃣ Validar que la sesión esté activa
         sessionService.validateActive(refreshToken.getSessionId());
 
-        // 5️⃣ Revocar el refresh token anterior (rotación de tokens)
+        // 5️⃣ Obtener roles y permissions ACTUALES del usuario
+        List<String> currentRoles = userPermissionService.getUserRoles(refreshToken.getUserId());
+        List<String> currentPermissions = userPermissionService.getUserPermissions(refreshToken.getUserId());
+
+        // 6️⃣ Revocar el refresh token anterior (rotación de tokens)
         refreshToken.setActive(false);
         refreshTokenRepository.save(refreshToken);
 
-        // 6️⃣ Generar nuevo access token
-        // ⚠️ NOTA: Necesitas obtener roles y permissions desde algún lado
-        // Opción 1: Obtenerlos del microservicio de usuarios
-        // Opción 2: Almacenarlos en RefreshTokenEntity
-        // Opción 3: Obtenerlos de la sesión
+        // 7️⃣ Generar nuevo access token
         String newAccessToken = jwtService.generate(
                 refreshToken.getUserId(),
                 refreshToken.getSessionId(),
-                refreshToken.getRoles(),        // ← Debes agregar estos campos
-                refreshToken.getPermissions()   // ← a RefreshTokenEntity
+                currentRoles,
+                currentPermissions
         );
 
-        // 7️⃣ Crear y guardar nuevo refresh token
+        // 8️⃣ Crear y guardar nuevo refresh token
         RefreshTokenEntity newRefreshToken = RefreshTokenEntity.builder()
                 .token(jwtService.generateRefreshToken())
                 .userId(refreshToken.getUserId())
                 .sessionId(refreshToken.getSessionId())
-                .roles(refreshToken.getRoles())           // ← Propagar roles
-                .permissions(refreshToken.getPermissions()) // ← Propagar permissions
                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                 .active(true)
                 .build();
 
         refreshTokenRepository.save(newRefreshToken);
 
-        // 8️⃣ Retornar respuesta con nuevos tokens
+        // 9️⃣ Retornar respuesta con nuevos tokens
         return RefreshResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken.getToken())
+                .accessToken(Instant.parse(newAccessToken))
+                .refreshToken(Instant.parse(newRefreshToken.getToken()))
                 .expiresAt(jwtService.getExpiration())
                 .build();
     }
 
-    @Override
+
     @Transactional
-    public void revokeBySession(UUID sessionId) {
+    public void revokedBySession(UUID sessionId) {
         refreshTokenRepository.revokedBySession(sessionId);
     }
+
+
 }

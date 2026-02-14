@@ -7,6 +7,7 @@ import sigebi.users.entities.UserEntity;
 import sigebi.users.repository.UsersRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,4 +35,5 @@ public class InternalAuthService {
                 .build();
 
     }
+
 }

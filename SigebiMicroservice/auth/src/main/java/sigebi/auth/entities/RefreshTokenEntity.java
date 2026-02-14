@@ -37,5 +37,10 @@ public class RefreshTokenEntity {
 
     @CreationTimestamp
     private Instant createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+    }
 }
 

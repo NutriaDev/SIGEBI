@@ -1,10 +1,7 @@
 package sigebi.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sigebi.users.dto_request.InternalAuthValidateRequest;
 import sigebi.users.dto_response.UserAuthDataResponse;
 import sigebi.users.service.InternalAuthService;
@@ -23,5 +20,6 @@ public class InternalAuthController {
                 request.getPassword()
         );
     }
+
 }
 

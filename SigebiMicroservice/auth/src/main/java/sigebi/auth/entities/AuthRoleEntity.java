@@ -1,15 +1,15 @@
 package sigebi.auth.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "auth_role")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +21,15 @@ public class AuthRoleEntity {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name; // SUPERADMIN, ADMIN, SUPERVISOR, TECNICO
+
+    // ✅ NUEVA RELACIÓN: Obtener permisos del rol
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
+    private List<RolePermissionEntity> rolePermissions;
+
+    // ✅ Helper method para obtener solo los permisos
+    public List<AuthPermissionEntity> getPermissions() {
+        return rolePermissions.stream()
+                .map(RolePermissionEntity::getPermission)
+                .toList();
+    }
 }

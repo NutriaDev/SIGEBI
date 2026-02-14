@@ -6,7 +6,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 import sigebi.auth.service.JwtService;
 
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +47,14 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public Instant getExpiration() {
         return Instant.now().plusMillis(EXPIRATION_MS);
+    }
+
+    @Override
+    public String generateRefreshToken() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[64];
+        secureRandom.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
     /* ======== Métodos internos (FASE 3) ======== */
