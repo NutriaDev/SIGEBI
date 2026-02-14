@@ -3,16 +3,21 @@ package sigebi.auth.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import sigebi.auth.DTO.request.LoginRequest;
 import sigebi.auth.DTO.request.RefreshRequest;
 import sigebi.auth.DTO.response.LoginResponse;
+import sigebi.auth.DTO.response.RefreshResponse;
 import sigebi.auth.DTO.response.Response;
 import sigebi.auth.constants.ErrorTitles;
 import sigebi.auth.service.LoginService;
+import sigebi.auth.service.RefreshTokenService;
 import sigebi.auth.utils.ApiResponse;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,6 +26,7 @@ import sigebi.auth.utils.ApiResponse;
 public class AuthController {
 
     private final LoginService loginService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<Response> login(
@@ -45,11 +51,39 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value = "refresh")
+    /**
+     * Endpoint para refrescar el access token usando un refresh token
+     */
+    @PostMapping("/refresh")
     public ResponseEntity<Response> refresh(
             @Valid @RequestBody RefreshRequest refreshRequest
-            ){
+    ) {
+        RefreshResponse refreshResponse = refreshTokenService.refresh(refreshRequest);
 
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(String.valueOf(HttpStatus.OK.value()))
+                        .message("Token refreshed successfully")
+                        .body(refreshResponse)
+                        .build()
+        );
+    }
+
+    /**
+     * Endpoint para hacer logout (revocar todos los refresh tokens de una sesión)
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Response> logout(
+            @RequestParam UUID sessionId
+    ) {
+        refreshTokenService.revokedBySession(sessionId);
+
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(String.valueOf(HttpStatus.OK.value()))
+                        .message("Logout successful. All tokens revoked.")
+                        .build()
+        );
     }
 
 
