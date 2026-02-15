@@ -27,7 +27,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         return path.startsWith("/auth/login") ||
-                path.startsWith("/auth/refresh");
+                path.startsWith("/auth/refresh") ||
+        path.startsWith("/auth/logout");
 
     }
 
