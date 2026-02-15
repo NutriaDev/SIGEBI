@@ -19,7 +19,7 @@ public class PermissionService {
                         rolePermissionRepository
                                 .findByRole_Name(role)
                                 .stream()
-                                .map(rp -> rp.getPermission().getCode())
+                                .map(rp -> rp.getPermission().getName())
                 )
                 .distinct()
                 .toList();

@@ -3,6 +3,8 @@ package sigebi.auth.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sigebi.auth.entities.SessionEntity;
+import sigebi.auth.exceptions.SessionNotActiveException;
+import sigebi.auth.exceptions.SessionNotFoundException;
 import sigebi.auth.repository.SessionRepository;
 import sigebi.auth.service.SessionService;
 
@@ -20,6 +22,7 @@ public class SessionServiceImpl implements SessionService {
                 .id(UUID.randomUUID())
                 .userId(userId)
                 .loginAt(Instant.now())
+                .lastActivityAt(Instant.now())
                 .active(true)
                 .build();
 
@@ -28,7 +31,26 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void close(UUID sessionId) {
-        // implementación dummy por ahora (FASE 1)
+        SessionEntity session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException("Session not found"));
+
+        session.setActive(false);
+        session.setLogoutAt(Instant.now());
+        sessionRepository.save(session);
+    }
+
+    @Override
+    public void validateActive(UUID sessionId) {
+        SessionEntity session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException("Session not found"));
+
+        if (!session.getActive()) {
+            throw new SessionNotActiveException("Session is not active");
+        }
+
+        // Opcional: Actualizar última actividad
+        session.setLastActivityAt(Instant.now());
+        sessionRepository.save(session);
     }
 
     }

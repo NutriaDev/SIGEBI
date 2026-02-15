@@ -23,4 +23,6 @@ public class AuthPermissionEntity {
 
     @Column(name = "description")
     private String description;
+
+
 }
