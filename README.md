@@ -111,8 +111,8 @@ git flow feature start new-branch
   ```bash
 Project:        Maven
 Language:       Java
-Spring Boot:    4.0.2
-Java:           21
+Spring Boot:    3.5.2
+Java:           17
 Packaging:      Jar
 Configuration:  YAML
 Group:          sigebi
