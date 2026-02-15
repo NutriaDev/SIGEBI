@@ -82,9 +82,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // 9️⃣ Retornar respuesta con nuevos tokens
         return RefreshResponse.builder()
-                .accessToken(Instant.parse(newAccessToken))
-                .refreshToken(Instant.parse(newRefreshToken.getToken()))
-                .expiresAt(jwtService.getExpiration())
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken.getToken())
+                .expiresAt(jwtService.getExpiration().toString())
                 .build();
     }
 

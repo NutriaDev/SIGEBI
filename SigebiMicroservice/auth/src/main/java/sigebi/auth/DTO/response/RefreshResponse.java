@@ -8,8 +8,8 @@ import java.time.Instant;
 @Data
 @Builder
 public class RefreshResponse {
-    private Instant expiresAt;
-    private Instant refreshToken;
-    private Instant accessToken;
+    private String expiresAt;
+    private String refreshToken;
+    private String accessToken;
 
 }
