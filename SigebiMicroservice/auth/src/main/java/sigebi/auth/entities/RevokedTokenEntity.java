@@ -17,7 +17,7 @@ public class RevokedTokenEntity {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 500, unique = true)
     private String token;
 
     @Column(nullable = false)
@@ -25,5 +25,12 @@ public class RevokedTokenEntity {
 
     @Column(nullable = false)
     private String tokenType; // ACCESS | REFRESH
+
+    @PrePersist
+    protected void onCreate() {
+        if (revokedAt == null) {
+            revokedAt = Instant.now();
+        }
+    }
 }
 

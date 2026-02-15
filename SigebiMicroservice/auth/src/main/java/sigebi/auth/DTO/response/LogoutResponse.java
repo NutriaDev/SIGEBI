@@ -10,6 +10,6 @@ import java.util.UUID;
 @Data
 public class LogoutResponse {
     private String token;
-    private Instant revokeAt;
+    private Instant revokedAt;
     private UUID sessionId;
 }

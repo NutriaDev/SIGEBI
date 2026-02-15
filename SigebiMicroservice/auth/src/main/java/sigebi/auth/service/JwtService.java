@@ -20,6 +20,7 @@ public interface JwtService {
     Instant getExpiration();
     boolean isValid(String token);
     Long getUserId(String token);
+    UUID getSessionId(String token);
     List<String> getRoles(String token);
     List<String> getPermissions(String token);
 }

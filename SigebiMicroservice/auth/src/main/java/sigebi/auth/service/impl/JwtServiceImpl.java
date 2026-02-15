@@ -72,6 +72,14 @@ public class JwtServiceImpl implements JwtService {
         return Long.valueOf(parse(token).getSubject());
     }
 
+    @Override
+    public UUID getSessionId(String token) {
+        // ✅ CORREGIDO: Usar el método parse() que ya tienes
+        Claims claims = parse(token);
+        String sessionIdStr = claims.get("sessionId", String.class);
+        return UUID.fromString(sessionIdStr);
+    }
+
     public List<String> getRoles(String token) {
         return parse(token).get("roles", List.class);
     }
