@@ -7,12 +7,16 @@ import sigebi.auth.DTO.request.LoginRequest;
 import sigebi.auth.DTO.response.LoginResponse;
 import sigebi.auth.DTO.response.UserAuthDataResponse;
 import sigebi.auth.client.UserInternalClient;
+import sigebi.auth.entities.RefreshTokenEntity;
 import sigebi.auth.entities.SessionEntity;
+import sigebi.auth.repository.RefreshTokenRepository;
 import sigebi.auth.service.JwtService;
 import sigebi.auth.service.LoginService;
 import sigebi.auth.service.PermissionService;
 import sigebi.auth.service.SessionService;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -23,6 +27,7 @@ public class LoginServiceImpl implements LoginService {
     private final SessionService sessionService;
     private final JwtService jwtService;
     private final PermissionService permissionService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public LoginResponse login(LoginRequest request) {
 
@@ -51,11 +56,23 @@ public class LoginServiceImpl implements LoginService {
                 permissions
         );
 
+        // 5️⃣ ✅ NUEVO: Crear refresh token
+        RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
+                .token(jwtService.generateRefreshToken())
+                .userId(authData.userId())
+                .sessionId(session.getId())
+                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+                .active(true)
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+
 
 
         return LoginResponse.builder()
                 .accessToken(token)
                 .expiresAt(jwtService.getExpiration())
+                .refreshToken(refreshToken.getToken())
                 .sessionId(session.getId())
                 .build();
     }
