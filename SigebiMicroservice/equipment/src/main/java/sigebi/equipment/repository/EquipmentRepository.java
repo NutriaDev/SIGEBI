@@ -1,7 +1,7 @@
-package sigebi.equipment.repository;
+package repository;
 
+import entities.EquipmentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import sigebi.equipment.entities.EquipmentEntity;
 
 public interface EquipmentRepository
         extends JpaRepository<EquipmentEntity, Long> {

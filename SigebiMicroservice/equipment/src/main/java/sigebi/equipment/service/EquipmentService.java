@@ -1,19 +1,29 @@
-package sigebi.equipment.service;
+package service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import sigebi.equipment.entities.EquipmentEntity;
-import sigebi.equipment.repository.EquipmentRepository;
+import dto_request.CreateEquipmentRequest;
+import dto_request.UpdateEquipmentRequest;
+import dto_response.EquipmentResponse;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
 public class EquipmentService {
-
-    private final EquipmentRepository equipmentRepository;
-
-    public List<EquipmentEntity> findAll() {
-        return equipmentRepository.findAll();
+    public List<EquipmentResponse> getAllEquipment() {
+        return List.of();
+    }
+    public Object getEquipmentById(Long id) {
+        return List.of();
+    }
+    public Object updateEquipment(Long id, @Valid UpdateEquipmentRequest request) {
+        return List.of();
+    }
+    public Object createEquipment(@Valid CreateEquipmentRequest request) {
+        return null;
+    }
+    public Object toggleEquipmentStatus(Long id, boolean active) {
+        return List.of();
+    }
+    public List<Object> deleteEquipment(Long id) {
+        return List.of();
     }
 }

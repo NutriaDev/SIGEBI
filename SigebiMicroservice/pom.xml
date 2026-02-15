@@ -46,12 +46,7 @@
           <groupId>org.hibernate.orm</groupId>
           <artifactId>hibernate-core</artifactId>
       </dependency>
-      <dependency>
-          <groupId>com.sigebi.users</groupId>
-          <artifactId>users</artifactId>
-          <version>0.0.1-SNAPSHOT</version>
-          <scope>compile</scope>
-      </dependency>
+
 
   </dependencies>
 

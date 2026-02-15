@@ -44,11 +44,6 @@ public class UserController {
         }
     }
 
-
-
-
-
-
     @GetMapping("api/get-all-users")
     public ResponseEntity<Response> getAllUsers(){
         try {
@@ -60,7 +55,6 @@ public class UserController {
 
             return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
         }
-
 
     }
 
@@ -146,11 +140,6 @@ public class UserController {
         }
     }
 
-
-
-
-
-
     @PatchMapping("api/edit-user/{id}")
     public ResponseEntity<Response> updateUser(
             @Valid @RequestBody UpdateUserRequest updateUserRequest,
@@ -167,8 +156,6 @@ public class UserController {
         }
     }
 
-
-
     @PatchMapping("api/deactive-user/{id}")
     public ResponseEntity<Response> deactiveUser(
             @PathVariable Long id
@@ -177,8 +164,6 @@ public class UserController {
         try {
             var deactiveUser = usersService.toggleUserStatus(id, false);
             return ApiResponse.success("User deactivated", "user updates with status false", deactiveUser);
-
-
 
         } catch (Exception e) {
             log.error("Something went wrong while deactivated user: ", e);
@@ -199,10 +184,6 @@ public class UserController {
             return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
         }
     }
-
-
-
-
 
     @DeleteMapping("api/deletehard-user/{id}")
     public ResponseEntity<Response> deleteUser(@PathVariable Long id) {
@@ -244,8 +225,5 @@ public class UserController {
             );
         }
     }
-
-
-
 
 }

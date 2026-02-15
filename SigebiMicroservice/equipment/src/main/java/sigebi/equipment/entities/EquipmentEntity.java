@@ -1,5 +1,6 @@
 package entities;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
-import sigebi.users.entities.UserEntity;
+//import sigebi.users.entities.UserEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,7 +62,7 @@ public class EquipmentEntity {
 
     // ************* RELATIONS ************ //
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AreaId", nullable = false)
     private AreaEntity area;
 
@@ -83,7 +84,7 @@ public class EquipmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUsers", nullable = false)
-    private UserEntity createdBy;
+    private UserEntity createdBy;*/
 
     // ************ ATTRIBUTES ************ //
 
@@ -126,3 +127,4 @@ public class EquipmentEntity {
     @Column(name = "deleted_by")
     private Long deletedBy;
 }
+
