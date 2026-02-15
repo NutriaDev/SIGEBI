@@ -1,6 +1,14 @@
 -- ==========================================
--- 1️⃣ INSERTAR PERMISOS
+-- SCRIPT DE INICIALIZACIÓN MS AUTH
 -- ==========================================
+
+-- 1️⃣ LIMPIAR DATOS EXISTENTES (SOLO DESARROLLO)
+TRUNCATE TABLE user_roles CASCADE;
+TRUNCATE TABLE role_permission CASCADE;
+TRUNCATE TABLE auth_role CASCADE;
+TRUNCATE TABLE auth_permission CASCADE;
+
+-- 2️⃣ INSERTAR PERMISOS
 INSERT INTO auth_permission (id, name, description) VALUES
 -- Permisos de usuarios
 (gen_random_uuid(), 'users.create', 'Crear usuarios'),
@@ -19,27 +27,20 @@ INSERT INTO auth_permission (id, name, description) VALUES
 -- Permisos de roles
 (gen_random_uuid(), 'roles.manage', 'Gestionar roles y permisos');
 
-
--- ==========================================
--- 2️⃣ INSERTAR ROLES
--- ==========================================
+-- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
 (gen_random_uuid(), 'SUPERADMIN'),
 (gen_random_uuid(), 'ADMIN'),
 (gen_random_uuid(), 'SUPERVISOR'),
 (gen_random_uuid(), 'TECNICO');
 
-
--- ==========================================
--- 3️⃣ ASIGNAR PERMISOS A ROLES
--- ==========================================
+-- 4️⃣ ASIGNAR PERMISOS A ROLES
 
 -- SUPERADMIN: Todos los permisos
 INSERT INTO role_permission (id, role_id, permission_id)
 SELECT gen_random_uuid(), r.id, p.id
 FROM auth_role r, auth_permission p
 WHERE r.name = 'SUPERADMIN';
-
 
 -- ADMIN: Casi todos los permisos (sin gestión de roles)
 INSERT INTO role_permission (id, role_id, permission_id)
@@ -57,7 +58,6 @@ JOIN auth_permission p ON p.name IN (
 )
 WHERE r.name = 'ADMIN';
 
-
 -- SUPERVISOR: Permisos de lectura/escritura, sin eliminación
 INSERT INTO role_permission (id, role_id, permission_id)
 SELECT gen_random_uuid(), r.id, p.id
@@ -70,7 +70,6 @@ JOIN auth_permission p ON p.name IN (
 )
 WHERE r.name = 'SUPERVISOR';
 
-
 -- TECNICO: Solo lectura/escritura de reportes
 INSERT INTO role_permission (id, role_id, permission_id)
 SELECT gen_random_uuid(), r.id, p.id
@@ -82,14 +81,12 @@ JOIN auth_permission p ON p.name IN (
 )
 WHERE r.name = 'TECNICO';
 
-
--- ==========================================
--- 4️⃣ CREAR TABLA user_roles (si no existe)
--- ==========================================
-CREATE TABLE IF NOT EXISTS user_roles (
-    user_id BIGINT NOT NULL,
-    role_id UUID NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (role_id) REFERENCES auth_role(id) ON DELETE CASCADE
-);
+-- 5️⃣ ASIGNAR ROLES A USUARIOS DE PRUEBA
+-- ✅ CAMBIO CRÍTICO: Usar 1234567890 en lugar de 1
+INSERT INTO user_roles (user_id, role_id, created_at)
+SELECT
+    1234567890, -- ✅ ID real del usuario admin@test.com
+    r.id,
+    CURRENT_TIMESTAMP
+FROM auth_role r
+WHERE r.name = 'ADMIN'; -- ✅ Cambiado a ADMIN (role_id = 2 en MS Users)
