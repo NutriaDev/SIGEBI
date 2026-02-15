@@ -28,21 +28,6 @@ donde cada servicio es independiente y cumple una responsabilidad específica.
 
 ---
 
-<details>
-<summary><h2>📐 Diagrama UML</h2></summary>
-
-<p>
-Este diagrama representa el modelo de dominio y las relaciones entre entidades
-principales del sistema.
-</p>
-
-<!-- Aquí va la imagen del diagrama UML -->
-
-
-
-</details>
-
----
 
 <details>
 <summary><h2>🚀 Diagrama de Despliegue</h2></summary>
@@ -64,7 +49,7 @@ de infraestructura en los distintos entornos.
 <summary><h2>🛠️ ¿Cómo preparar tu entorno?</h2></summary>
 
 <ul align="left">
-  <li>Java 21</li>
+  <li>Java 17</li>
   <li>Maven</li>
   <li>PostgreSQL</li>
   <li>Docker (opcional)</li>
