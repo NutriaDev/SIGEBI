@@ -52,6 +52,8 @@ public class LoginServiceImpl implements LoginService {
         String token = jwtService.generate(
                 authData.userId(),
                 session.getId(),
+                authData.email(),
+                authData.name(),
                 authData.roles(),
                 permissions
         );
@@ -64,7 +66,6 @@ public class LoginServiceImpl implements LoginService {
                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                 .active(true)
                 .build();
-
         refreshTokenRepository.save(refreshToken);
 
 

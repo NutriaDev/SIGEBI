@@ -23,12 +23,16 @@ public class JwtServiceImpl implements JwtService {
     public String generate(
             Long userId,
             UUID sessionId,
+            String email,
+            String name,
             List<String> roles,
             List<String> permissions
     ) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("sessionId", sessionId.toString())
+                .claim("email", email)
+                .claim("name", name)
                 .claim("roles", roles)
                 .claim("permissions", permissions)
                 .issuedAt(new Date())

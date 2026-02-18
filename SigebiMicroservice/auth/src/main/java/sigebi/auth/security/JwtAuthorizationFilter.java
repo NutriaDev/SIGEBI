@@ -24,13 +24,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        // 🔥 Ignorar TODAS las preflight CORS
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         String path = request.getRequestURI();
 
         return path.startsWith("/auth/login") ||
                 path.startsWith("/auth/refresh") ||
-        path.startsWith("/auth/logout");
-
+                path.startsWith("/auth/logout");
     }
+
 
     @Override
     protected void doFilterInternal(

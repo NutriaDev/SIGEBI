@@ -9,6 +9,8 @@ import java.util.List;
 @Builder
 public class UserAuthDataResponse {
     private Long userId;
+    private String email;
+    private String name;
     private List<String> roles;
 
 }

@@ -1,21 +1,38 @@
 server:
   port: 8080
+
 spring:
-  config:
-    import: optional:configserver:http://localhost:8888
-  application:
-    name: gateway
   cloud:
+    config:
+      enabled: false
+
     gateway:
       discovery:
         locator:
           enabled: true
+
       routes:
         - id: ms-users
           uri: http://localhost:8090
           predicates:
             - Path=/internal/auth/**
+
         - id: ms-auth
           uri: http://localhost:9090
           predicates:
             - Path=/auth/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true

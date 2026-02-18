@@ -10,6 +10,8 @@ public interface JwtService {
     String generate(
             Long userId,
             UUID sessionId,
+            String email,
+            String name,
             List<String> roles,
             List<String> permissions
     );

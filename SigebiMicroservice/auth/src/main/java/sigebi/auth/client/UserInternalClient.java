@@ -1,6 +1,8 @@
 package sigebi.auth.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import sigebi.auth.DTO.request.InternalAuthValidateRequest;
@@ -15,4 +17,8 @@ public interface UserInternalClient {
     UserAuthDataResponse validate(
             @RequestBody InternalAuthValidateRequest request
     );
+
+    @GetMapping("/internal/users/{id}")
+    UserAuthDataResponse getById(@PathVariable Long id);
+
 }

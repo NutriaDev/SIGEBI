@@ -21,5 +21,11 @@ public class InternalAuthController {
         );
     }
 
+    @GetMapping("/internal/users/{id}")
+    public UserAuthDataResponse getById(@PathVariable Long id) {
+        return internalAuthService.getUserById(id);
+    }
+
+
 }
 

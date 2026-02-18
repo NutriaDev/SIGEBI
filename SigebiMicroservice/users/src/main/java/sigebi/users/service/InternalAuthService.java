@@ -3,6 +3,7 @@ package sigebi.users.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sigebi.users.dto_response.UserAuthDataResponse;
+import sigebi.users.entities.RoleEntity;
 import sigebi.users.entities.UserEntity;
 import sigebi.users.repository.UsersRepository;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class InternalAuthService {
     private final UsersRepository usersRepository;
     private final EncryptService encryptService;
+
 
     public UserAuthDataResponse validateCredentials(String email, String rawPassword) {
 
@@ -31,9 +33,26 @@ public class InternalAuthService {
 
         return UserAuthDataResponse.builder()
                 .userId(user.getIdUsers())
+                .email(user.getEmail())
+                .name(user.getName())
                 .roles(List.of(user.getRole().getNameRole()))
                 .build();
 
     }
+
+
+    public UserAuthDataResponse getUserById(Long id) {
+
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserAuthDataResponse.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName()) // o firstName + lastName
+                .roles(List.of(user.getRole().getNameRole()))
+                .build();
+    }
+
 
 }

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sigebi.auth.DTO.request.RefreshRequest;
 import sigebi.auth.DTO.response.RefreshResponse;
+import sigebi.auth.DTO.response.UserAuthDataResponse;
+import sigebi.auth.client.UserInternalClient;
 import sigebi.auth.entities.RefreshTokenEntity;
 import sigebi.auth.exceptions.ExpiredRefreshTokenException;
 import sigebi.auth.exceptions.InvalidRefreshTokenException;
@@ -28,6 +30,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final JwtService jwtService;
     private final SessionService sessionService;
     private final UserPermissionService userPermissionService;
+    private final UserInternalClient userInternalClient;
 
     @Override
     @Transactional
@@ -53,6 +56,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         // 4️⃣ Validar que la sesión esté activa
         sessionService.validateActive(refreshToken.getSessionId());
 
+        // 🔥 5️⃣ Volver a consultar usuario en MS-Users (NUEVO)
+        UserAuthDataResponse userData =
+                userInternalClient.getById(refreshToken.getUserId());
+
         // 5️⃣ Obtener roles y permissions ACTUALES del usuario
         List<String> currentRoles = userPermissionService.getUserRoles(refreshToken.getUserId());
         List<String> currentPermissions = userPermissionService.getUserPermissions(refreshToken.getUserId());
@@ -65,6 +72,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String newAccessToken = jwtService.generate(
                 refreshToken.getUserId(),
                 refreshToken.getSessionId(),
+                userData.email(),
+                userData.name(),
                 currentRoles,
                 currentPermissions
         );
