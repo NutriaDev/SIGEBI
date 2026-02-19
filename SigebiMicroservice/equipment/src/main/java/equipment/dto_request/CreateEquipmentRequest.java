@@ -1,4 +1,4 @@
-package dto_request;
+package equipment.dto_request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

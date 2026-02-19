@@ -1,4 +1,4 @@
-package constants;
+package equipment.constants;
 
 public class ErrorTitles {
     public static final String INTERNAL_ERROR = "Internal Error";

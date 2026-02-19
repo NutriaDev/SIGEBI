@@ -1,4 +1,4 @@
-package dto_request;
+package equipment.dto_request;
 
 import lombok.Data;
 

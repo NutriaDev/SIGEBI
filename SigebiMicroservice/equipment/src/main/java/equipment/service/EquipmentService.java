@@ -1,8 +1,8 @@
-package service;
+package equipment.service;
 
-import dto_request.CreateEquipmentRequest;
-import dto_request.UpdateEquipmentRequest;
-import dto_response.EquipmentResponse;
+import equipment.dto_request.CreateEquipmentRequest;
+import equipment.dto_request.UpdateEquipmentRequest;
+import equipment.dto_response.EquipmentResponse;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class EquipmentService {
     public Object toggleEquipmentStatus(Long id, boolean active) {
         return List.of();
     }
-    public List<Object> deleteEquipment(Long id) {
+    public List<Object> inactiveEquipment(Long id) {
         return List.of();
     }
 }

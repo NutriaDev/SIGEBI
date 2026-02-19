@@ -1,4 +1,4 @@
-package entities;
+package equipment.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -42,8 +42,8 @@ public class EquipmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "EquipmentId")
-    private Long idEquipment;
+    @Column(name = "equipment_id")
+    private Long equipmentid;
 
     @Column(nullable = false, unique = true, length = 100)
     private String serie;
@@ -62,11 +62,11 @@ public class EquipmentEntity {
 
     // ************* RELATIONS ************ //
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AreaId", nullable = false)
     private AreaEntity area;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProviderId")
     private ProviderEntity provider;
 
@@ -126,5 +126,8 @@ public class EquipmentEntity {
 
     @Column(name = "deleted_by")
     private Long deletedBy;
+
+    public void setArea(Object o) {
+    }
 }
 

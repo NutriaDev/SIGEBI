@@ -1,7 +1,8 @@
-package repository;
+package equipment.repository;
 
-import entities.EquipmentEntity;
+import equipment.entities.EquipmentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 
 public interface EquipmentRepository
         extends JpaRepository<EquipmentEntity, Long> {
