@@ -3,9 +3,13 @@ package sigebi.auth.service.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import sigebi.auth.service.JwtService;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
@@ -16,8 +20,18 @@ import java.util.UUID;
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    private static final String SECRET = "SIGEBI_SUPER_SECRET_SIGEBI_SUPER_SECRET";
-    private static final long EXPIRATION_MS = 1000 * 60 * 15;
+    @Value("${JWT_SECRET}")
+    private String secret;
+
+    @Value("${JWT_EXPIRATION_MINUTES:15}")
+    private long expirationMinutes;
+
+    private SecretKey key;
+
+    @PostConstruct
+    void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     @Override
     public String generate(
@@ -28,6 +42,10 @@ public class JwtServiceImpl implements JwtService {
             List<String> roles,
             List<String> permissions
     ) {
+
+        Instant now = Instant.now();
+        Instant expiration = now.plusMillis(expirationMinutes * 60 * 1000);
+
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("sessionId", sessionId.toString())
@@ -35,22 +53,10 @@ public class JwtServiceImpl implements JwtService {
                 .claim("name", name)
                 .claim("roles", roles)
                 .claim("permissions", permissions)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(key)
                 .compact();
-    }
-
-    @Override
-    public List<String> getPermissions(String token) {
-        return parse(token).get("permissions", List.class);
-    }
-
-
-
-    @Override
-    public Instant getExpiration() {
-        return Instant.now().plusMillis(EXPIRATION_MS);
     }
 
     @Override
@@ -61,8 +67,12 @@ public class JwtServiceImpl implements JwtService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
-    /* ======== Métodos internos (FASE 3) ======== */
+    @Override
+    public Instant getExpiration() {
+        return Instant.now().plusMillis(expirationMinutes * 60 * 1000);
+    }
 
+    @Override
     public boolean isValid(String token) {
         try {
             parse(token);
@@ -72,29 +82,44 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
+    @Override
     public Long getUserId(String token) {
         return Long.valueOf(parse(token).getSubject());
     }
 
     @Override
     public UUID getSessionId(String token) {
-        // ✅ CORREGIDO: Usar el método parse() que ya tienes
-        Claims claims = parse(token);
-        String sessionIdStr = claims.get("sessionId", String.class);
+        String sessionIdStr = parse(token).get("sessionId", String.class);
         return UUID.fromString(sessionIdStr);
     }
 
+    @Override
     public List<String> getRoles(String token) {
-        return parse(token).get("roles", List.class);
+        var roles = parse(token).get("roles");
+        if (roles == null) return List.of();
+
+        return ((List<?>) roles)
+                .stream()
+                .map(Object::toString)
+                .toList();
+    }
+
+    @Override
+    public List<String> getPermissions(String token) {
+        var permissions = parse(token).get("permissions");
+        if (permissions == null) return List.of();
+
+        return ((List<?>) permissions)
+                .stream()
+                .map(Object::toString)
+                .toList();
     }
 
     private Claims parse(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
-
 }

@@ -30,7 +30,7 @@ public class UserController {
     private RoleService roleService;
 
     @PreAuthorize("hasAuthority('users.create')")
-    @PostMapping("api/users-create")
+    @PostMapping("/api/users-create")
     public ResponseEntity<Response> userCreate(
             @Valid @RequestBody CreateUsersRequest createUsersRequest
     ){

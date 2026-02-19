@@ -41,10 +41,31 @@ public class JwtUtils {
     }
 
     public List<String> getPermissions(String token) {
-        return getClaims(token).get("permissions", List.class);
+        var claims = getClaims(token);
+        var permissions = claims.get("permissions");
+        if (permissions == null) return List.of();
+
+        return ((List<?>) permissions)
+                .stream()
+                .map(Object::toString)
+                .toList();
     }
 
-    private Claims getClaims(String token) {
+    public List<String> getRoles(String token) {
+        var claims = getClaims(token);
+        var roles = claims.get("roles");
+        if (roles == null) return List.of();
+
+        return ((List<?>) roles)
+                .stream()
+                .map(Object::toString)
+                .toList();
+    }
+
+
+
+
+    public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

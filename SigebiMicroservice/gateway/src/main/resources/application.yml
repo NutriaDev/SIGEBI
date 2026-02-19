@@ -7,6 +7,8 @@ spring:
       enabled: false
 
     gateway:
+      default-filters:
+        - PreserveHostHeader
       discovery:
         locator:
           enabled: true
@@ -17,10 +19,17 @@ spring:
           predicates:
             - Path=/internal/auth/**
 
+        - id: ms-users-api
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/**
+
+
         - id: ms-auth
           uri: http://localhost:9090
           predicates:
             - Path=/auth/**
+
 
       globalcors:
         corsConfigurations:

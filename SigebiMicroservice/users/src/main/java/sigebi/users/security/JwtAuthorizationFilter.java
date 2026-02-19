@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -28,9 +29,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
+        // 🔎 PASO 1 — Ver si el header llega
         String authHeader = request.getHeader("Authorization");
 
-        // 1️⃣ Si no hay token → sigue (Spring decidirá si es público o no)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -38,22 +40,33 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        // 2️⃣ Validar token
-        if (!jwtUtils.isValid(token)) {
+        // 🔎 PASO 2 — Validación
+        boolean valid = jwtUtils.isValid(token);
+
+
+        if (!valid) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3️⃣ Extraer datos
+        // 🔎 PASO 3 — Claims
+        var claims = jwtUtils.getClaims(token);
+
+
         Long userId = jwtUtils.getUserId(token);
+        List<String> roles = jwtUtils.getRoles(token);
         List<String> permissions = jwtUtils.getPermissions(token);
 
-        // 4️⃣ Convertir permisos a authorities
-        List<? extends GrantedAuthority> authorities = permissions.stream()
-                .map(SimpleGrantedAuthority::new)
+
+
+        var authorities = Stream.concat(
+                        roles.stream().map(role -> "ROLE_" + role),
+                        permissions.stream()
+                ).map(SimpleGrantedAuthority::new)
                 .toList();
 
-        // 5️⃣ Crear Authentication
+
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
                         userId,
@@ -63,8 +76,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+
+
         filterChain.doFilter(request, response);
     }
+
 
 
 }
