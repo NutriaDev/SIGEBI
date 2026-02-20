@@ -34,16 +34,11 @@ public class UserController {
     public ResponseEntity<Response> userCreate(
             @Valid @RequestBody CreateUsersRequest createUsersRequest
     ){
-        try{
-            var user = usersService.createUser(createUsersRequest);
 
-            return ApiResponse.success("User Created", "User registered correctly", user);
+        var user = usersService.createUser(createUsersRequest);
 
-        }catch (Exception e){
-            log.error("Something went wrong while creating user: ", e);
+        return ApiResponse.success("User Created", "User registered correctly", user);
 
-           return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
     }
 
 

@@ -62,7 +62,7 @@ public class UsersService {
 
     private void validateMinimumAge(Date birthDate) {
         if (birthDate == null) {
-            throw new IllegalArgumentException("Birth date is required");
+            throw new BusinessException("Birth date is required");
         }
 
         LocalDate birth = birthDate.toInstant()
@@ -72,7 +72,7 @@ public class UsersService {
         int age = Period.between(birth, LocalDate.now()).getYears();
 
         if (age < MIN_AGE) {
-            throw new IllegalArgumentException("User must be at least " + MIN_AGE + " years old");
+            throw new BusinessException("User must be at least " + MIN_AGE + " years old");
         }
     }
 
@@ -103,7 +103,7 @@ public class UsersService {
         }
 
         if (usersRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Phone number already exists");
+            throw new BusinessException("Phone number already exists");
         }
 
         CompanyEntity company = companyService.getCompanyById(request.getCompanyId());

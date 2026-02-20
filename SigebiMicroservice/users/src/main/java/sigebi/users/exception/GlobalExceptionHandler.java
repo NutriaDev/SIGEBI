@@ -10,9 +10,7 @@ import sigebi.users.dto_response.Response;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    // ===========================
-    // 🔹 Método reutilizable
-    // ===========================
+
     private Response buildError(String title, String message) {
         return Response.builder()
                 .status("error")
@@ -21,7 +19,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    // 🔹 Manejar ResponseStatusException (IMPORTANTE)
+    // 🔹 ResponseStatusException (401, 403, etc)
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Response> handleResponseStatus(ResponseStatusException ex) {
         return ResponseEntity
@@ -32,40 +30,36 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Response> handleUserNotFound(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildError(ErrorTitles.USER_NOT_FOUND, ex.getMessage()));
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<Response> handleRoleNotFound(RoleNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
-    }
-
-    @ExceptionHandler(CompanyNotFoundException.class)
-    public ResponseEntity<Response> handleCompanyNotFound(CompanyNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildError(ErrorTitles.COMPANY_NOT_FOUND, ex.getMessage()));
-    }
-
+    // 🔹 Email duplicado → 409
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<Response> handleEmail(EmailException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildError("EMAIL_ERROR", ex.getMessage()));
     }
 
+    // 🔹 Validaciones generales → 400
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Response> handleEmail(BusinessException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildError(ErrorTitles.ROLE_NOT_FOUND, ex.getMessage()));
+    public ResponseEntity<Response> handleBusiness(BusinessException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildError("VALIDATION_ERROR", ex.getMessage()));
     }
 
+    // 🔹 Not found → 404
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            RoleNotFoundException.class,
+            CompanyNotFoundException.class
+    })
+    public ResponseEntity<Response> handleNotFound(RuntimeException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError("NOT_FOUND", ex.getMessage()));
+    }
+
+    // 🔹 Catch-all → 500
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildError(ErrorTitles.INTERNAL_ERROR, ex.getMessage()));
     }
-
 }
+
