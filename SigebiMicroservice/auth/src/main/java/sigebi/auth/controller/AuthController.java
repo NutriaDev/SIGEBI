@@ -32,23 +32,14 @@ public class AuthController {
     public ResponseEntity<Response> login(
             @Valid @RequestBody LoginRequest loginRequest
     ) {
-        try {
+        LoginResponse loginResponse = loginService.login(loginRequest);
 
-            LoginResponse loginResponse = loginService.login(loginRequest);
+        return ApiResponse.success(
+                "user login",
+                "user login successful",
+                loginResponse
+        );
 
-            return ApiResponse.success(
-                    "user login",
-                    "user login successful",
-                    loginResponse
-            );
-
-        } catch (Exception e) {
-            log.error("Something went wrong with login", e);
-            return ApiResponse.internalError(
-                    ErrorTitles.LOGIN_FAILED,
-                    e.getMessage()
-            );
-        }
     }
 
     /**

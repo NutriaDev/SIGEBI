@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import sigebi.users.constants.ErrorTitles;
 import sigebi.users.dto_response.Response;
 
@@ -18,6 +19,17 @@ public class GlobalExceptionHandler {
                 .title(title)
                 .message(message)
                 .build();
+    }
+
+    // 🔹 Manejar ResponseStatusException (IMPORTANTE)
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Response> handleResponseStatus(ResponseStatusException ex) {
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(buildError(
+                        ex.getStatusCode().toString(),
+                        ex.getReason()
+                ));
     }
 
     @ExceptionHandler(UserNotFoundException.class)

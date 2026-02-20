@@ -1,6 +1,8 @@
 package sigebi.auth.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import sigebi.auth.DTO.request.InternalAuthValidateRequest;
 import sigebi.auth.DTO.request.LoginRequest;
@@ -31,50 +33,67 @@ public class LoginServiceImpl implements LoginService {
 
     public LoginResponse login(LoginRequest request) {
 
-        //validar credenciales
-        UserAuthDataResponse authData =
-                userInternalClient.validate(
-                        new InternalAuthValidateRequest(
-                                request.getEmail(),
-                                request.getPassword()
-                        )
-                );
-
-        // 2️⃣ Crear sesión
-        SessionEntity session = sessionService.create(authData.userId());
-
-        // 3️⃣ Resolver permisos por roles (AQUÍ ESTÁ LA MAGIA)
-        List<String> permissions =
-                permissionService.getPermissionsByRoles(authData.roles());
-
-        //emitir JWT con roles y permisos
-
-        String token = jwtService.generate(
-                authData.userId(),
-                session.getId(),
-                authData.email(),
-                authData.name(),
-                authData.roles(),
-                permissions
-        );
-
-        // 5️⃣ ✅ NUEVO: Crear refresh token
-        RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
-                .token(jwtService.generateRefreshToken())
-                .userId(authData.userId())
-                .sessionId(session.getId())
-                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
-                .active(true)
-                .build();
-        refreshTokenRepository.save(refreshToken);
+        try{
+            //validar credenciales
+            UserAuthDataResponse authData =
+                    userInternalClient.validate(
+                            new InternalAuthValidateRequest(
+                                    request.getEmail(),
+                                    request.getPassword()
+                            )
+                    );
 
 
+            // 2️⃣ Crear sesión
+            SessionEntity session = sessionService.create(authData.userId());
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .expiresAt(jwtService.getExpiration())
-                .refreshToken(refreshToken.getToken())
-                .sessionId(session.getId())
-                .build();
+            // 3️⃣ Resolver permisos por roles (AQUÍ ESTÁ LA MAGIA)
+            List<String> permissions =
+                    permissionService.getPermissionsByRoles(authData.roles());
+
+            //emitir JWT con roles y permisos
+
+            String token = jwtService.generate(
+                    authData.userId(),
+                    session.getId(),
+                    authData.email(),
+                    authData.name(),
+                    authData.roles(),
+                    permissions
+            );
+
+            // 5️⃣ ✅ NUEVO: Crear refresh token
+            RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
+                    .token(jwtService.generateRefreshToken())
+                    .userId(authData.userId())
+                    .sessionId(session.getId())
+                    .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+                    .active(true)
+                    .build();
+            refreshTokenRepository.save(refreshToken);
+
+
+
+            return LoginResponse.builder()
+                    .accessToken(token)
+                    .expiresAt(jwtService.getExpiration())
+                    .refreshToken(refreshToken.getToken())
+                    .sessionId(session.getId())
+                    .build();
+
+        } catch (FeignException ex) {
+
+            if (ex.status() == 401) {
+                throw new BadCredentialsException("Invalid credentials");
+            }
+
+            if (ex.status() == 403) {
+                throw new RuntimeException("User disabled");
+            }
+
+            throw ex; // cualquier otro error real
+        }
+
+
     }
 }
