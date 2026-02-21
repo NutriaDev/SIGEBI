@@ -47,6 +47,17 @@ public class UsersService {
             "mailinator.com"
     );
 
+    private void validateName(String value, String fieldName) {
+
+        if (value == null || value.isBlank()) {
+            throw new BusinessException(fieldName + " is required");
+        }
+
+        if (!value.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+$")) {
+            throw new BusinessException(fieldName + " must contain only letters");
+        }
+    }
+
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase();
     }
@@ -87,11 +98,20 @@ public class UsersService {
         if (!password.matches(".*[0-9].*")) {
             throw new BusinessException("Password must contain at least one number");
         }
+
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new BusinessException("Password must contain at least one special character");
+        }
     }
 
 
 
     public UserResponse createUser(@Valid CreateUsersRequest request) {
+
+        validateName(request.getName(), "Name");
+        validateName(request.getLastName(), "Last name");
+
+        validatePasswordSecurity(request.getPassword());
 
         validateMinimumAge(request.getBirthDate());
 
@@ -108,6 +128,7 @@ public class UsersService {
 
         CompanyEntity company = companyService.getCompanyById(request.getCompanyId());
         RoleEntity role = roleService.getRoleById(request.getIdRole());
+
         String hashedPassword = encryptService.createdHash(request.getPassword());
 
         UserEntity user = new UserEntity();
@@ -166,6 +187,16 @@ public class UsersService {
 
         UserEntity existing = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+        if (request.getName() != null) {
+            validateName(request.getName(), "Name");
+            existing.setName(request.getName());
+        }
+
+        if (request.getLastName() != null) {
+            validateName(request.getLastName(), "Last name");
+            existing.setLastname(request.getLastName());
+        }
 
         /* 1️⃣ Fecha de nacimiento (editable si sigue siendo mayor de edad) */
         if (request.getBirthDate() != null) {

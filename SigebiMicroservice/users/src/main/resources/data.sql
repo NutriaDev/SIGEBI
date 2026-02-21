@@ -33,7 +33,7 @@ INSERT INTO users (
     1234567890,
     'admin@test.com',
     1,
-    '$2a$12$iC48f0L54Ws1ajMrsWmbJuyrwXIqldBveE0eekWuFhnfHceBSOcIm',
+    '$2a$12$1XGV5aOha/AnT66YXJ91.OKc2/EvjmWJWjOE08brKK3s/VBff7pIi',
     true,
     2
 );
