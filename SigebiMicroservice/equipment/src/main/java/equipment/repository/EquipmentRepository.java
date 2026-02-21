@@ -22,5 +22,7 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long
 
     List<EquipmentEntity> findByProviderIdProvider(Long idProvider);
 
+    List<EquipmentEntity> findByStatesIdState(Long idState);
+
     List<EquipmentEntity> findByNameContainingIgnoreCase(String name);
 }

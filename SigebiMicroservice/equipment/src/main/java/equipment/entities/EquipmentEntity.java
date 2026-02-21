@@ -52,13 +52,13 @@ public class EquipmentEntity {
     @JoinColumn(name = "provider_id")
     private ProviderEntity provider;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "state_id", nullable = false)
+    private StatesEntity state;
+
     /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LocationId", nullable = false)
-    private LocationEntity location;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StateId", nullable = false)
-    private EquipmentStateEntity state;*/
+    private LocationEntity location;*/
 
     // Usuario que creó el equipo (solo ID)
     @Column(name = "created_by", nullable = false)

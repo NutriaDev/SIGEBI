@@ -33,6 +33,9 @@ public class EquipmentResponse {
     private Long providerId;
     private String providerName;
 
+    private Long stateId;
+    private String stateName;
+
     // Atributos del equipo
     private String riskLevel;
     private LocalDate acquisitionDate;

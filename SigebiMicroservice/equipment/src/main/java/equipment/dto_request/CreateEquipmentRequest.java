@@ -42,6 +42,9 @@ public class CreateEquipmentRequest {
 
     private Long providerId;
 
+    @NotNull(message = "El estado es obligatorio")
+    private Long stateId;
+
     @Size(max = 50, message = "El nivel de riesgo no puede exceder 50 caracteres")
     private String riskLevel;
 
