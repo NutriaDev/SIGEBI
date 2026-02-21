@@ -18,10 +18,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * Maneja excepciones cuando no se encuentra un recurso.
-     * Retorna: 404 NOT FOUND
-     */
+    // Cuando no se encuentra un recurso: 404 NOT FOUND
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         log.error("Resource not found: {}", ex.getMessage());
@@ -33,10 +30,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    /**
-     * Maneja excepciones cuando se intenta crear un recurso duplicado.
-     * Retorna: 409 CONFLICT
-     */
+    // Cuando se intenta crear un recurso duplicado: 409 CONFLICT
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         log.error("Duplicate resource: {}", ex.getMessage());
@@ -48,10 +42,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    /**
-     * Maneja errores de validación de datos (@Valid en los DTOs).
-     * Retorna: 400 BAD REQUEST
-     */
+    // Error en validación de datos: 400 BAD REQUEST
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         log.error("Validation error: {}", ex.getMessage());
@@ -73,10 +64,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    /**
-     * Maneja cualquier otra excepción no controlada.
-     * Retorna: 500 INTERNAL SERVER ERROR
-     */
+    // Cualquier otra excepción no controlada: 500 INTERNAL SERVER ERROR
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
@@ -88,9 +76,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    /**
-     * Clase para la respuesta de error estándar.
-     */
+    //Error estándar.
     @Data
     @AllArgsConstructor
     public static class ErrorResponse {
@@ -99,9 +85,7 @@ public class GlobalExceptionHandler {
         private LocalDateTime timestamp;
     }
 
-    /**
-     * Clase para la respuesta de errores de validación.
-     */
+    // Errores de validación.
     @Data
     @AllArgsConstructor
     public static class ValidationErrorResponse {

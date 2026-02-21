@@ -3,8 +3,6 @@ package equipment.service;
 import equipment.dto_request.CreateAreaRequest;
 import equipment.dto_request.UpdateAreaRequest;
 import equipment.dto_response.AreaResponse;
-import equipment.dto_request.CreateAreaRequest;
-import equipment.dto_response.AreaResponse;
 import equipment.entities.AreaEntity;
 import equipment.exception.DuplicateResourceException;
 import equipment.exception.ResourceNotFoundException;
@@ -138,7 +136,7 @@ public class AreaService {
 
     private AreaResponse mapToResponse(AreaEntity area) {
         return AreaResponse.builder()
-                .idArea(area.getAreaId())
+                .AreaId(area.getAreaId())
                 .name(area.getName())
                 .active(area.getActive())
                 .createdAt(area.getCreatedAt())
