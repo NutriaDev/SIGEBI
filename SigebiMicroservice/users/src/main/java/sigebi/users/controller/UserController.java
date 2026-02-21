@@ -42,6 +42,7 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasAuthority('users.read')")
     @GetMapping("api/get-all-users")
     public ResponseEntity<Response> getAllUsers(){
         try {

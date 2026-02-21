@@ -192,30 +192,35 @@ public class UsersService {
     public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
 
         UserEntity existing = usersRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        // 🔹 Name
         if (request.getName() != null) {
             validateName(request.getName(), "Name");
             existing.setName(request.getName());
         }
 
+        // 🔹 Last Name
         if (request.getLastName() != null) {
             validateName(request.getLastName(), "Last name");
             existing.setLastname(request.getLastName());
         }
 
-        /* 1️⃣ Fecha de nacimiento (editable si sigue siendo mayor de edad) */
+        // 🔹 Birth date
         if (request.getBirthDate() != null) {
             validateMinimumAge(request.getBirthDate());
             existing.setBirthDate(request.getBirthDate());
         }
 
-        /* 2️⃣ Email (editable + normalización + dominio + unicidad) */
+        // 🔹 Email
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
+
             String email = normalizeEmail(request.getEmail());
+            String existingEmail = normalizeEmail(existing.getEmail());
+
             validateEmailDomain(email);
 
-            if (!email.equals(existing.getEmail())
+            if (!email.equals(existingEmail)
                     && usersRepository.existsByEmail(email)) {
                 throw new EmailException("Email already exists");
             }
@@ -223,8 +228,9 @@ public class UsersService {
             existing.setEmail(email);
         }
 
-        /* 3️⃣ Teléfono (editable + unicidad) */
+        // 🔹 Phone
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
+
             if (!request.getPhone().equals(existing.getPhone())
                     && usersRepository.existsByPhone(request.getPhone())) {
                 throw new BusinessException("Phone number already exists");
@@ -233,19 +239,21 @@ public class UsersService {
             existing.setPhone(request.getPhone());
         }
 
-        /* 4️⃣ Empresa ❌ NO editable */
+        // 🔹 Company (NO editable)
         if (request.getCompanyId() != null &&
                 !request.getCompanyId().equals(existing.getCompanyId().getId())) {
-            throw new BusinessException("Company cannot be changed. User must be deactivated instead.");
+            throw new BusinessException(
+                    "Company cannot be changed. User must be deactivated instead."
+            );
         }
 
-        /* 5️⃣ Rol (editable) */
+        // 🔹 Role
         if (request.getIdRole() != null) {
             RoleEntity role = roleService.getRoleById(request.getIdRole());
             existing.setRole(role);
         }
 
-        /* 6️⃣ Password (editable + validación de seguridad) */
+        // 🔹 Password
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             validatePasswordSecurity(request.getPassword());
             existing.setPasswordHash(
@@ -253,15 +261,7 @@ public class UsersService {
             );
         }
 
-        /* 7️⃣ Datos básicos */
-        if (request.getName() != null) {
-            existing.setName(request.getName());
-        }
-
-        if (request.getLastName() != null) {
-            existing.setLastname(request.getLastName());
-        }
-
+        // 🔹 Active
         if (request.getActive() != null) {
             existing.setActive(request.getActive());
         }
