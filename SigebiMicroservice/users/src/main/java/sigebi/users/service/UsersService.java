@@ -63,9 +63,15 @@ public class UsersService {
     }
 
     private void validateEmailDomain(String email) {
-        String domain = email.substring(email.indexOf("@") + 1);
+
+        if (email == null || !email.contains("@")) {
+            throw new BusinessException("Formato de correo inválido");
+        }
+
+        String domain = email.substring(email.lastIndexOf("@") + 1).toLowerCase();
+
         if (BLOCKED_EMAIL_DOMAINS.contains(domain)) {
-            throw new EmailException("Disposable email domains are not allowed");
+            throw new BusinessException("No se permiten correos temporales o desechables");
         }
     }
 
