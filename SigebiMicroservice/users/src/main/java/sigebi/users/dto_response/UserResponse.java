@@ -18,7 +18,7 @@ public class UserResponse {
     private String phone;
     private String email;
     private Long id;
-    private Long CompanyId;
+    private Long companyId;
     private Boolean active;
     private String roleName;
     private Date createdAt;

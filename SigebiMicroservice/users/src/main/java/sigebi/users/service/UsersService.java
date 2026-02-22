@@ -307,7 +307,7 @@ public class UsersService {
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .id(entity.getId())
-                .CompanyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
+                .companyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
                 .createdAt(entity.getCreatedAt())
