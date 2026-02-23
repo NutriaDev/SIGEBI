@@ -192,7 +192,13 @@ public class UsersService {
     public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
 
         UserEntity existing = usersRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (!existing.getActive()) {
+            throw new BusinessException("Cannot update an inactive user.");
+        }
 
         // 🔹 Name
         if (request.getName() != null) {
@@ -222,7 +228,7 @@ public class UsersService {
 
             if (!email.equals(existingEmail)
                     && usersRepository.existsByEmail(email)) {
-                throw new EmailException("Email already exists");
+                throw new EmailException("Email already exists.");
             }
 
             existing.setEmail(email);
@@ -233,7 +239,7 @@ public class UsersService {
 
             if (!request.getPhone().equals(existing.getPhone())
                     && usersRepository.existsByPhone(request.getPhone())) {
-                throw new BusinessException("Phone number already exists");
+                throw new BusinessException("Phone number already exists.");
             }
 
             existing.setPhone(request.getPhone());
@@ -271,28 +277,57 @@ public class UsersService {
     }
 
 
-
-
     //Activar / desactivar usuarios (soft delete)
 
-    public UserResponse toggleUserStatus(Long id, boolean active){
-        return usersRepository.findById(id)
-                .map(user -> {
-                    user.setActive(active);
-                    UserEntity updated = usersRepository.save(user);
-                    return mapToResponse(updated);
-        })
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+    public UserResponse toggleUserStatus(Long id, boolean active) {
 
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (user.getActive().equals(active)) {
+            throw new BusinessException(
+                    active ? "User is already active." : "User is already inactive."
+            );
+        }
+
+        // Protección a SUPERADMIN
+        if (user.getRole().getNameRole().equalsIgnoreCase("SUPERADMIN")
+                && !active) {
+            throw new BusinessException(
+                    "Superadmin cannot be deactivated."
+            );
+        }
+
+        user.setActive(active);
+
+        UserEntity updated = usersRepository.save(user);
+        return mapToResponse(updated);
     }
 
     public UserResponse deleteUser(Long id) {
-        return usersRepository.findById(id)
-                .map(user -> {
-                    usersRepository.delete(user); // ✅ elimina con seguridad
-                    return mapToResponse(user);   // Devuelve el usuario eliminado (por auditoría)
-                })
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (user.getActive()) {
+            throw new BusinessException(
+                    "User must be deactivated before deletion."
+            );
+        }
+
+        if (user.getRole().getNameRole().equalsIgnoreCase("SUPERADMIN")) {
+            throw new BusinessException(
+                    "Superadmin cannot be deleted."
+            );
+        }
+
+        usersRepository.delete(user);
+
+        return mapToResponse(user);
     }
 
 

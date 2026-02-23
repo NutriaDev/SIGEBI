@@ -149,50 +149,42 @@ public class UserController {
     public ResponseEntity<Response> updateUser(
             @Valid @RequestBody UpdateUserRequest updateUserRequest,
             @PathVariable Long id
-    ){
-        try {
-            var updatedUser = usersService.updateUser(id, updateUserRequest);
+    ) {
 
-            return ApiResponse.success("User updated", "user updated correctly", updatedUser);
+        var updatedUser = usersService.updateUser(id, updateUserRequest);
 
-        } catch (Exception e) {
-            log.error("Something went wrong while updated user: ", e);
-            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
+        return ApiResponse.success(
+                "User updated",
+                "User updated correctly",
+                updatedUser
+        );
     }
 
 
     @PreAuthorize("hasAuthority('users.update')")
     @PatchMapping("api/deactive-user/{id}")
-    public ResponseEntity<Response> deactiveUser(
-            @PathVariable Long id
+    public ResponseEntity<Response> deactiveUser(@PathVariable Long id) {
 
-    ){
-        try {
-            var deactiveUser = usersService.toggleUserStatus(id, false);
-            return ApiResponse.success("User deactivated", "user updates with status false", deactiveUser);
+        var deactiveUser = usersService.toggleUserStatus(id, false);
 
-
-
-        } catch (Exception e) {
-            log.error("Something went wrong while deactivated user: ", e);
-            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
+        return ApiResponse.success(
+                "User deactivated",
+                "User updated with status false",
+                deactiveUser
+        );
     }
 
     @PreAuthorize("hasAuthority('users.update')")
     @PatchMapping("api/activate-user/{id}")
-    public ResponseEntity<Response> activateUser(
-            @PathVariable Long id
-    ){
-        try {
-            var user = usersService.toggleUserStatus(id, true);
-            return ApiResponse.success("User deactivated", "user updates with status false", user);
+    public ResponseEntity<Response> activateUser(@PathVariable Long id) {
 
-        } catch (Exception e) {
-            log.error("Something went wrong while deactivated user: ", e);
-            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
+        var user = usersService.toggleUserStatus(id, true);
+
+        return ApiResponse.success(
+                "User activated",
+                "User updated with status true",
+                user
+        );
     }
 
 
@@ -202,44 +194,27 @@ public class UserController {
     @PreAuthorize("hasAuthority('users.delete')")
     @DeleteMapping("api/deletehard-user/{id}")
     public ResponseEntity<Response> deleteUser(@PathVariable Long id) {
-        try {
-            var deletedUser = usersService.deleteUser(id);
-            return ApiResponse.success(
-                    "User deleted",
-                    "User successfully removed from database",
-                    deletedUser
-            );
-        } catch (RuntimeException e) {
-            return ApiResponse.notFound(ErrorTitles.USER_NOT_FOUND, e.getMessage());
-        } catch (Exception e) {
-            return ApiResponse.internalError("Internal error", e.getMessage());
-        }
+
+        var deletedUser = usersService.deleteUser(id);
+
+        return ApiResponse.success(
+                "User deleted",
+                "User successfully removed from database",
+                deletedUser
+        );
     }
 
     @PreAuthorize("hasAuthority('roles.delete')")
     @DeleteMapping("api/deletehard-role/{id}")
     public ResponseEntity<Response> deleteRole(@PathVariable int id) {
-        try {
-            roleService.deleteRole(id);
 
-            return ApiResponse.success(
-                    "Role deleted",
-                    "Role successfully removed from database",
-                    null
-            );
+        roleService.deleteRole(id);
 
-        } catch (RuntimeException e) {
-            return ApiResponse.notFound(
-                    "Role not found",
-                    e.getMessage()
-            );
-
-        } catch (Exception e) {
-            return ApiResponse.internalError(
-                    "Internal error",
-                    e.getMessage()
-            );
-        }
+        return ApiResponse.success(
+                "Role deleted",
+                "Role successfully removed from database",
+                null
+        );
     }
 
 
