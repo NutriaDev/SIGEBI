@@ -1,16 +1,16 @@
 package equipment.repository;
 
-import equipment.entities.StatesEntity;
+import equipment.entities.StateEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface StatesRepository extends JpaRepository<StatesEntity, Long> {
+public interface StatesRepository extends JpaRepository<StateEntity, Long> {
 
-    List<StatesEntity> findAllByActive(Boolean active);
+    List<StateEntity> findAllByActive(Boolean active);
 
-    Optional<StatesEntity> findByNameIgnoreCase(String name);
+    Optional<StateEntity> findByNameIgnoreCase(String name);
 
     boolean existsByName(String name);
 

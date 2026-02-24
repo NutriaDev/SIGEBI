@@ -3,7 +3,7 @@ package equipment.service;
 import equipment.dto_request.CreateStatesRequest;
 import equipment.dto_request.UpdateStatesRequest;
 import equipment.dto_response.StatesResponse;
-import equipment.entities.StatesEntity;
+import equipment.entities.StateEntity;
 import equipment.exception.DuplicateResourceException;
 import equipment.exception.ResourceNotFoundException;
 import equipment.repository.StatesRepository;
@@ -32,12 +32,12 @@ public class StatesService {
             throw new DuplicateResourceException("Ya existe un estado con el nombre: " + request.getName());
         }
 
-        StatesEntity status = StatesEntity.builder()
+        StateEntity status = StateEntity.builder()
                 .name(request.getName())
                 .active(true)
                 .build();
 
-        StatesEntity savedStatus = statesRepository.save(status);
+        StateEntity savedStatus = statesRepository.save(status);
         log.info("Estado creado exitosamente con ID: {}", savedStatus.getStateId());
 
         return mapToResponse(savedStatus);
@@ -65,7 +65,7 @@ public class StatesService {
     @Transactional(readOnly = true)
     public StatesResponse getStatusById(Long idState) {
         log.info("Buscando estado con ID: {}", idState);
-        StatesEntity status = statesRepository.findById(idState)
+        StateEntity status = statesRepository.findById(idState)
                 .orElseThrow(() -> {
                     log.error("Estado no encontrado con ID: {}", idState);
                     return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
@@ -77,7 +77,7 @@ public class StatesService {
     @Transactional(readOnly = true)
     public StatesResponse getStatusByName(String name) {
         log.info("Buscando estado con nombre: {}", name);
-        StatesEntity status = statesRepository.findByNameIgnoreCase(name)
+        StateEntity status = statesRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> {
                     log.error("Estado no encontrado con nombre: {}", name);
                     return new ResourceNotFoundException("Estado no encontrado con nombre: " + name);
@@ -90,7 +90,7 @@ public class StatesService {
     public StatesResponse updateStatus(Long idState, UpdateStatesRequest request) {
         log.info("Actualizando estado con ID: {}", idState);
 
-        StatesEntity status = statesRepository.findById(idState)
+        StateEntity status = statesRepository.findById(idState)
                 .orElseThrow(() -> {
                     log.error("Estado no encontrado con ID: {}", idState);
                     return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
@@ -107,7 +107,7 @@ public class StatesService {
             status.setActive(request.getActive());
         }
 
-        StatesEntity updatedStatus = statesRepository.save(status);
+        StateEntity updatedStatus = statesRepository.save(status);
         log.info("Estado actualizado exitosamente: {}", updatedStatus.getStateId());
 
         return mapToResponse(updatedStatus);
@@ -118,7 +118,7 @@ public class StatesService {
     public void deactivateStatus(Long idState) {
         log.info("Desactivando estado con ID: {}", idState);
 
-        StatesEntity status = statesRepository.findById(idState)
+        StateEntity status = statesRepository.findById(idState)
                 .orElseThrow(() -> {
                     log.error("Estado no encontrado con ID: {}", idState);
                     return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
@@ -130,7 +130,7 @@ public class StatesService {
     }
 
     // Convertir entidad a DTO de respuesta
-    private StatesResponse mapToResponse(StatesEntity status) {
+    private StatesResponse mapToResponse(StateEntity status) {
         return StatesResponse.builder()
                 .idState(status.getStateId())
                 .name(status.getName())
