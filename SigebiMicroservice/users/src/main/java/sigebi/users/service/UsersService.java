@@ -255,8 +255,7 @@ public class UsersService {
 
         // 🔹 Role
         if (request.getIdRole() != null) {
-            RoleEntity role = roleService.getRoleById(request.getIdRole());
-            existing.setRole(role);
+            throw new BusinessException("Role cannot be modified. Create a new user instead.");
         }
 
         // 🔹 Password
