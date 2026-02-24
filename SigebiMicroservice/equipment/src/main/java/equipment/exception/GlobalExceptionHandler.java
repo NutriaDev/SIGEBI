@@ -1,5 +1,6 @@
 package equipment.exception;
 
+import equipment.constants.ErrorTitles;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    // Cuando no se encuentra un recurso: 404 NOT FOUND
+    // 404 NOT FOUND
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         log.error("Resource not found: {}", ex.getMessage());
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // Cuando se intenta crear un recurso duplicado: 409 CONFLICT
+    // 409 CONFLICT
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         log.error("Duplicate resource: {}", ex.getMessage());
@@ -42,7 +43,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // Error en validación de datos: 400 BAD REQUEST
+    // 400 BAD REQUEST
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         log.error("Validation error: {}", ex.getMessage());
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler {
 
         ValidationErrorResponse response = new ValidationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Error de validación",
+                ErrorTitles.VALIDATION_ERROR,
                 LocalDateTime.now(),
                 errors
         );
@@ -64,19 +65,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Cualquier otra excepción no controlada: 500 INTERNAL SERVER ERROR
+    // 500 INTERNAL SERVER ERROR
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Ha ocurrido un error interno en el servidor",
+                ErrorTitles.INTERNAL_ERROR,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    //Error estándar.
     @Data
     @AllArgsConstructor
     public static class ErrorResponse {
@@ -85,7 +85,6 @@ public class GlobalExceptionHandler {
         private LocalDateTime timestamp;
     }
 
-    // Errores de validación.
     @Data
     @AllArgsConstructor
     public static class ValidationErrorResponse {

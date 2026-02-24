@@ -24,5 +24,7 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long
 
     List<EquipmentEntity> findByStatesIdState(Long idState);
 
+    List<EquipmentEntity> findByLocationIdLocation(Long idLocation);
+
     List<EquipmentEntity> findByNameContainingIgnoreCase(String name);
 }

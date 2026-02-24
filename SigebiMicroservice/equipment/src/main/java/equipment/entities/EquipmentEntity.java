@@ -54,11 +54,11 @@ public class EquipmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_id", nullable = false)
-    private StatesEntity state;
+    private StateEntity state;
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LocationId", nullable = false)
-    private LocationEntity location;*/
+    private LocationEntity location;
 
     // Usuario que creó el equipo (solo ID)
     @Column(name = "created_by", nullable = false)

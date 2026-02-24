@@ -45,6 +45,9 @@ public class CreateEquipmentRequest {
     @NotNull(message = "El estado es obligatorio")
     private Long stateId;
 
+    @NotNull(message = "La ubicación es obligatoria")
+    private Long locationId;
+
     @Size(max = 50, message = "El nivel de riesgo no puede exceder 50 caracteres")
     private String riskLevel;
 

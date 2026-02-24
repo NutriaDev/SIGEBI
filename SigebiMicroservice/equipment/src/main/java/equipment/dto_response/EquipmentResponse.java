@@ -36,6 +36,9 @@ public class EquipmentResponse {
     private Long stateId;
     private String stateName;
 
+    private Long locationId;
+    private String locationName;
+
     // Atributos del equipo
     private String riskLevel;
     private LocalDate acquisitionDate;

@@ -6,13 +6,15 @@ import equipment.dto_response.EquipmentResponse;
 import equipment.entities.AreaEntity;
 import equipment.entities.ClassificationEntity;
 import equipment.entities.EquipmentEntity;
+import equipment.entities.LocationEntity;
 import equipment.entities.ProviderEntity;
-import equipment.entities.StatesEntity;
+import equipment.entities.StateEntity;
 import equipment.exception.DuplicateResourceException;
 import equipment.exception.ResourceNotFoundException;
 import equipment.repository.AreaRepository;
 import equipment.repository.ClassificationRepository;
 import equipment.repository.EquipmentRepository;
+import equipment.repository.LocationRepository;
 import equipment.repository.ProviderRepository;
 import equipment.repository.StatesRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class EquipmentService {
     private final ClassificationRepository classificationRepository;
     private final ProviderRepository providerRepository;
     private final StatesRepository statesRepository;
+    private final LocationRepository locationRepository;
 
     // Crear un nuevo equipo
     @Transactional
@@ -61,8 +64,12 @@ public class EquipmentService {
         }
 
         // Buscar estado
-        StatesEntity state = statesRepository.findById(request.getStateId())
+        StateEntity state = statesRepository.findById(request.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado con ID: " + request.getStateId()));
+
+        // Buscar ubicación
+        LocationEntity location = locationRepository.findById(request.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ubicación no encontrada con ID: " + request.getLocationId()));
 
         EquipmentEntity equipment = EquipmentEntity.builder()
                 .serie(request.getSerie())
@@ -74,6 +81,7 @@ public class EquipmentService {
                 .classification(classification)
                 .provider(provider)
                 .state(state)
+                .location(location)
                 .riskLevel(request.getRiskLevel())
                 .acquisitionDate(request.getAcquisitionDate())
                 .usefulLife(request.getUsefulLife())
@@ -167,6 +175,15 @@ public class EquipmentService {
                 .collect(Collectors.toList());
     }
 
+    // Obtener equipos por ubicación
+    @Transactional(readOnly = true)
+    public List<EquipmentResponse> getEquipmentsByLocation(Long locationId) {
+        log.info("Obteniendo equipos en ubicación: {}", locationId);
+        return equipmentRepository.findByLocationIdLocation(locationId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     // Buscar equipos por nombre
     @Transactional(readOnly = true)
     public List<EquipmentResponse> searchEquipmentsByName(String name) {
@@ -209,8 +226,12 @@ public class EquipmentService {
         }
 
         // Buscar estado
-        StatesEntity state = statesRepository.findById(request.getStateId())
+        StateEntity state = statesRepository.findById(request.getStateId())
                 .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado con ID: " + request.getStateId()));
+
+        // Buscar ubicación
+        LocationEntity location = locationRepository.findById(request.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ubicación no encontrada con ID: " + request.getLocationId()));
 
         equipment.setSerie(request.getSerie());
         equipment.setName(request.getName());
@@ -221,6 +242,7 @@ public class EquipmentService {
         equipment.setClassification(classification);
         equipment.setProvider(provider);
         equipment.setState(state);
+        equipment.setLocation(location);
         equipment.setRiskLevel(request.getRiskLevel());
         equipment.setAcquisitionDate(request.getAcquisitionDate());
         equipment.setUsefulLife(request.getUsefulLife());
@@ -271,6 +293,8 @@ public class EquipmentService {
                 .providerName(equipment.getProvider() != null ? equipment.getProvider().getName() : null)
                 .stateId(equipment.getState() != null ? equipment.getState().getStateId() : null)
                 .stateName(equipment.getState() != null ? equipment.getState().getName() : null)
+                .locationId(equipment.getLocation() != null ? equipment.getLocation().getIdLocation() : null)
+                .locationName(equipment.getLocation() != null ? equipment.getLocation().getName() : null)
                 .riskLevel(equipment.getRiskLevel())
                 .acquisitionDate(equipment.getAcquisitionDate())
                 .usefulLife(equipment.getUsefulLife())
