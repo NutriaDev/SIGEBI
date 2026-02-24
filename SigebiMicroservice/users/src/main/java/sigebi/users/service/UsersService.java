@@ -188,37 +188,41 @@ public class UsersService {
                 .collect(Collectors.toList());
     }
 
-    //Editar información de usuario
-    public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
+    //Editar User
 
-        UserEntity existing = usersRepository.findById(id)
+    private UserEntity findActiveUserOrThrow(Long id) {
+        UserEntity user = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(
                         "User not found with ID: " + id
                 ));
 
-        if (!existing.getActive()) {
+        if (!user.getActive()) {
             throw new BusinessException("Cannot update an inactive user.");
         }
 
-        // 🔹 Name
+        return user;
+    }
+
+    private void updateBasicInfo(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getName() != null) {
             validateName(request.getName(), "Name");
             existing.setName(request.getName());
         }
 
-        // 🔹 Last Name
         if (request.getLastName() != null) {
             validateName(request.getLastName(), "Last name");
             existing.setLastname(request.getLastName());
         }
 
-        // 🔹 Birth date
         if (request.getBirthDate() != null) {
             validateMinimumAge(request.getBirthDate());
             existing.setBirthDate(request.getBirthDate());
         }
+    }
 
-        // 🔹 Email
+    private void updateContactInfo(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
 
             String email = normalizeEmail(request.getEmail());
@@ -234,7 +238,6 @@ public class UsersService {
             existing.setEmail(email);
         }
 
-        // 🔹 Phone
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
 
             if (!request.getPhone().equals(existing.getPhone())
@@ -244,8 +247,10 @@ public class UsersService {
 
             existing.setPhone(request.getPhone());
         }
+    }
 
-        // 🔹 Company (NO editable)
+    private void validateImmutableFields(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getCompanyId() != null &&
                 !request.getCompanyId().equals(existing.getCompanyId().getId())) {
             throw new BusinessException(
@@ -253,27 +258,43 @@ public class UsersService {
             );
         }
 
-        // 🔹 Role
         if (request.getIdRole() != null) {
-            throw new BusinessException("Role cannot be modified. Create a new user instead.");
+            throw new BusinessException(
+                    "Role cannot be modified. Create a new user instead."
+            );
         }
+    }
 
-        // 🔹 Password
+    private void updatePassword(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             validatePasswordSecurity(request.getPassword());
             existing.setPasswordHash(
                     encryptService.createdHash(request.getPassword())
             );
         }
+    }
 
-        // 🔹 Active
+    private void updateActiveStatus(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getActive() != null) {
             existing.setActive(request.getActive());
         }
-
-        UserEntity updatedUser = usersRepository.save(existing);
-        return mapToResponse(updatedUser);
     }
+
+    public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
+
+        UserEntity existing = findActiveUserOrThrow(id);
+
+        updateBasicInfo(existing, request);
+        updateContactInfo(existing, request);
+        validateImmutableFields(existing, request);
+        updatePassword(existing, request);
+        updateActiveStatus(existing, request);
+
+        return mapToResponse(usersRepository.save(existing));
+    }
+
 
 
     //Activar / desactivar usuarios (soft delete)
