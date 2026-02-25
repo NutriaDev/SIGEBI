@@ -80,6 +80,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('users.read.admin','users.read.supervisor','users.read.tecnico')")
+    @GetMapping("api/get-user-by-email/{email}")
     public ResponseEntity<Response> getUserByEmail(
             @PathVariable String email
     ){
