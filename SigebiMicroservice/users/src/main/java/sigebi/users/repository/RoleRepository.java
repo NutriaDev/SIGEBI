@@ -8,7 +8,7 @@ import sigebi.users.entities.RoleEntity;
 
 import java.util.List;
 
-public interface RoleRepository extends JpaRepository <RoleEntity, Integer> {
+public interface RoleRepository extends JpaRepository <RoleEntity, Long> {
 
     //obtener todos los roles por estado true
     List<RoleEntity> findAllByStatus(Boolean status);

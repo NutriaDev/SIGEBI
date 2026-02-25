@@ -25,7 +25,7 @@ public class RoleService {
     }
 
     // Obtener rol por ID
-    public RoleEntity getRoleById(int id) {
+    public RoleEntity getRoleById(Long id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found with ID: " + id));
     }
@@ -52,7 +52,7 @@ public class RoleService {
 
 
     // Eliminar rol por ID
-    public void deleteRole(int idRole) {
+    public void deleteRole(Long idRole) {
         if (!roleRepository.existsById(idRole)) {
             throw new RoleNotFoundException("Role not found with ID: " + idRole);
         }

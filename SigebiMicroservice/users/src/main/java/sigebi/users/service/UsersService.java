@@ -2,6 +2,8 @@ package sigebi.users.service;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sigebi.users.dto_request.CreateUsersRequest;
 import sigebi.users.dto_request.UpdateUserRequest;
@@ -39,6 +41,21 @@ public class UsersService {
     private EncryptService encryptService;
 
     //validators
+
+    private void validateAuthority(String permission) {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        boolean allowed = auth.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals(permission));
+
+        if (!allowed) {
+            throw new BusinessException("No autorizado para realizar esta acción.");
+        }
+    }
 
     private static final Set<String> BLOCKED_EMAIL_DOMAINS = Set.of(
             "yopmail.com",
@@ -110,15 +127,24 @@ public class UsersService {
         }
     }
 
+    public void validateCreatePermission(Long roleId) {
+
+        RoleEntity role = roleService.getRoleById(roleId);
+
+        String targetRole = role.getNameRole().toLowerCase();
+
+        validateAuthority("users.create." + targetRole);
+    }
+
 
 
     public UserResponse createUser(@Valid CreateUsersRequest request) {
 
+        validateCreatePermission(request.getIdRole());
+
         validateName(request.getName(), "Name");
         validateName(request.getLastName(), "Last name");
-
         validatePasswordSecurity(request.getPassword());
-
         validateMinimumAge(request.getBirthDate());
 
         String email = normalizeEmail(request.getEmail());
@@ -186,6 +212,21 @@ public class UsersService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public void validateUpdatePermission(Long userId) {
+
+        UserEntity targetUser = usersRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found")
+                );
+
+        String targetRole = targetUser
+                .getRole()
+                .getNameRole()
+                .toLowerCase();
+
+        validateAuthority("users.update." + targetRole);
     }
 
     //Editar User
@@ -284,6 +325,8 @@ public class UsersService {
 
     public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
 
+        validateUpdatePermission(id);
+
         UserEntity existing = findActiveUserOrThrow(id);
 
         updateBasicInfo(existing, request);
@@ -300,6 +343,7 @@ public class UsersService {
     //Activar / desactivar usuarios (soft delete)
 
     public UserResponse toggleUserStatus(Long id, boolean active) {
+        validateUpdatePermission(id);
 
         UserEntity user = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -326,7 +370,24 @@ public class UsersService {
         return mapToResponse(updated);
     }
 
+    public void validateDeletePermission(Long userId) {
+
+        UserEntity targetUser = usersRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found")
+                );
+
+        String targetRole = targetUser
+                .getRole()
+                .getNameRole()
+                .toLowerCase();
+
+        validateAuthority("users.delete." + targetRole);
+    }
+
     public UserResponse deleteUser(Long id) {
+
+        validateDeletePermission(id);
 
         UserEntity user = usersRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(

@@ -51,6 +51,9 @@ public class LoginServiceImpl implements LoginService {
             List<String> permissions =
                     permissionService.getPermissionsByRoles(authData.roles());
 
+            System.out.println("ROLES DESDE USERS: " + authData.roles());
+            System.out.println("PERMISSIONS: " + permissions);
+
             //emitir JWT con roles y permisos
 
             String token = jwtService.generate(

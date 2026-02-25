@@ -29,7 +29,7 @@ public class UserController {
     @Autowired
     private RoleService roleService;
 
-    @PreAuthorize("hasAuthority('users.create')")
+    @PreAuthorize("hasAnyAuthority('users.create.admin','users.create.supervisor','users.create.tecnico')")
     @PostMapping("/api/users-create")
     public ResponseEntity<Response> userCreate(
             @Valid @RequestBody CreateUsersRequest createUsersRequest
@@ -41,8 +41,7 @@ public class UserController {
 
     }
 
-
-    @PreAuthorize("hasAuthority('users.read')")
+    @PreAuthorize("hasAnyAuthority('users.read.admin','users.read.supervisor','users.read.tecnico')")
     @GetMapping("api/get-all-users")
     public ResponseEntity<Response> getAllUsers(){
         try {
@@ -58,7 +57,7 @@ public class UserController {
 
     }
 
-    @PreAuthorize("hasAuthority('users.read')")
+    @PreAuthorize("hasAnyAuthority('users.read.admin','users.read.supervisor','users.read.tecnico')")
     @GetMapping("api/get-user-by-id/{id}")
     public ResponseEntity<Response> getUserById(
             @PathVariable Long id
@@ -80,8 +79,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAuthority('users.read')")
-    @GetMapping("api/get-user-by-email/{email}")
+    @PreAuthorize("hasAnyAuthority('users.read.admin','users.read.supervisor','users.read.tecnico')")
     public ResponseEntity<Response> getUserByEmail(
             @PathVariable String email
     ){
@@ -99,6 +97,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('users.read.admin','users.read.supervisor','users.read.tecnico')")
     @GetMapping("api/get-all-by-active/{active}")
     public ResponseEntity<Response> getAllByStatus(
             @PathVariable Boolean active
@@ -114,37 +113,7 @@ public class UserController {
         }
     }
 
-    //roles
-
-    @PreAuthorize("hasAuthority('roles.read')")
-    @GetMapping("api/get-all-roles")
-    public ResponseEntity<Response> getAllRoles(){
-        try {
-            List<RoleResponse> roles = roleService.getAllRoles();
-            return ApiResponse.success("Users retrieved successfully", "All roles fetched correctly", roles);
-        } catch (Exception e) {
-            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasAuthority('roles.create')")
-    @PostMapping("api/save-rol")
-    public ResponseEntity<Response> saveRole(@RequestBody RoleRequest body) {
-        try {
-            var saved = roleService.saveRole(
-                    body.getNameRole(),
-                    body.getActive(),
-                    body.getId()
-                        );
-
-            return ApiResponse.success("Role saved", "Role saved successfully", saved);
-
-        } catch (Exception e) {
-            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasAuthority('users.update')")
+    @PreAuthorize("hasAnyAuthority('users.update.admin','users.update.supervisor','users.update.tecnico')")
     @PatchMapping("api/edit-user/{id}")
     public ResponseEntity<Response> updateUser(
             @Valid @RequestBody UpdateUserRequest updateUserRequest,
@@ -161,7 +130,7 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasAuthority('users.update')")
+    @PreAuthorize("hasAnyAuthority('users.update.admin','users.update.supervisor','users.update.tecnico')")
     @PatchMapping("api/deactive-user/{id}")
     public ResponseEntity<Response> deactiveUser(@PathVariable Long id) {
 
@@ -174,7 +143,7 @@ public class UserController {
         );
     }
 
-    @PreAuthorize("hasAuthority('users.update')")
+    @PreAuthorize("hasAnyAuthority('users.update.admin','users.update.supervisor','users.update.tecnico')")
     @PatchMapping("api/activate-user/{id}")
     public ResponseEntity<Response> activateUser(@PathVariable Long id) {
 
@@ -188,10 +157,7 @@ public class UserController {
     }
 
 
-
-
-
-    @PreAuthorize("hasAuthority('users.delete')")
+    @PreAuthorize("hasAnyAuthority('users.delete.admin','users.delete.supervisor','users.delete.tecnico')")
     @DeleteMapping("api/deletehard-user/{id}")
     public ResponseEntity<Response> deleteUser(@PathVariable Long id) {
 
@@ -204,9 +170,39 @@ public class UserController {
         );
     }
 
+
+
+    //roles
+
+    @GetMapping("api/get-all-roles")
+    public ResponseEntity<Response> getAllRoles(){
+        try {
+            List<RoleResponse> roles = roleService.getAllRoles();
+            return ApiResponse.success("Users retrieved successfully", "All roles fetched correctly", roles);
+        } catch (Exception e) {
+            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
+        }
+    }
+
+    @PostMapping("api/save-rol")
+    public ResponseEntity<Response> saveRole(@RequestBody RoleRequest body) {
+        try {
+            var saved = roleService.saveRole(
+                    body.getNameRole(),
+                    body.getActive(),
+                    body.getId()
+            );
+
+            return ApiResponse.success("Role saved", "Role saved successfully", saved);
+
+        } catch (Exception e) {
+            return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
+        }
+    }
+
     @PreAuthorize("hasAuthority('roles.delete')")
     @DeleteMapping("api/deletehard-role/{id}")
-    public ResponseEntity<Response> deleteRole(@PathVariable int id) {
+    public ResponseEntity<Response> deleteRole(@PathVariable Long id) {
 
         roleService.deleteRole(id);
 

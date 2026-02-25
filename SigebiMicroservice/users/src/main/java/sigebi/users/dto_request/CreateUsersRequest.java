@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class CreateUsersRequest {
     @NotNull(message = "Role is required")
-    private Integer idRole;
+    private Long idRole;
 
     @NotNull(message = "Company name is required")
     private Long companyId;
