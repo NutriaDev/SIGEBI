@@ -97,7 +97,7 @@ class UpdateUserTest {
         when(usersRepository.existsByPhone("3111111111"))
                 .thenReturn(false);
 
-        when(roleService.getRoleById(2))
+        when(roleService.getRoleById(2L))
                 .thenReturn(newRole);
 
         when(encryptService.createdHash("newPass123*.*"))
@@ -122,7 +122,7 @@ class UpdateUserTest {
         assertNotNull(response.getUpdatedAt());
 
         verify(usersRepository).save(existingUser);
-        verify(roleService).getRoleById(2);
+        verify(roleService).getRoleById(2L);
         verify(encryptService).createdHash("newPass123*.*");
     }
 }

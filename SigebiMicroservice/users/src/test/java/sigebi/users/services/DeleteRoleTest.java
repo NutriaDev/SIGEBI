@@ -22,13 +22,13 @@ public class DeleteRoleTest {
     @Test
     void deleteRole_exists_deletesSuccessfully() {
 
-        when(roleRepository.existsById(1))
+        when(roleRepository.existsById(1L))
                 .thenReturn(true);
 
-        roleService.deleteRole(1);
+        roleService.deleteRole(1L);
 
-        verify(roleRepository).existsById(1);
-        verify(roleRepository).deleteById(1);
+        verify(roleRepository).existsById(1L);
+        verify(roleRepository).deleteById(1L);
     }
 
 }

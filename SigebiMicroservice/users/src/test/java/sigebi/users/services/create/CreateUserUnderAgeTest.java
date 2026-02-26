@@ -1,13 +1,17 @@
-package sigebi.users.services;
+package sigebi.users.services.create;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import sigebi.users.dto_request.CreateUsersRequest;
+import sigebi.users.entities.RoleEntity;
+import sigebi.users.exception.BusinessException;
 import sigebi.users.repository.UsersRepository;
-import sigebi.users.service.CompanyService;
 import sigebi.users.service.EncryptService;
 import sigebi.users.service.RoleService;
 import sigebi.users.service.UsersService;
@@ -15,6 +19,7 @@ import sigebi.users.service.UsersService;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,11 +33,30 @@ public class CreateUserUnderAgeTest {
     @Mock
     EncryptService encryptService;
 
+    @Mock
+    RoleService roleService;
+
     @InjectMocks
     UsersService usersService;
 
     @Test
     void createUser_underage_exception() {
+
+        // ===== Security mock =====
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "user",
+                        null,
+                        List.of(new SimpleGrantedAuthority("users.create.supervisor"))
+                )
+        );
+
+        RoleEntity role = RoleEntity.builder()
+                .id(3L)
+                .nameRole("SUPERVISOR")
+                .build();
+
+        when(roleService.getRoleById(3L)).thenReturn(role);
 
         // ===== GIVEN =====
         CreateUsersRequest request = new CreateUsersRequest();
@@ -48,14 +72,12 @@ public class CreateUserUnderAgeTest {
         request.setEmail("luishurtado@gmail.com");
         request.setCompanyId(3L);
         request.setPassword("47585Lu*.");
-        request.setIdRole(3);
+        request.setIdRole(3L);
         request.setActive(true);
 
         // ===== WHEN / THEN =====
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> usersService.createUser(request)
-        );
+        assertThrows(BusinessException.class,
+                () -> usersService.createUser(request));
 
         verify(usersRepository, never()).save(any());
         verify(encryptService, never()).createdHash(any());

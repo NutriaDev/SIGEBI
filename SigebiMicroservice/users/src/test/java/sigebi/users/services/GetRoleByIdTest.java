@@ -33,15 +33,15 @@ public class GetRoleByIdTest {
                 .status(true)
                 .build();
 
-        when(roleRepository.findById(1))
+        when(roleRepository.findById(1L))
                 .thenReturn(Optional.of(role));
 
-        RoleEntity result = roleService.getRoleById(1);
+        RoleEntity result = roleService.getRoleById(1L);
 
         assertNotNull(result);
         assertEquals("ADMIN", result.getNameRole());
 
-        verify(roleRepository).findById(1);
+        verify(roleRepository).findById(1L);
     }
 
 }

@@ -24,17 +24,17 @@ public class DeleteRoleNotFoundTest {
     @Test
     void deleteRole_notFound_throwsException() {
 
-        when(roleRepository.existsById(99))
+        when(roleRepository.existsById(99L))
                 .thenReturn(false);
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
-                () -> roleService.deleteRole(99)
+                () -> roleService.deleteRole(99L)
         );
 
         assertEquals("Role not found with ID: 99", exception.getMessage());
 
-        verify(roleRepository).existsById(99);
-        verify(roleRepository, never()).deleteById(anyInt());
+        verify(roleRepository).existsById(99L);
+        verify(roleRepository, never()).deleteById(99L);
     }
 }

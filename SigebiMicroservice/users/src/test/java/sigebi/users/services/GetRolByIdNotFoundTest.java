@@ -25,17 +25,17 @@ public class GetRolByIdNotFoundTest {
     @Test
     void getRoleById_notFound_throwsException() {
 
-        when(roleRepository.findById(99))
+        when(roleRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
-                () -> roleService.getRoleById(99)
+                () -> roleService.getRoleById(99L)
         );
 
         assertEquals("Role not found with ID: 99", exception.getMessage());
 
-        verify(roleRepository).findById(99);
+        verify(roleRepository).findById(99L);
     }
 
 }
