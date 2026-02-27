@@ -49,7 +49,7 @@ public class UserEntity {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "status")
     private Boolean active = true;
 
     @ManyToOne(fetch = FetchType.EAGER)

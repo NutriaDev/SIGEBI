@@ -1,7 +1,11 @@
+server:
+  port: 8090
 spring:
+  cloud:
+    config:
+      enabled: false
   application:
-    name: users
-
+    name: ms-users
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -10,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop #         🔒  borra tablas en cada inicio
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
@@ -19,13 +23,10 @@ spring:
 
   sql:
     init:
-      mode: always            # ✅ Ejecuta data.sql SIEMPRE
-
-  config:
-    import: optional:configserver:http://localhost:8888
-
+      mode: always           # ✅ Ejecuta data.sql SIEMPRE
 eureka:
   instance:
     hostname: localhost
   client:
-    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka
