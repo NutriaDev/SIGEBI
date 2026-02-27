@@ -1,6 +1,6 @@
-package sigebi.users.services.auth;
+package sigebi.users.services;
 
-import io.jsonwebtoken.Jwts;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -12,10 +12,7 @@ import sigebi.users.repository.UsersRepository;
 import sigebi.users.security.JwtUtils;
 import sigebi.users.service.EncryptService;
 import sigebi.users.service.InternalAuthService;
-
-import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -142,6 +139,16 @@ class InternalAuthServiceTest {
 
         assertThrows(ResponseStatusException.class,
                 () -> internalAuthService.validateCredentials(email, "password"));
+    }
+
+    @Test
+    void getUserById_notFound_throwsRuntime() {
+
+        when(usersRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class,
+                () -> internalAuthService.getUserById(99L));
     }
 
 

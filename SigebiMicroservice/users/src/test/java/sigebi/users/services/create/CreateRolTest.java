@@ -40,4 +40,26 @@ public class CreateRolTest {
 
         verify(roleRepository).save(any(RoleEntity.class));
     }
+
+    @Test
+    void saveRole_withNullId_createsRole() {
+
+        RoleRepository repo = mock(RoleRepository.class);
+        RoleService service = new RoleService();
+        service.roleRepository = repo;
+
+        RoleEntity saved = RoleEntity.builder()
+                .id(1L)
+                .nameRole("ADMIN")
+                .status(true)
+                .build();
+
+        when(repo.save(any(RoleEntity.class)))
+                .thenReturn(saved);
+
+        RoleEntity result = service.saveRole("ADMIN", true, null);
+
+        assertEquals("ADMIN", result.getNameRole());
+        verify(repo).save(any(RoleEntity.class));
+    }
 }

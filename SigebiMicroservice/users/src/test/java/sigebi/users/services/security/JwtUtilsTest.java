@@ -2,8 +2,10 @@ package sigebi.users.services.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
 import sigebi.users.security.JwtUtils;
 
 import javax.crypto.SecretKey;
@@ -19,6 +21,11 @@ class JwtUtilsTest {
     SecretKey key;
 
     String secret = "MyUltraSecureJwtSecretKeyForTesting123456";
+
+    @BeforeEach
+    void clearBefore() {
+        SecurityContextHolder.clearContext();
+    }
 
     @BeforeEach
     void setup() throws Exception {
@@ -97,5 +104,10 @@ class JwtUtilsTest {
 
         assertNotNull(roles);
         assertTrue(roles.isEmpty());
+    }
+
+    @AfterEach
+    void clearAfter() {
+        SecurityContextHolder.clearContext();
     }
 }
