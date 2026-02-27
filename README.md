@@ -280,5 +280,53 @@ Cliente
 ---
 
 <details>
-<summary><h2>🔐 AUTH Spring Security</h2></summary>
+<summary><h2>🔐 MS-Auth-Autentication JWT con Yoken Rotation</h2></summary>
+
+<h3>📖 Descripción</h3>
+
+<p>
+El microservicio de Auth contiene la autenticacion del sistema SIGEBI, concede sus permisos granulares tambien. Y se comunica con el modulo de ms-users mediante <strong>OpenFeign</strong>:
+</p>
+
+---
+
+<h3>🔄 Flujo de Autenticación</h3>
+
+## 1️⃣ Login – `POST /auth/login`
+
+### 🔄 Flujo
+
+1. Cliente envía:
+
+```json
+{
+  "email": "...",
+  "password": "..."
+}
+```
+
+2. Auth llama a (ms-users)
+
+```json
+POST /internal/auth/validate   (ms-users)
+
+```
+
+3. Users valida
+<ul align="left">
+  <li>Credenciales</li>
+  <li>Estado Activo</li>
+  <li>Retorna Roles</li>   
+</ul>
+
+4. Auth:
+<ul align="left">
+  <li>Crea sesion</li>
+  <li>Resuelve permisos por rol</li>
+  <li>Genera (Access Token - JWT firmado)</li> 
+  <li>Genera regresh token (persistido)</li> 
+  <li>Retorna ambos</li>   
+</ul>
+
+
 </details>
