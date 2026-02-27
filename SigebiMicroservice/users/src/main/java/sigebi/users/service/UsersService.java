@@ -2,6 +2,8 @@ package sigebi.users.service;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sigebi.users.dto_request.CreateUsersRequest;
 import sigebi.users.dto_request.UpdateUserRequest;
@@ -40,6 +42,25 @@ public class UsersService {
 
     //validators
 
+    private void validateAuthority(String requiredPermission) {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || auth.getAuthorities() == null) {
+            throw new BusinessException("Access denied.");
+        }
+
+        boolean hasPermission = auth.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals(requiredPermission));
+
+        if (!hasPermission) {
+            throw new BusinessException("Access denied.");
+        }
+    }
+
     private static final Set<String> BLOCKED_EMAIL_DOMAINS = Set.of(
             "yopmail.com",
             "guerrillamail.com",
@@ -47,14 +68,31 @@ public class UsersService {
             "mailinator.com"
     );
 
+    private void validateName(String value, String fieldName) {
+
+        if (value == null || value.isBlank()) {
+            throw new BusinessException(fieldName + " is required");
+        }
+
+        if (!value.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+$")) {
+            throw new BusinessException(fieldName + " must contain only letters");
+        }
+    }
+
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase();
     }
 
     private void validateEmailDomain(String email) {
-        String domain = email.substring(email.indexOf("@") + 1);
+
+        if (email == null || !email.contains("@")) {
+            throw new BusinessException("Formato de correo inválido");
+        }
+
+        String domain = email.substring(email.lastIndexOf("@") + 1).toLowerCase();
+
         if (BLOCKED_EMAIL_DOMAINS.contains(domain)) {
-            throw new EmailException("Disposable email domains are not allowed");
+            throw new BusinessException("No se permiten correos temporales o desechables");
         }
     }
 
@@ -62,7 +100,7 @@ public class UsersService {
 
     private void validateMinimumAge(Date birthDate) {
         if (birthDate == null) {
-            throw new IllegalArgumentException("Birth date is required");
+            throw new BusinessException("Birth date is required");
         }
 
         LocalDate birth = birthDate.toInstant()
@@ -72,7 +110,7 @@ public class UsersService {
         int age = Period.between(birth, LocalDate.now()).getYears();
 
         if (age < MIN_AGE) {
-            throw new IllegalArgumentException("User must be at least " + MIN_AGE + " years old");
+            throw new BusinessException("User must be at least " + MIN_AGE + " years old");
         }
     }
 
@@ -87,12 +125,30 @@ public class UsersService {
         if (!password.matches(".*[0-9].*")) {
             throw new BusinessException("Password must contain at least one number");
         }
+
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new BusinessException("Password must contain at least one special character");
+        }
+    }
+
+    public void validateCreatePermission(Long roleId) {
+
+        RoleEntity role = roleService.getRoleById(roleId);
+
+        String targetRole = role.getNameRole().toLowerCase();
+
+        validateAuthority("users.create." + targetRole);
     }
 
 
 
     public UserResponse createUser(@Valid CreateUsersRequest request) {
 
+        validateCreatePermission(request.getIdRole());
+
+        validateName(request.getName(), "Name");
+        validateName(request.getLastName(), "Last name");
+        validatePasswordSecurity(request.getPassword());
         validateMinimumAge(request.getBirthDate());
 
         String email = normalizeEmail(request.getEmail());
@@ -103,11 +159,12 @@ public class UsersService {
         }
 
         if (usersRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Phone number already exists");
+            throw new BusinessException("Phone number already exists");
         }
 
         CompanyEntity company = companyService.getCompanyById(request.getCompanyId());
         RoleEntity role = roleService.getRoleById(request.getIdRole());
+
         String hashedPassword = encryptService.createdHash(request.getPassword());
 
         UserEntity user = new UserEntity();
@@ -161,101 +218,201 @@ public class UsersService {
                 .collect(Collectors.toList());
     }
 
-    //Editar información de usuario
-    public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
+    public void validateUpdatePermission(Long userId) {
 
-        UserEntity existing = usersRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        UserEntity targetUser = usersRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found")
+                );
 
-        /* 1️⃣ Fecha de nacimiento (editable si sigue siendo mayor de edad) */
+        String targetRole = targetUser
+                .getRole()
+                .getNameRole()
+                .toLowerCase();
+
+        validateAuthority("users.update." + targetRole);
+    }
+
+    //Editar User
+
+    private UserEntity findActiveUserOrThrow(Long id) {
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (!user.getActive()) {
+            throw new BusinessException("Cannot update an inactive user.");
+        }
+
+        return user;
+    }
+
+    private void updateBasicInfo(UserEntity existing, UpdateUserRequest request) {
+
+        if (request.getName() != null) {
+            validateName(request.getName(), "Name");
+            existing.setName(request.getName());
+        }
+
+        if (request.getLastName() != null) {
+            validateName(request.getLastName(), "Last name");
+            existing.setLastname(request.getLastName());
+        }
+
         if (request.getBirthDate() != null) {
             validateMinimumAge(request.getBirthDate());
             existing.setBirthDate(request.getBirthDate());
         }
+    }
 
-        /* 2️⃣ Email (editable + normalización + dominio + unicidad) */
+    private void updateContactInfo(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
+
             String email = normalizeEmail(request.getEmail());
+            String existingEmail = normalizeEmail(existing.getEmail());
+
             validateEmailDomain(email);
 
-            if (!email.equals(existing.getEmail())
+            if (!email.equals(existingEmail)
                     && usersRepository.existsByEmail(email)) {
-                throw new EmailException("Email already exists");
+                throw new EmailException("Email already exists.");
             }
 
             existing.setEmail(email);
         }
 
-        /* 3️⃣ Teléfono (editable + unicidad) */
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
+
             if (!request.getPhone().equals(existing.getPhone())
                     && usersRepository.existsByPhone(request.getPhone())) {
-                throw new BusinessException("Phone number already exists");
+                throw new BusinessException("Phone number already exists.");
             }
 
             existing.setPhone(request.getPhone());
         }
+    }
 
-        /* 4️⃣ Empresa ❌ NO editable */
+    private void validateImmutableFields(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getCompanyId() != null &&
                 !request.getCompanyId().equals(existing.getCompanyId().getId())) {
-            throw new BusinessException("Company cannot be changed. User must be deactivated instead.");
+            throw new BusinessException(
+                    "Company cannot be changed. User must be deactivated instead."
+            );
         }
 
-        /* 5️⃣ Rol (editable) */
         if (request.getIdRole() != null) {
-            RoleEntity role = roleService.getRoleById(request.getIdRole());
-            existing.setRole(role);
+            throw new BusinessException(
+                    "Role cannot be modified. Create a new user instead."
+            );
         }
+    }
 
-        /* 6️⃣ Password (editable + validación de seguridad) */
+    private void updatePassword(UserEntity existing, UpdateUserRequest request) {
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             validatePasswordSecurity(request.getPassword());
             existing.setPasswordHash(
                     encryptService.createdHash(request.getPassword())
             );
         }
+    }
 
-        /* 7️⃣ Datos básicos */
-        if (request.getName() != null) {
-            existing.setName(request.getName());
-        }
-
-        if (request.getLastName() != null) {
-            existing.setLastname(request.getLastName());
-        }
+    private void updateActiveStatus(UserEntity existing, UpdateUserRequest request) {
 
         if (request.getActive() != null) {
             existing.setActive(request.getActive());
         }
-
-        UserEntity updatedUser = usersRepository.save(existing);
-        return mapToResponse(updatedUser);
     }
 
+    public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
+
+        validateUpdatePermission(id);
+
+        UserEntity existing = findActiveUserOrThrow(id);
+
+        updateBasicInfo(existing, request);
+        updateContactInfo(existing, request);
+        validateImmutableFields(existing, request);
+        updatePassword(existing, request);
+        updateActiveStatus(existing, request);
+
+        return mapToResponse(usersRepository.save(existing));
+    }
 
 
 
     //Activar / desactivar usuarios (soft delete)
 
-    public UserResponse toggleUserStatus(Long id, boolean active){
-        return usersRepository.findById(id)
-                .map(user -> {
-                    user.setActive(active);
-                    UserEntity updated = usersRepository.save(user);
-                    return mapToResponse(updated);
-        })
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+    public UserResponse toggleUserStatus(Long id, boolean active) {
+        validateUpdatePermission(id);
 
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (user.getActive().equals(active)) {
+            throw new BusinessException(
+                    active ? "User is already active." : "User is already inactive."
+            );
+        }
+
+        // Protección a SUPERADMIN
+        if (user.getRole().getNameRole().equalsIgnoreCase("SUPERADMIN")
+                && !active) {
+            throw new BusinessException(
+                    "Superadmin cannot be deactivated."
+            );
+        }
+
+        user.setActive(active);
+
+        UserEntity updated = usersRepository.save(user);
+        return mapToResponse(updated);
+    }
+
+    public void validateDeletePermission(Long userId) {
+
+        UserEntity targetUser = usersRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found")
+                );
+
+        String targetRole = targetUser
+                .getRole()
+                .getNameRole()
+                .toLowerCase();
+
+        validateAuthority("users.delete." + targetRole);
     }
 
     public UserResponse deleteUser(Long id) {
-        return usersRepository.findById(id)
-                .map(user -> {
-                    usersRepository.delete(user); // ✅ elimina con seguridad
-                    return mapToResponse(user);   // Devuelve el usuario eliminado (por auditoría)
-                })
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+
+        validateDeletePermission(id);
+
+        UserEntity user = usersRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with ID: " + id
+                ));
+
+        if (user.getActive()) {
+            throw new BusinessException(
+                    "User must be deactivated before deletion."
+            );
+        }
+
+        if (user.getRole().getNameRole().equalsIgnoreCase("SUPERADMIN")) {
+            throw new BusinessException(
+                    "Superadmin cannot be deleted."
+            );
+        }
+
+        usersRepository.delete(user);
+
+        return mapToResponse(user);
     }
 
 
@@ -270,7 +427,7 @@ public class UsersService {
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .id(entity.getId())
-                .CompanyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
+                .companyId(entity.getCompanyId() != null ? entity.getCompanyId().getId(): null)
                 .active(entity.getActive())
                 .roleName(entity.getRole() != null ? entity.getRole().getNameRole() : null)
                 .createdAt(entity.getCreatedAt())

@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    config:
+      enabled: false
+
+    gateway:
+      default-filters:
+        - PreserveHostHeader
+      discovery:
+        locator:
+          enabled: true
+
+      routes:
+        - id: ms-users
+          uri: http://localhost:8090
+          predicates:
+            - Path=/internal/auth/**
+
+        - id: ms-users-api
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/**
+
+
+        - id: ms-auth
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/**
+
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true

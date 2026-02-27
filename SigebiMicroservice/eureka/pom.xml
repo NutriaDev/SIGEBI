@@ -18,10 +18,6 @@
     <description>Servicio de Eureka</description>
     <packaging>jar</packaging>
 
-    <properties>
-        <java.version>17</java.version>
-        <spring-cloud.version>2025.0.0</spring-cloud.version> <!-- ✅ versión estable -->
-    </properties>
 
     <dependencies>
         <!-- Spring Boot -->
