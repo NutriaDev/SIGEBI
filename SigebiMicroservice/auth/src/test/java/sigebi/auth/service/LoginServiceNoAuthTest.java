@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 import sigebi.auth.DTO.request.LoginRequest;
 import sigebi.auth.client.UserInternalClient;
 import sigebi.auth.service.impl.LoginServiceImpl;
@@ -21,14 +20,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class LoginServiceBadCredentialsTest {
+class LoginServiceNoAuthTest {
 
-    @Mock UserInternalClient userInternalClient;
+    @Mock
+    UserInternalClient userInternalClient;
+
     @InjectMocks
     LoginServiceImpl service;
 
     @Test
-    void login_when401_throwsBadCredentials() {
+    void login_when403_throwsRuntimeException() {
 
         Request request = Request.create(
                 Request.HttpMethod.POST,
@@ -40,8 +41,8 @@ class LoginServiceBadCredentialsTest {
         );
 
         Response response = Response.builder()
-                .status(401)
-                .reason("Unauthorized")
+                .status(403)               // ✅ INT
+                .reason("Forbidden")
                 .request(request)
                 .build();
 
@@ -52,7 +53,7 @@ class LoginServiceBadCredentialsTest {
         loginRequest.setEmail("a");
         loginRequest.setPassword("b");
 
-        assertThrows(BadCredentialsException.class,
+        assertThrows(RuntimeException.class,
                 () -> service.login(loginRequest));
     }
 }

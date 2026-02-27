@@ -13,7 +13,9 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,5 +39,22 @@ class SessionInactiveTest {
 
         assertThrows(SessionNotActiveException.class,
                 () -> service.validateActive(id));
+    }
+
+    @Test
+    void close_success_setsInactive() {
+
+        UUID id = UUID.randomUUID();
+
+        SessionEntity session = new SessionEntity();
+        session.setActive(true);
+
+        when(repository.findById(id))
+                .thenReturn(Optional.of(session));
+
+        service.close(id);
+
+        verify(repository).save(session);
+        assertFalse(session.getActive());
     }
 }
