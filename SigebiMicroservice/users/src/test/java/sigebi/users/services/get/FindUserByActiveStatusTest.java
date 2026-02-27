@@ -1,7 +1,4 @@
-package sigebi.users.services;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +12,11 @@ import sigebi.users.service.UsersService;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class FindUserByActiveStatusTest {
+class FindUserByActiveStatusTest {
 
     @Mock
     UsersRepository usersRepository;
@@ -27,7 +27,6 @@ public class FindUserByActiveStatusTest {
     @Test
     void findUsersByActive_true_returnsActiveUsers() {
 
-        // ===== GIVEN =====
         Boolean active = true;
 
         UserEntity user1 = new UserEntity();
@@ -41,16 +40,28 @@ public class FindUserByActiveStatusTest {
         when(usersRepository.findAllByActive(active))
                 .thenReturn(List.of(user1, user2));
 
-        // ===== WHEN =====
         List<UserResponse> result =
                 usersService.findUsersByActive(active);
 
-        // ===== THEN =====
-        assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(UserResponse::getActive));
 
         verify(usersRepository).findAllByActive(active);
         verifyNoMoreInteractions(usersRepository);
+    }
+
+    @Test
+    void findUsersByActive_empty_returnsEmptyList() {
+
+        when(usersRepository.findAllByActive(false))
+                .thenReturn(List.of());
+
+        List<UserResponse> result =
+                usersService.findUsersByActive(false);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(usersRepository).findAllByActive(false);
     }
 }

@@ -1,22 +1,20 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sigebi.users.dto_response.CompanyResponse;
 import sigebi.users.entities.CompanyEntity;
 import sigebi.users.repository.CompanyRepository;
 import sigebi.users.service.CompanyService;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
-public class DeleteHardCompanyTest {
+public class GetCompanyByIdTest {
     @Mock
     CompanyRepository companyRepository;
 
@@ -24,7 +22,7 @@ public class DeleteHardCompanyTest {
     CompanyService companyService;
 
     @Test
-    void deleteHardCompany_existingCompany_deletesAndReturns() {
+    void getCompanyById_existingCompany_returnsCompany() {
 
         CompanyEntity company = CompanyEntity.builder()
                 .id(1L)
@@ -35,12 +33,11 @@ public class DeleteHardCompanyTest {
         when(companyRepository.findById(1L))
                 .thenReturn(Optional.of(company));
 
-        CompanyResponse result = companyService.deleteHardCompany(1L);
+        CompanyEntity result = companyService.getCompanyById(1L);
 
         assertNotNull(result);
         assertEquals("Company A", result.getNameCompany());
 
-        verify(companyRepository).delete(company);
+        verify(companyRepository).findById(1L);
     }
-
 }

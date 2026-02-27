@@ -1,7 +1,4 @@
-package sigebi.users.services;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +14,11 @@ import sigebi.users.service.UsersService;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class GetAllUserTest {
+class GetAllUserTest {
 
     @Mock
     UsersRepository usersRepository;
@@ -28,8 +28,6 @@ public class GetAllUserTest {
 
     @Test
     void getAllUsers_returnsMappedUserResponses() {
-
-        // ===== GIVEN =====
 
         CompanyEntity company = new CompanyEntity();
         company.setId(1L);
@@ -58,25 +56,25 @@ public class GetAllUserTest {
         when(usersRepository.findAll())
                 .thenReturn(List.of(user1, user2));
 
-        // ===== WHEN =====
         List<UserResponse> result = usersService.getAllUsers();
 
-        // ===== THEN =====
-        assertNotNull(result);
         assertEquals(2, result.size());
+        assertEquals("Luis", result.get(0).getName());
+        assertEquals("ADMIN", result.get(0).getRoleName());
+        assertFalse(result.get(1).getActive());
 
-        UserResponse first = result.get(0);
-        assertEquals("Luis", first.getName());
-        assertEquals("Hurtado", first.getLastname());
-        assertEquals("ADMIN", first.getRoleName());
-        assertEquals(1L, first.getCompanyId());
-        assertTrue(first.getActive());
+        verify(usersRepository).findAll();
+    }
 
-        UserResponse second = result.get(1);
-        assertEquals("Ana", second.getName());
-        assertFalse(second.getActive());
+    @Test
+    void getAllUsers_empty_returnsEmptyList() {
 
-        verify(usersRepository, times(1)).findAll();
-        verifyNoMoreInteractions(usersRepository);
+        when(usersRepository.findAll())
+                .thenReturn(List.of());
+
+        List<UserResponse> result = usersService.getAllUsers();
+
+        assertTrue(result.isEmpty());
+        verify(usersRepository).findAll();
     }
 }

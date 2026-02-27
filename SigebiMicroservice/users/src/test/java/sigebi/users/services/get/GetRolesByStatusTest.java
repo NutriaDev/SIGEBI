@@ -1,4 +1,4 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -57,7 +57,7 @@ public class InternalAuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return UserAuthDataResponse.builder()
-                .userId(user.getId())
+                .userId(user.getIdUsers())
                 .email(user.getEmail())
                 .name(user.getName()) // o firstName + lastName
                 .roles(List.of(user.getRole().getNameRole()))

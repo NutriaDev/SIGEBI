@@ -1,7 +1,4 @@
-package sigebi.users.services;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +12,12 @@ import sigebi.users.service.CompanyService;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class GetAllCompaniesTest {
+class GetAllCompaniesTest {
+
     @Mock
     CompanyRepository companyRepository;
 
@@ -41,12 +42,28 @@ public class GetAllCompaniesTest {
         when(companyRepository.findAll())
                 .thenReturn(List.of(company1, company2));
 
-        List<CompanyResponse> result = companyService.getAllCompanies();
+        List<CompanyResponse> result =
+                companyService.getAllCompanies();
 
         assertEquals(2, result.size());
         assertEquals("Company A", result.get(0).getNameCompany());
+        assertTrue(result.get(0).getStatus());
 
         verify(companyRepository).findAll();
     }
 
+    @Test
+    void getAllCompanies_empty_returnsEmptyList() {
+
+        when(companyRepository.findAll())
+                .thenReturn(List.of());
+
+        List<CompanyResponse> result =
+                companyService.getAllCompanies();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(companyRepository).findAll();
+    }
 }

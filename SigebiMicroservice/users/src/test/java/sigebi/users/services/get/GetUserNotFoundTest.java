@@ -1,11 +1,11 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sigebi.users.dto_response.UserResponse;
-import sigebi.users.entities.UserEntity;
+import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 import sigebi.users.service.UsersService;
 
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteHardUserTest {
+public class GetUserNotFoundTest {
 
     @Mock
     UsersRepository usersRepository;
@@ -24,29 +24,26 @@ public class DeleteHardUserTest {
     UsersService usersService;
 
     @Test
-    void deleteUser_userExists_deletesAndReturnsResponse() {
+    void getUserById_userNotFound_throwsException() {
 
         // ===== GIVEN =====
-        Long userId = 1L;
-
-        UserEntity user = new UserEntity();
-        user.setIdUsers(userId);
-        user.setActive(true);
+        Long userId = 99L;
 
         when(usersRepository.findById(userId))
-                .thenReturn(Optional.of(user));
+                .thenReturn(Optional.empty());
 
-        // delete()
+        // ===== WHEN / THEN =====
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> usersService.getUserById(userId)
+        );
 
-        // ===== WHEN =====
-        UserResponse response = usersService.deleteUser(userId);
-
-        // ===== THEN =====
-        assertNotNull(response);
-        assertEquals(userId, response.getIdUsers());
+        assertEquals("User not found", exception.getMessage());
 
         verify(usersRepository).findById(userId);
-        verify(usersRepository).delete(user);
         verifyNoMoreInteractions(usersRepository);
     }
 }
+
+
+

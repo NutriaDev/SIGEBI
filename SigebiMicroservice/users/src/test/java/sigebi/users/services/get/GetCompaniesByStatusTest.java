@@ -1,4 +1,5 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class GetCompaniesByStatusTest {
+class GetCompaniesByStatusTest {
+
     @Mock
     CompanyRepository companyRepository;
 
@@ -34,12 +36,28 @@ public class GetCompaniesByStatusTest {
         when(companyRepository.findAllByStatus(true))
                 .thenReturn(List.of(company));
 
-        List<CompanyResponse> result = companyService.getCompaniesByStatus(true);
+        List<CompanyResponse> result =
+                companyService.getCompaniesByStatus(true);
 
         assertEquals(1, result.size());
+        assertEquals("Active Company", result.get(0).getNameCompany());
         assertTrue(result.get(0).getStatus());
 
         verify(companyRepository).findAllByStatus(true);
     }
 
+    @Test
+    void getCompaniesByStatus_empty_returnsEmptyList() {
+
+        when(companyRepository.findAllByStatus(false))
+                .thenReturn(List.of());
+
+        List<CompanyResponse> result =
+                companyService.getCompaniesByStatus(false);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(companyRepository).findAllByStatus(false);
+    }
 }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class RoleService {
 
     @Autowired
-    private RoleRepository roleRepository;
+    public RoleRepository roleRepository;
 
     // Obtener todos los roles
     public List<RoleResponse> getAllRoles() {

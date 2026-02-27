@@ -1,6 +1,4 @@
-package sigebi.users.services;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +11,12 @@ import sigebi.users.service.CompanyService;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class GetCompanyByIdNotFoundTest {
+class GetCompanyByIdNotFoundTest {
+
     @Mock
     CompanyRepository companyRepository;
 
@@ -32,10 +34,9 @@ public class GetCompanyByIdNotFoundTest {
                 () -> companyService.getCompanyById(99L)
         );
 
-        assertEquals("Company not found with ID: 99", exception.getMessage());
+        assertEquals("Company not found with ID: 99",
+                exception.getMessage());
 
         verify(companyRepository).findById(99L);
     }
-
-
 }

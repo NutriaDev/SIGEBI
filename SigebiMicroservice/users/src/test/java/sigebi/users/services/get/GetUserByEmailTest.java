@@ -1,4 +1,4 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.UserEntity;
+import sigebi.users.exception.BusinessException;
 import sigebi.users.repository.UsersRepository;
 import sigebi.users.service.UsersService;
 
@@ -16,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class GetUserByEmailTest {
+class GetUserByEmailTest {
+
     @Mock
     UsersRepository usersRepository;
 
@@ -26,7 +28,6 @@ public class GetUserByEmailTest {
     @Test
     void getUserByEmail_existingEmail_returnsUser() {
 
-        // ===== GIVEN =====
         String email = "TEST@EMAIL.COM";
 
         UserEntity user = new UserEntity();
@@ -36,14 +37,43 @@ public class GetUserByEmailTest {
         when(usersRepository.findByEmailIgnoreCase("test@email.com"))
                 .thenReturn(Optional.of(user));
 
-        // ===== WHEN =====
         Optional<UserResponse> result =
                 usersService.getUserByEmail(email);
 
-        // ===== THEN =====
         assertTrue(result.isPresent());
         assertEquals("test@email.com", result.get().getEmail());
 
-        verify(usersRepository).findByEmailIgnoreCase("test@email.com");
+        verify(usersRepository)
+                .findByEmailIgnoreCase("test@email.com");
+    }
+
+    @Test
+    void getUserByEmail_notFound_returnsEmpty() {
+
+        when(usersRepository.findByEmailIgnoreCase("test@email.com"))
+                .thenReturn(Optional.empty());
+
+        Optional<UserResponse> result =
+                usersService.getUserByEmail("test@email.com");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getUserByEmail_invalidFormat_throwsException() {
+
+        assertThrows(BusinessException.class,
+                () -> usersService.getUserByEmail("invalidemail"));
+
+        verifyNoInteractions(usersRepository);
+    }
+
+    @Test
+    void getUserByEmail_blockedDomain_throwsException() {
+
+        assertThrows(BusinessException.class,
+                () -> usersService.getUserByEmail("test@yopmail.com"));
+
+        verifyNoInteractions(usersRepository);
     }
 }

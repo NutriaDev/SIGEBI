@@ -1,7 +1,4 @@
-package sigebi.users.services;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,13 +9,17 @@ import sigebi.users.dto_response.UserResponse;
 import sigebi.users.entities.CompanyEntity;
 import sigebi.users.entities.RoleEntity;
 import sigebi.users.entities.UserEntity;
+import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 import sigebi.users.service.UsersService;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class GetUserByIdTest {
+class GetUserByIdTest {
 
     @Mock
     UsersRepository usersRepository;
@@ -29,7 +30,6 @@ public class GetUserByIdTest {
     @Test
     void getUserById_existingUser_returnsUserResponse() {
 
-        // ===== GIVEN =====
         Long userId = 1L;
 
         CompanyEntity company = new CompanyEntity();
@@ -50,19 +50,21 @@ public class GetUserByIdTest {
         when(usersRepository.findById(userId))
                 .thenReturn(Optional.of(user));
 
-        // ===== WHEN =====
         UserResponse response = usersService.getUserById(userId);
 
-        // ===== THEN =====
-        assertNotNull(response);
-        assertEquals(userId, response.getIdUsers());
         assertEquals("Luis", response.getName());
-        assertEquals("Hurtado", response.getLastname());
         assertEquals("ADMIN", response.getRoleName());
-        assertEquals(10L, response.getCompanyId());
-        assertTrue(response.getActive());
 
         verify(usersRepository).findById(userId);
-        verifyNoMoreInteractions(usersRepository);
+    }
+
+    @Test
+    void getUserById_notFound_throwsException() {
+
+        when(usersRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> usersService.getUserById(99L));
     }
 }

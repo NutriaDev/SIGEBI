@@ -1,4 +1,5 @@
-package sigebi.users.services;
+package sigebi.users.services.delete;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteHardCompanyNotFoundTest {
+class DeleteHardCompanyNotFoundTest {
+
     @Mock
     CompanyRepository companyRepository;
 
@@ -24,17 +26,22 @@ public class DeleteHardCompanyNotFoundTest {
     @Test
     void deleteHardCompany_notFound_throwsException() {
 
-        when(companyRepository.findById(99L))
+        Long companyId = 99L;
+
+        when(companyRepository.findById(companyId))
                 .thenReturn(Optional.empty());
 
         CompanyNotFoundException exception = assertThrows(
                 CompanyNotFoundException.class,
-                () -> companyService.deleteHardCompany(99L)
+                () -> companyService.deleteHardCompany(companyId)
         );
 
-        assertEquals("Company not found with ID: 99", exception.getMessage());
+        assertEquals(
+                "Company not found with ID: 99",
+                exception.getMessage()
+        );
 
-        verify(companyRepository).findById(99L);
+        verify(companyRepository).findById(companyId);
+        verify(companyRepository, never()).delete(any());
     }
-
 }

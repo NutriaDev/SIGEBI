@@ -42,18 +42,22 @@ public class UsersService {
 
     //validators
 
-    private void validateAuthority(String permission) {
+    private void validateAuthority(String requiredPermission) {
 
         Authentication auth = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
 
-        boolean allowed = auth.getAuthorities()
-                .stream()
-                .anyMatch(a -> a.getAuthority().equals(permission));
+        if (auth == null || auth.getAuthorities() == null) {
+            throw new BusinessException("Access denied.");
+        }
 
-        if (!allowed) {
-            throw new BusinessException("No autorizado para realizar esta acción.");
+        boolean hasPermission = auth.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals(requiredPermission));
+
+        if (!hasPermission) {
+            throw new BusinessException("Access denied.");
         }
     }
 

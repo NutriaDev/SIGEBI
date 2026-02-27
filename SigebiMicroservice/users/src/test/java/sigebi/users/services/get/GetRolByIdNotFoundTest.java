@@ -1,4 +1,4 @@
-package sigebi.users.services;
+package sigebi.users.services.get;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,12 +9,13 @@ import sigebi.users.exception.RoleNotFoundException;
 import sigebi.users.repository.RoleRepository;
 import sigebi.users.service.RoleService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteRoleNotFoundTest {
+public class GetRolByIdNotFoundTest {
     @InjectMocks
     RoleService roleService;
 
@@ -22,19 +23,19 @@ public class DeleteRoleNotFoundTest {
     RoleRepository roleRepository;
 
     @Test
-    void deleteRole_notFound_throwsException() {
+    void getRoleById_notFound_throwsException() {
 
-        when(roleRepository.existsById(99L))
-                .thenReturn(false);
+        when(roleRepository.findById(99L))
+                .thenReturn(Optional.empty());
 
         RoleNotFoundException exception = assertThrows(
                 RoleNotFoundException.class,
-                () -> roleService.deleteRole(99L)
+                () -> roleService.getRoleById(99L)
         );
 
         assertEquals("Role not found with ID: 99", exception.getMessage());
 
-        verify(roleRepository).existsById(99L);
-        verify(roleRepository, never()).deleteById(99L);
+        verify(roleRepository).findById(99L);
     }
+
 }
