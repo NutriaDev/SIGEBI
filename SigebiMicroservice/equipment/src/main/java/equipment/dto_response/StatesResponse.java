@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatesResponse {
 
-    private Long idState;
+    private Long stateId;
     private String name;
     private Boolean active;
     private Integer equipmentCount;

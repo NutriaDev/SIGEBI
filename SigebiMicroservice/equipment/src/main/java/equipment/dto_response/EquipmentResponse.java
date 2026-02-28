@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +14,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EquipmentResponse {
 
-    private Long idEquipment;
+    private Long equipmentId;
     private String serie;
     private String name;
     private String brand;
@@ -41,9 +39,9 @@ public class EquipmentResponse {
 
     // Atributos del equipo
     private String riskLevel;
-    private LocalDate acquisitionDate;
+    private Date acquisitionDate;
     private Integer usefulLife;
-    private LocalDate warrantyEnd;
+    private Date warrantyEnd;
     private Integer maintenanceFrequency;
     private Integer calibrationFrequency;
 
@@ -53,6 +51,6 @@ public class EquipmentResponse {
 
     // Auditoría
     private Boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 }

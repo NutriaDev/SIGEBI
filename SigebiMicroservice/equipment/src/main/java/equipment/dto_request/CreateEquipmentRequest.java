@@ -2,14 +2,14 @@ package equipment.dto_request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,50 +17,59 @@ import java.time.LocalDate;
 @Builder
 public class CreateEquipmentRequest {
 
-    @NotBlank(message = "La serie es obligatoria")
-    @Size(max = 100, message = "La serie no puede exceder 100 caracteres")
+    @NotBlank(message = "Serie is required")
+    @Size(max = 100, message = "Serie cannot exceed 100 characters")
     private String serie;
 
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 150, message = "El nombre no puede exceder 150 caracteres")
+    @NotBlank(message = "Name is required")
+    @Size(max = 150, message = "Name cannot exceed 150 characters")
     private String name;
 
-    @Size(max = 100, message = "La marca no puede exceder 100 caracteres")
+    @NotBlank(message = "Brand is required")
+    @Size(max = 100, message = "Brand cannot exceed 100 characters")
     private String brand;
 
-    @Size(max = 100, message = "El modelo no puede exceder 100 caracteres")
+    @NotBlank(message = "Model is required")
+    @Size(max = 100, message = "Model cannot exceed 100 characters")
     private String model;
 
-    @Size(max = 100, message = "El código INVIMA no puede exceder 100 caracteres")
+    @NotNull(message = "Acquisition date is required")
+    @PastOrPresent(message = "Acquisition date cannot be in the future")
+    private Date acquisitionDate;
+
+    @NotNull(message = "INVIMA code is required")
+    @Size(max = 100, message = "The INVIMA code cannot exceed 100 characters")
     private String invima;
 
-    @NotNull(message = "El área es obligatoria")
-    private Long areaId;
-
-    @NotNull(message = "La clasificación es obligatoria")
+    @NotNull(message = "Classification is required")
     private Long classificationId;
 
+    @NotNull(message = "Area is required")
+    private Long areaId;
+
+    @NotNull(message = "Provider is required")
     private Long providerId;
 
-    @NotNull(message = "El estado es obligatorio")
+    @NotNull(message = "State is required")
     private Long stateId;
 
-    @NotNull(message = "La ubicación es obligatoria")
+    @NotNull(message = "Location is required")
     private Long locationId;
 
-    @Size(max = 50, message = "El nivel de riesgo no puede exceder 50 caracteres")
+    @NotNull(message = "Responsible user is required")
+    private Long responsibleUserId;
+
+    @Size(max = 50, message = "Risk level cannot exceed 50 characters")
     private String riskLevel;
 
-    private LocalDate acquisitionDate;
-
-    @Positive(message = "La vida útil debe ser un número positivo")
+    @Positive(message = "Useful life must be a positive number")
     private Integer usefulLife;
 
-    private LocalDate warrantyEnd;
+    private Date warrantyEnd;
 
-    @Positive(message = "La frecuencia de mantenimiento debe ser un número positivo")
+    @Positive(message = "Maintenance frequency must be a positive number")
     private Integer maintenanceFrequency;
 
-    @Positive(message = "La frecuencia de calibración debe ser un número positivo")
+    @Positive(message = "Calibration frequency must be a positive number")
     private Integer calibrationFrequency;
 }

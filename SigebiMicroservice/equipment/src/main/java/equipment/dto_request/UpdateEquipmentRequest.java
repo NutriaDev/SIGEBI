@@ -8,8 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -51,12 +50,12 @@ public class UpdateEquipmentRequest {
     @Size(max = 50, message = "El nivel de riesgo no puede exceder 50 caracteres")
     private String riskLevel;
 
-    private LocalDate acquisitionDate;
+    private Date acquisitionDate;
 
     @Positive(message = "La vida útil debe ser un número positivo")
     private Integer usefulLife;
 
-    private LocalDate warrantyEnd;
+    private Date warrantyEnd;
 
     @Positive(message = "La frecuencia de mantenimiento debe ser un número positivo")
     private Integer maintenanceFrequency;
