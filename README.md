@@ -290,13 +290,25 @@ El microservicio de Auth contiene la autenticacion del sistema SIGEBI, concede s
 
 ---
 
-<h3>🔄 Flujo de Autenticación</h3>
+Es responsable de:
 
-## 1️⃣ Login – `POST /auth/login`
+- Validar credenciales  
+- Generar Access Tokens (JWT)  
+- Generar y rotar Refresh Tokens  
+- Gestionar sesiones  
+- Resolver permisos por rol  
+- Implementar token rotation segura  
 
-### 🔄 Flujo
+> Auth no almacena usuarios, solo gestiona seguridad.  
+> La información de usuarios, roles y estado se obtiene desde MS-Users mediante OpenFeign.
 
-1. Cliente envía:
+---
+
+# 🔄 Flujo de Autenticación
+
+## 1️⃣ Login – POST /auth/login
+
+### Request
 
 ```json
 {
@@ -305,28 +317,218 @@ El microservicio de Auth contiene la autenticacion del sistema SIGEBI, concede s
 }
 ```
 
-2. Auth llama a (ms-users)
+### Flujo
 
-```json
-POST /internal/auth/validate   (ms-users)
+1. Auth llama a:
 
 ```
+POST /internal/auth/validate  (ms-users)
+```
 
-3. Users valida
-<ul align="left">
-  <li>Credenciales</li>
-  <li>Estado Activo</li>
-  <li>Retorna Roles</li>   
-</ul>
+2. MS-Users valida:
+   - Credenciales
+   - Estado activo
+   - Retorna roles
 
-4. Auth:
-<ul align="left">
-  <li>Crea sesion</li>
-  <li>Resuelve permisos por rol</li>
-  <li>Genera (Access Token - JWT firmado)</li> 
-  <li>Genera regresh token (persistido)</li> 
-  <li>Retorna ambos</li>   
-</ul>
+3. Auth:
+   - Crea sesión
+   - Resuelve permisos por rol
+   - Genera:
+     - Access Token (JWT firmado)
+     - Refresh Token (persistido en base de datos)
 
+4. Retorna ambos tokens.
+
+---
+
+## 2️⃣ Refresh – POST /auth/refresh
+
+### Validaciones
+
+- Refresh token existe en base de datos  
+- Está activo  
+- No expiró  
+- Sesión asociada sigue activa  
+
+### Seguridad aplicada
+
+- Token rotation obligatoria  
+- Invalidación del refresh anterior  
+- Generación de nuevo access + refresh  
+
+Previene reutilización de tokens robados.
+
+---
+
+## 3️⃣ Logout – POST /auth/logout
+
+(Requiere Access Token válido)
+
+- Se identifica la sesión desde el JWT  
+- Se desactivan refresh tokens asociados  
+- Se marca sesión como inactiva  
+
+---
+
+# 🎫 Access Token (JWT)
+
+Incluye:
+
+- userId  
+- sessionId  
+- email  
+- name  
+- roles  
+- permissions  
+- issuedAt  
+- expiration  
+
+Firmado con clave secreta HMAC.
+
+Es stateless y no requiere consulta a base de datos para validación en otros microservicios.
+
+---
+
+# 🔄 Refresh Token
+
+Implementación segura con:
+
+- Persistencia en base de datos  
+- Asociación a sesión  
+- Fecha de expiración  
+- Estado activo/inactivo  
+- Rotación obligatoria  
+
+Permite:
+
+- Revocar sesiones  
+- Invalidar tokens comprometidos  
+- Mitigar replay attacks  
+
+---
+
+# 🔗 Comunicación entre Microservicios
+
+Se utiliza OpenFeign para desacoplar Auth de Users.
+
+Auth obtiene desde Users:
+
+- Validación de credenciales  
+- Roles asociados  
+- Verificación de usuario activo  
+
+Luego resuelve permisos con:
+
+```java
+permissionService.getPermissionsByRoles(authData.roles());
+```
+
+---
+
+# 🔐 Permisos Granulares
+
+Auth no autoriza por rol, sino por permisos específicos.
+
+Ejemplos:
+
+```
+users.create.admin
+users.update.tecnico
+users.delete.supervisor
+reports.read
+```
+
+Estos permisos se agregan dentro del JWT en el claim:
+
+```
+permissions
+```
+
+Los microservicios consumidores aplican autorización declarativa con:
+
+```java
+@PreAuthorize("hasAnyAuthority(...)")
+```
+
+---
+
+# 🛡 Decisiones Técnicas
+
+## ✔ Separación Auth / Users
+
+- Auth maneja seguridad  
+- Users maneja estructura de identidad  
+- Evita acoplamiento  
+
+## ✔ Stateless Access Token
+
+Permite validación distribuida sin consultas adicionales.
+
+## ✔ Token Rotation
+
+Mitiga:
+
+- Robo de refresh token  
+- Reutilización indebida  
+- Sesiones duplicadas  
+
+## ✔ Persistencia de Sesión
+
+Permite:
+
+- Auditoría futura  
+- Control legal (Habeas Data)  
+- Revocación manual  
+
+## ✔ Roles + Permissions en JWT
+
+Permite autorización granular en microservicios consumidores.
+
+No depende de consulta a base de datos por request.
+
+---
+
+# 📍 Endpoints Principales
+
+| Método | Endpoint        | Descripción               |
+|--------|---------------|---------------------------|
+| POST   | /auth/login   | Genera access + refresh   |
+| POST   | /auth/refresh | Rota tokens               |
+| POST   | /auth/logout  | Invalida sesión           |
+
+---
+
+# 🏗 Arquitectura Resultante
+
+Auth implementa:
+
+- Autenticación centralizada  
+- JWT firmado  
+- Refresh token persistido  
+- Token rotation segura  
+- Gestión de sesiones  
+- Comunicación desacoplada con Users  
+- Autorización granular distribuida  
+
+---
+
+# 🎯 Resumen
+
+MS-Auth es el núcleo de seguridad de SIGEBI.
+
+Permite:
+
+- Autenticación stateless  
+- Autorización granular  
+- Revocación controlada  
+- Escalabilidad horizontal  
+- Arquitectura lista para SaaS  
+
+Base sólida para evolucionar hacia:
+
+- OAuth2 formal  
+- Gateway token validation  
+- Auditoría avanzada  
+- Control de acceso contextual  
 
 </details>
