@@ -132,7 +132,7 @@ public class StatesService {
     // Convertir entidad a DTO de respuesta
     private StatesResponse mapToResponse(StateEntity status) {
         return StatesResponse.builder()
-                .idState(status.getStateId())
+                .stateId(status.getStateId())
                 .name(status.getName())
                 .active(status.getActive())
                 .build();

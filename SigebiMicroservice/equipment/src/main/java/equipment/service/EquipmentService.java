@@ -279,7 +279,7 @@ public class EquipmentService {
     // Convertir entidad a DTO de respuesta
     private EquipmentResponse mapToResponse(EquipmentEntity equipment) {
         return EquipmentResponse.builder()
-                .idEquipment(equipment.getEquipmentId())
+                .equipmentId(equipment.getEquipmentId())
                 .serie(equipment.getSerie())
                 .name(equipment.getName())
                 .brand(equipment.getBrand())
@@ -293,7 +293,7 @@ public class EquipmentService {
                 .providerName(equipment.getProvider() != null ? equipment.getProvider().getName() : null)
                 .stateId(equipment.getState() != null ? equipment.getState().getStateId() : null)
                 .stateName(equipment.getState() != null ? equipment.getState().getName() : null)
-                .locationId(equipment.getLocation() != null ? equipment.getLocation().getIdLocation() : null)
+                .locationId(equipment.getLocation() != null ? equipment.getLocation().getLocationId() : null)
                 .locationName(equipment.getLocation() != null ? equipment.getLocation().getName() : null)
                 .riskLevel(equipment.getRiskLevel())
                 .acquisitionDate(equipment.getAcquisitionDate())

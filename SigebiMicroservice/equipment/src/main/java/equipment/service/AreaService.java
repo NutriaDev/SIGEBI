@@ -136,7 +136,7 @@ public class AreaService {
 
     private AreaResponse mapToResponse(AreaEntity area) {
         return AreaResponse.builder()
-                .AreaId(area.getAreaId())
+                .areaId(area.getAreaId())
                 .name(area.getName())
                 .active(area.getActive())
                 .createdAt(area.getCreatedAt())

@@ -41,7 +41,7 @@ public class LocationService {
                 .build();
 
         LocationEntity savedLocation = locationRepository.save(location);
-        log.info("Ubicación creada exitosamente con ID: {}", savedLocation.getIdLocation());
+        log.info("Ubicación creada exitosamente con ID: {}", savedLocation.getLocationId());
 
         return mapToResponse(savedLocation);
     }
@@ -141,7 +141,7 @@ public class LocationService {
         }
 
         LocationEntity updatedLocation = locationRepository.save(location);
-        log.info("Ubicación actualizada exitosamente: {}", updatedLocation.getIdLocation());
+        log.info("Ubicación actualizada exitosamente: {}", updatedLocation.getLocationId());
 
         return mapToResponse(updatedLocation);
     }
@@ -165,7 +165,7 @@ public class LocationService {
     // Convertir entidad a DTO de respuesta
     private LocationResponse mapToResponse(LocationEntity location) {
         return LocationResponse.builder()
-                .idLocation(location.getIdLocation())
+                .locationId(location.getLocationId())
                 .name(location.getName())
                 .type(location.getType())
                 .floor(location.getFloor())
