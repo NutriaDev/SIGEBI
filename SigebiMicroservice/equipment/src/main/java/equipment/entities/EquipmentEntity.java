@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "equipments")
@@ -73,13 +71,13 @@ public class EquipmentEntity {
     private String riskLevel;
 
     @Column(name = "acquisition_date")
-    private LocalDate acquisitionDate;
+    private Date acquisitionDate;
 
     @Column(name = "useful_life")
     private Integer usefulLife;
 
     @Column(name = "warranty_end")
-    private LocalDate warrantyEnd;
+    private Date warrantyEnd;
 
     @Column(name = "maintenance_frequency")
     private Integer maintenanceFrequency;
@@ -90,11 +88,11 @@ public class EquipmentEntity {
     // Campos de auditoría estándar
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     @Column(name = "active", nullable = false)
     @Builder.Default
