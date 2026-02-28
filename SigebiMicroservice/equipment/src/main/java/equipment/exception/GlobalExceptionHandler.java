@@ -11,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
-                LocalDateTime.now()
+                ZonedDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
-                LocalDateTime.now()
+                ZonedDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
         ValidationErrorResponse response = new ValidationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ErrorTitles.VALIDATION_ERROR,
-                LocalDateTime.now(),
+                ZonedDateTime.now(),
                 errors
         );
 
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 ErrorTitles.INTERNAL_ERROR,
-                LocalDateTime.now()
+                ZonedDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
     public static class ErrorResponse {
         private int status;
         private String message;
-        private LocalDateTime timestamp;
+        private ZonedDateTime timestamp;
     }
 
     @Data
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     public static class ValidationErrorResponse {
         private int status;
         private String message;
-        private LocalDateTime timestamp;
+        private ZonedDateTime timestamp;
         private Map<String, String> errors;
     }
 }
