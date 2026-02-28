@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.ZonedDateTime;
+import java.util.Date;;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +21,7 @@ public class ProviderResponse {
     private String email;
     private String address;
     private Boolean active;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     private Integer equipmentCount;
 }

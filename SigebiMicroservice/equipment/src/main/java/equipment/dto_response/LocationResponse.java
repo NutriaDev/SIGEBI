@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;;
 
-import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +21,8 @@ public class LocationResponse {
     private String floor;
     private String detail;
     private Boolean active;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     private Integer equipmentCount;
     private Integer inventoryCount;
 }
