@@ -96,7 +96,7 @@ public class StatesService {
                     return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
                 });
 
-        if (statesRepository.existsByNameAndIdStateNot(request.getName(), idState)) {
+        if (statesRepository.existsByNameAndStateIdNot(request.getName(), idState)) {
             log.warn("Intento de actualizar estado con nombre duplicado: {}", request.getName());
             throw new DuplicateResourceException("Ya existe otro estado con el nombre: " + request.getName());
         }

@@ -14,7 +14,7 @@ public interface LocationRepository extends JpaRepository<LocationEntity, Long> 
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdLocationNot(String name, Long idLocation);
+    boolean existsByNameAndLocationIdNot(String name, Long locationId);
 
     List<LocationEntity> findByType(String type);
 

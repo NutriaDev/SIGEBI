@@ -97,7 +97,7 @@ public class AreaService {
                 });
 
         // Validar que no exista otra área con el mismo nombre
-        if (areaRepository.existsByNameAndIdAreaNot(request.getName(), idArea)) {
+        if (areaRepository.existsByNameAndAreaIdNot(request.getName(), idArea)) {
             log.warn("Intento de actualizar área con nombre duplicado: {}", request.getName());
             throw new DuplicateResourceException("Ya existe otra área con el nombre: " + request.getName());
         }

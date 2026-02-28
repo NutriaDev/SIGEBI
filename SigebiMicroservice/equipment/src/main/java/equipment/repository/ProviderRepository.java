@@ -18,7 +18,7 @@ public interface ProviderRepository extends JpaRepository<ProviderEntity, Long> 
 
     boolean existsByEmail(String email);
 
-    boolean existsByNameAndIdProviderNot(String name, Long idProvider);
+    boolean existsByNameAndProviderIdNot(String name, Long providerId);
 
-    boolean existsByEmailAndIdProviderNot(String email, Long idProvider);
+    boolean existsByEmailAndProviderIdNot(String email, Long providerId);
 }

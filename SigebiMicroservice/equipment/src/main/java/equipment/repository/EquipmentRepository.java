@@ -14,17 +14,17 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long
 
     boolean existsBySerie(String serie);
 
-    boolean existsBySerieAndIdEquipmentNot(String serie, Long idEquipment);
+    boolean existsBySerieAndEquipmentIdNot(String serie, Long equipmentId);
 
-    List<EquipmentEntity> findByAreaIdArea(Long idArea);
+    List<EquipmentEntity> findByAreaAreaId(Long areaId);
 
-    List<EquipmentEntity> findByClassificationIdClassification(Long idClassification);
+    List<EquipmentEntity> findByClassificationClassificationId(Long classificationId);
 
-    List<EquipmentEntity> findByProviderIdProvider(Long idProvider);
+    List<EquipmentEntity> findByProviderProviderId(Long providerId);
 
-    List<EquipmentEntity> findByStatesIdState(Long idState);
+    List<EquipmentEntity> findByStateStateId(Long stateId);
 
-    List<EquipmentEntity> findByLocationIdLocation(Long idLocation);
+    List<EquipmentEntity> findByLocationLocationId(Long locationId);
 
     List<EquipmentEntity> findByNameContainingIgnoreCase(String name);
 }

@@ -14,5 +14,5 @@ public interface AreaRepository extends JpaRepository<AreaEntity, Long> {
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdAreaNot(String name, Long idArea);
+    boolean existsByNameAndAreaIdNot(String name, Long areaId);
 }

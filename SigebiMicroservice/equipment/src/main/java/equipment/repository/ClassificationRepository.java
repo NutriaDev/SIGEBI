@@ -14,5 +14,5 @@ public interface ClassificationRepository extends JpaRepository<ClassificationEn
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdClassificationNot(String name, Long idClassification);
+    boolean existsByNameAndClassificationIdNot(String name, Long classificationId);
 }

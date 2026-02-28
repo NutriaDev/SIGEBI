@@ -143,7 +143,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentsByArea(Long areaId) {
         log.info("Obteniendo equipos del área: {}", areaId);
-        return equipmentRepository.findByAreaIdArea(areaId).stream()
+        return equipmentRepository.findByAreaAreaId(areaId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -152,7 +152,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentsByClassification(Long classificationId) {
         log.info("Obteniendo equipos de la clasificación: {}", classificationId);
-        return equipmentRepository.findByClassificationIdClassification(classificationId).stream()
+        return equipmentRepository.findByClassificationClassificationId(classificationId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -161,7 +161,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentsByProvider(Long providerId) {
         log.info("Obteniendo equipos del proveedor: {}", providerId);
-        return equipmentRepository.findByProviderIdProvider(providerId).stream()
+        return equipmentRepository.findByProviderProviderId(providerId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -170,7 +170,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentsByState(Long stateId) {
         log.info("Obteniendo equipos con estado: {}", stateId);
-        return equipmentRepository.findByStatesIdState(stateId).stream()
+        return equipmentRepository.findByStateStateId(stateId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -179,7 +179,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentsByLocation(Long locationId) {
         log.info("Obteniendo equipos en ubicación: {}", locationId);
-        return equipmentRepository.findByLocationIdLocation(locationId).stream()
+        return equipmentRepository.findByLocationLocationId(locationId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -205,7 +205,7 @@ public class EquipmentService {
                 });
 
         // Validar serie duplicada
-        if (equipmentRepository.existsBySerieAndIdEquipmentNot(request.getSerie(), idEquipment)) {
+        if (equipmentRepository.existsBySerieAndEquipmentIdNot(request.getSerie(), idEquipment)) {
             log.warn("Intento de actualizar equipo con serie duplicada: {}", request.getSerie());
             throw new DuplicateResourceException("Ya existe otro equipo con la serie: " + request.getSerie());
         }

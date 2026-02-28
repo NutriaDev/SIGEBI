@@ -108,14 +108,14 @@ public class ProviderService {
                 });
 
         // Validar que no exista otro proveedor con el mismo nombre
-        if (providerRepository.existsByNameAndIdProviderNot(request.getName(), idProvider)) {
+        if (providerRepository.existsByNameAndProviderIdNot(request.getName(), idProvider)) {
             log.warn("Intento de actualizar proveedor con nombre duplicado: {}", request.getName());
             throw new DuplicateResourceException("Ya existe otro proveedor con el nombre: " + request.getName());
         }
 
         // Validar que no exista otro proveedor con el mismo email (si se proporciona)
         if (request.getEmail() != null &&
-                providerRepository.existsByEmailAndIdProviderNot(request.getEmail(), idProvider)) {
+                providerRepository.existsByEmailAndProviderIdNot(request.getEmail(), idProvider)) {
             log.warn("Intento de actualizar proveedor con email duplicado: {}", request.getEmail());
             throw new DuplicateResourceException("Ya existe otro proveedor con el email: " + request.getEmail());
         }

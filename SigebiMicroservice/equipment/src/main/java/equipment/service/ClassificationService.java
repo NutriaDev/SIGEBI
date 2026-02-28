@@ -95,7 +95,7 @@ public class ClassificationService {
                     return new ResourceNotFoundException("Clasificación no encontrada con ID: " + idClassification);
                 });
 
-        if (classificationRepository.existsByNameAndIdClassificationNot(request.getName(), idClassification)) {
+        if (classificationRepository.existsByNameAndClassificationIdNot(request.getName(), idClassification)) {
             log.warn("Intento de actualizar clasificación con nombre duplicado: {}", request.getName());
             throw new DuplicateResourceException("Ya existe otra clasificación con el nombre: " + request.getName());
         }

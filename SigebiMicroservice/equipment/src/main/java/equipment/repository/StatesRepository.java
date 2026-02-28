@@ -14,5 +14,5 @@ public interface StatesRepository extends JpaRepository<StateEntity, Long> {
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdStateNot(String name, Long idState);
+    boolean existsByNameAndStateIdNot(String name, Long idState);
 }

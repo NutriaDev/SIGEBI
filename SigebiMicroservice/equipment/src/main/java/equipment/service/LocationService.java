@@ -126,7 +126,7 @@ public class LocationService {
                     return new ResourceNotFoundException("Ubicación no encontrada con ID: " + idLocation);
                 });
 
-        if (locationRepository.existsByNameAndIdLocationNot(request.getName(), idLocation)) {
+        if (locationRepository.existsByNameAndLocationIdNot(request.getName(), idLocation)) {
             log.warn("Intento de actualizar ubicación con nombre duplicado: {}", request.getName());
             throw new DuplicateResourceException("Ya existe otra ubicación con el nombre: " + request.getName());
         }
