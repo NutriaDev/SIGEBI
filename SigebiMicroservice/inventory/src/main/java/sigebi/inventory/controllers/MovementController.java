@@ -16,7 +16,7 @@ public class MovementController {
 
     @PostMapping
     public ResponseEntity<String> register(@Valid @RequestBody MovementRequest request) {
-        return ResponseEntity.ok(movementService.registerMovement(request));
+        movementService.registerMovement(request);
+        return ResponseEntity.ok("Movimiento registrado correctamente");
     }
 }
-
