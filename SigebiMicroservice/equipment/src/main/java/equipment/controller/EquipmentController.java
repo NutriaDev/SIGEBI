@@ -23,7 +23,7 @@ public class EquipmentController {
     @Autowired
     private EquipmentService equipmentService;
 
-    @PostMapping
+    @PostMapping("/create-equipment")
     public ResponseEntity<Response> createEquipment(
             @Valid @RequestBody CreateEquipmentRequest request
     ) {
@@ -36,6 +36,7 @@ public class EquipmentController {
             return ApiResponse.internalError(ErrorTitles.INTERNAL_ERROR, e.getMessage());
         }
     }
+
 
     @GetMapping("/all")
     public ResponseEntity<Response> getAllEquipments() {
