@@ -22,85 +22,64 @@ public class AreaService {
 
     private final AreaRepository areaRepository;
 
-    //Crea una nueva área.
+    // ================= CREATE =================
     @Transactional
     public AreaResponse createArea(CreateAreaRequest request) {
-        log.info("Se está creando la nueva área: {}", request.getName());
 
-        // Validar que no exista otra área con el mismo nombre
-        if (areaRepository.existsByName(request.getName())) {
-            log.warn("Intento de crear área duplicada: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe un área con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), null);
 
         AreaEntity area = AreaEntity.builder()
                 .name(request.getName())
                 .active(true)
                 .build();
 
-        AreaEntity savedArea = areaRepository.save(area);
-        log.info("Área creada exitosamente con ID: {}", savedArea.getAreaId());
-
-        return mapToResponse(savedArea);
+        return mapToResponse(areaRepository.save(area));
     }
 
-    // Obtiene todas las áreas.
+    // ================= GET ALL =================
     @Transactional(readOnly = true)
     public List<AreaResponse> getAllAreas() {
-        log.info("Obteniendo todas las áreas");
-        return areaRepository.findAll().stream()
+        return areaRepository.findAll()
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtiene todas las áreas activas.
+    // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
     public List<AreaResponse> getActiveAreas() {
-        log.info("Obteniendo áreas activas");
-        return areaRepository.findAllByActive(true).stream()
+        return areaRepository.findAllByActive(true)
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtiene un área por su ID.
+    // ================= GET BY ID =================
     @Transactional(readOnly = true)
     public AreaResponse getAreaById(Long idArea) {
-        log.info("Buscando área con ID: {}", idArea);
-        AreaEntity area = areaRepository.findById(idArea)
-                .orElseThrow(() -> {
-                    log.error("Área no encontrada con ID: {}", idArea);
-                    return new ResourceNotFoundException("Área no encontrada con ID: " + idArea);
-                });
-        return mapToResponse(area);
+        return mapToResponse(findAreaOrThrow(idArea));
     }
 
-    //Obtiene un área por su nombre.
+    // ================= GET BY NAME =================
     @Transactional(readOnly = true)
     public AreaResponse getAreaByName(String name) {
-        log.info("Buscando área con nombre: {}", name);
+
         AreaEntity area = areaRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> {
                     log.error("Área no encontrada con nombre: {}", name);
                     return new ResourceNotFoundException("Área no encontrada con nombre: " + name);
                 });
+
         return mapToResponse(area);
     }
 
-    //Actualiza un área existente.
+    // ================= UPDATE =================
     @Transactional
     public AreaResponse updateArea(Long idArea, UpdateAreaRequest request) {
-        log.info("Actualizando área con ID: {}", idArea);
-        AreaEntity area = areaRepository.findById(idArea)
-                .orElseThrow(() -> {
-                    log.error("Área no encontrada con ID: {}", idArea);
-                    return new ResourceNotFoundException("Área no encontrada con ID: " + idArea);
-                });
 
-        // Validar que no exista otra área con el mismo nombre
-        if (areaRepository.existsByNameAndAreaIdNot(request.getName(), idArea)) {
-            log.warn("Intento de actualizar área con nombre duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe otra área con el nombre: " + request.getName());
-        }
+        AreaEntity area = findAreaOrThrow(idArea);
+
+        validateDuplicateName(request.getName(), idArea);
 
         area.setName(request.getName());
 
@@ -108,31 +87,48 @@ public class AreaService {
             area.setActive(request.getActive());
         }
 
-        AreaEntity updatedArea = areaRepository.save(area);
-        log.info("Área actualizada exitosamente: {}", updatedArea.getAreaId());
-
-        return mapToResponse(updatedArea);
+        return mapToResponse(areaRepository.save(area));
     }
 
-    // Desactiva un área
+    // ================= DEACTIVATE =================
     @Transactional
     public void deactivateArea(Long idArea) {
-        log.info("Desactivando área con ID: {}", idArea);
 
-        AreaEntity area = areaRepository.findById(idArea)
-                .orElseThrow(() -> {
-                    log.error("Área no encontrada con ID: {}", idArea);
-                    return new ResourceNotFoundException("Área no encontrada con ID: " + idArea);
-                });
+        AreaEntity area = findAreaOrThrow(idArea);
+
+        if (!area.getActive()) {
+            throw new IllegalStateException("El área ya está desactivada");
+        }
 
         area.setActive(false);
         areaRepository.save(area);
-        log.info("Área desactivada exitosamente: {}", idArea);
     }
 
-    // ============= MÉTODOS DE MAPEO =============
+    // ================= VALIDATIONS =================
 
-    // Convierte una entidad AreaEntity a AreaResponse.
+    private void validateDuplicateName(String name, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = areaRepository.existsByName(name);
+        } else {
+            exists = areaRepository.existsByNameAndAreaIdNot(name, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe un área con el nombre: " + name);
+        }
+    }
+
+    private AreaEntity findAreaOrThrow(Long idArea) {
+        return areaRepository.findById(idArea)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Área no encontrada con ID: " + idArea)
+                );
+    }
+
+    // ================= MAPPER =================
 
     private AreaResponse mapToResponse(AreaEntity area) {
         return AreaResponse.builder()
