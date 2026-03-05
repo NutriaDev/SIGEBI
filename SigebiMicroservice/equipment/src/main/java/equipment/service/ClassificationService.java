@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,83 +21,64 @@ public class ClassificationService {
 
     private final ClassificationRepository classificationRepository;
 
+    // ================= CREATE =================
     @Transactional
     public ClassificationResponse createClassification(CreateClassificationRequest request) {
-        log.info("Creando nueva clasificación: {}", request.getName());
 
-        if (classificationRepository.existsByName(request.getName())) {
-            log.warn("Intento de crear clasificación duplicada: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe una clasificación con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), null);
 
         ClassificationEntity classification = ClassificationEntity.builder()
                 .name(request.getName())
                 .active(true)
                 .build();
 
-        ClassificationEntity savedClassification = classificationRepository.save(classification);
-        log.info("Clasificación creada exitosamente con ID: {}", savedClassification.getClassificationId());
-
-        return mapToResponse(savedClassification);
+        return mapToResponse(classificationRepository.save(classification));
     }
 
-    // Obtiene todas las clasificaciones.
+    // ================= GET ALL =================
     @Transactional(readOnly = true)
     public List<ClassificationResponse> getAllClassifications() {
-        log.info("Obteniendo todas las clasificaciones");
-        return classificationRepository.findAll().stream()
+        return classificationRepository.findAll()
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtiene todas las clasificaciones activas.
+    // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
     public List<ClassificationResponse> getActiveClassifications() {
-        log.info("Obteniendo clasificaciones activas");
-        return classificationRepository.findAllByActive(true).stream()
+        return classificationRepository.findAllByActive(true)
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtiene una clasificación por su ID.
+    // ================= GET BY ID =================
     @Transactional(readOnly = true)
     public ClassificationResponse getClassificationById(Long idClassification) {
-        log.info("Buscando clasificación con ID: {}", idClassification);
-        ClassificationEntity classification = classificationRepository.findById(idClassification)
-                .orElseThrow(() -> {
-                    log.error("Clasificación no encontrada con ID: {}", idClassification);
-                    return new ResourceNotFoundException("Clasificación no encontrada con ID: " + idClassification);
-                });
-        return mapToResponse(classification);
+        return mapToResponse(findClassificationOrThrow(idClassification));
     }
 
-    // Obtiene una clasificación por su nombre.
+    // ================= GET BY NAME =================
     @Transactional(readOnly = true)
     public ClassificationResponse getClassificationByName(String name) {
-        log.info("Buscando clasificación con nombre: {}", name);
-        ClassificationEntity classification = classificationRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> {
-                    log.error("Clasificación no encontrada con nombre: {}", name);
-                    return new ResourceNotFoundException("Clasificación no encontrada con nombre: " + name);
-                });
+
+        ClassificationEntity classification = classificationRepository
+                .findByNameIgnoreCase(name)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Clasificación no encontrada con nombre: " + name)
+                );
+
         return mapToResponse(classification);
     }
 
-    //Actualiza una clasificación existente.
+    // ================= UPDATE =================
     @Transactional
     public ClassificationResponse updateClassification(Long idClassification, UpdateClassificationRequest request) {
-        log.info("Actualizando clasificación con ID: {}", idClassification);
 
-        ClassificationEntity classification = classificationRepository.findById(idClassification)
-                .orElseThrow(() -> {
-                    log.error("Clasificación no encontrada con ID: {}", idClassification);
-                    return new ResourceNotFoundException("Clasificación no encontrada con ID: " + idClassification);
-                });
+        ClassificationEntity classification = findClassificationOrThrow(idClassification);
 
-        if (classificationRepository.existsByNameAndClassificationIdNot(request.getName(), idClassification)) {
-            log.warn("Intento de actualizar clasificación con nombre duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe otra clasificación con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), idClassification);
 
         classification.setName(request.getName());
 
@@ -106,31 +86,50 @@ public class ClassificationService {
             classification.setActive(request.getActive());
         }
 
-        ClassificationEntity updatedClassification = classificationRepository.save(classification);
-        log.info("Clasificación actualizada exitosamente: {}", updatedClassification.getClassificationId());
-
-        return mapToResponse(updatedClassification);
+        return mapToResponse(classificationRepository.save(classification));
     }
 
-    // Desactiva una clasificación.
+    // ================= DEACTIVATE =================
     @Transactional
     public void deactivateClassification(Long idClassification) {
-        log.info("Desactivando clasificación con ID: {}", idClassification);
 
-        ClassificationEntity classification = classificationRepository.findById(idClassification)
-                .orElseThrow(() -> {
-                    log.error("Clasificación no encontrada con ID: {}", idClassification);
-                    return new ResourceNotFoundException("Clasificación no encontrada con ID: " + idClassification);
-                });
+        ClassificationEntity classification = findClassificationOrThrow(idClassification);
+
+        if (!classification.getActive()) {
+            throw new IllegalStateException("La clasificación ya está desactivada");
+        }
 
         classification.setActive(false);
+
         classificationRepository.save(classification);
-        log.info("Clasificación desactivada exitosamente: {}", idClassification);
     }
 
-    // ============= MÉTODOS DE MAPEO =============
+    // ================= VALIDATIONS =================
 
-    // Convierte una entidad ClassificationEntity a ClassificationResponse.
+    private void validateDuplicateName(String name, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = classificationRepository.existsByName(name);
+        } else {
+            exists = classificationRepository.existsByNameAndClassificationIdNot(name, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe una clasificación con el nombre: " + name);
+        }
+    }
+
+    private ClassificationEntity findClassificationOrThrow(Long idClassification) {
+        return classificationRepository.findById(idClassification)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Clasificación no encontrada con ID: " + idClassification)
+                );
+    }
+
+    // ================= MAPPER =================
+
     private ClassificationResponse mapToResponse(ClassificationEntity classification) {
         return ClassificationResponse.builder()
                 .classificationId(classification.getClassificationId())
