@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,84 +21,63 @@ public class StatesService {
 
     private final StatesRepository statesRepository;
 
-    // Crear un nuevo estado
+    // ================= CREATE =================
     @Transactional
     public StatesResponse createStatus(CreateStatesRequest request) {
-        log.info("Creando nuevo estado: {}", request.getName());
 
-        if (statesRepository.existsByName(request.getName())) {
-            log.warn("Intento de crear estado duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe un estado con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), null);
 
         StateEntity status = StateEntity.builder()
                 .name(request.getName())
                 .active(true)
                 .build();
 
-        StateEntity savedStatus = statesRepository.save(status);
-        log.info("Estado creado exitosamente con ID: {}", savedStatus.getStateId());
-
-        return mapToResponse(savedStatus);
+        return mapToResponse(statesRepository.save(status));
     }
 
-    // Obtener todos los estados
+    // ================= GET ALL =================
     @Transactional(readOnly = true)
     public List<StatesResponse> getAllStatuses() {
-        log.info("Obteniendo todos los estados");
-        return statesRepository.findAll().stream()
+        return statesRepository.findAll()
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtener todos los estados activos
+    // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
     public List<StatesResponse> getActiveStatuses() {
-        log.info("Obteniendo estados activos");
-        return statesRepository.findAllByActive(true).stream()
+        return statesRepository.findAllByActive(true)
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Obtener un estado por su ID
+    // ================= GET BY ID =================
     @Transactional(readOnly = true)
     public StatesResponse getStatusById(Long idState) {
-        log.info("Buscando estado con ID: {}", idState);
-        StateEntity status = statesRepository.findById(idState)
-                .orElseThrow(() -> {
-                    log.error("Estado no encontrado con ID: {}", idState);
-                    return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
-                });
-        return mapToResponse(status);
+        return mapToResponse(findStatusOrThrow(idState));
     }
 
-    // Obtener un estado por su nombre
+    // ================= GET BY NAME =================
     @Transactional(readOnly = true)
     public StatesResponse getStatusByName(String name) {
-        log.info("Buscando estado con nombre: {}", name);
+
         StateEntity status = statesRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> {
-                    log.error("Estado no encontrado con nombre: {}", name);
-                    return new ResourceNotFoundException("Estado no encontrado con nombre: " + name);
-                });
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Estado no encontrado con nombre: " + name)
+                );
+
         return mapToResponse(status);
     }
 
-    // Actualizar un estado existente
+    // ================= UPDATE =================
     @Transactional
     public StatesResponse updateStatus(Long idState, UpdateStatesRequest request) {
-        log.info("Actualizando estado con ID: {}", idState);
 
-        StateEntity status = statesRepository.findById(idState)
-                .orElseThrow(() -> {
-                    log.error("Estado no encontrado con ID: {}", idState);
-                    return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
-                });
+        StateEntity status = findStatusOrThrow(idState);
 
-        if (statesRepository.existsByNameAndStateIdNot(request.getName(), idState)) {
-            log.warn("Intento de actualizar estado con nombre duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe otro estado con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), idState);
 
         status.setName(request.getName());
 
@@ -107,29 +85,51 @@ public class StatesService {
             status.setActive(request.getActive());
         }
 
-        StateEntity updatedStatus = statesRepository.save(status);
-        log.info("Estado actualizado exitosamente: {}", updatedStatus.getStateId());
-
-        return mapToResponse(updatedStatus);
+        return mapToResponse(statesRepository.save(status));
     }
 
-    // Desactivar un estado
+    // ================= DEACTIVATE =================
     @Transactional
     public void deactivateStatus(Long idState) {
-        log.info("Desactivando estado con ID: {}", idState);
 
-        StateEntity status = statesRepository.findById(idState)
-                .orElseThrow(() -> {
-                    log.error("Estado no encontrado con ID: {}", idState);
-                    return new ResourceNotFoundException("Estado no encontrado con ID: " + idState);
-                });
+        StateEntity status = findStatusOrThrow(idState);
+
+        if (!status.getActive()) {
+            throw new IllegalStateException("El estado ya está desactivado");
+        }
 
         status.setActive(false);
+
         statesRepository.save(status);
-        log.info("Estado desactivado exitosamente: {}", idState);
     }
 
-    // Convertir entidad a DTO de respuesta
+    // ================= VALIDATIONS =================
+
+    private void validateDuplicateName(String name, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = statesRepository.existsByName(name);
+        } else {
+            exists = statesRepository.existsByNameAndStateIdNot(name, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe un estado con el nombre: " + name);
+        }
+    }
+
+    private StateEntity findStatusOrThrow(Long idState) {
+
+        return statesRepository.findById(idState)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Estado no encontrado con ID: " + idState)
+                );
+    }
+
+    // ================= MAPPER =================
+
     private StatesResponse mapToResponse(StateEntity status) {
         return StatesResponse.builder()
                 .stateId(status.getStateId())
