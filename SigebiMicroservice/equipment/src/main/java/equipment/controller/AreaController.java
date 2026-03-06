@@ -7,6 +7,7 @@ import equipment.service.AreaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sigebi.users.dto_response.Response;
@@ -37,28 +38,26 @@ public class AreaController {
     }
 
     // ================= GET ALL =================
-    @GetMapping
-    public ResponseEntity<Response> getAllAreas() {
 
-        List<AreaResponse> areas = areaService.getAllAreas();
+
+    @GetMapping
+    public ResponseEntity<Response> getAllAreas(Pageable pageable) {
 
         return ApiResponse.success(
-                "Areas retrieved successfully",
-                "All areas list",
-                areas
+                "Areas retrieved",
+                "Paginated areas list",
+                areaService.getAllAreas(pageable)
         );
     }
 
     // ================= GET ACTIVE =================
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveAreas() {
-
-        List<AreaResponse> areas = areaService.getActiveAreas();
+    public ResponseEntity<Response> getActiveAreas(Pageable pageable) {
 
         return ApiResponse.success(
-                "Active areas retrieved successfully",
-                "Active areas list",
-                areas
+                "Active areas retrieved",
+                "Paginated active areas",
+                areaService.getActiveAreas(pageable)
         );
     }
 

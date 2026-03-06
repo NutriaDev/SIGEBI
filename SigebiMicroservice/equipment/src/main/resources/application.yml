@@ -19,7 +19,13 @@ spring:
 
   sql:
     init:
-      mode: never                         #Ejecuta data.sql SIEMPRE
+      mode: never #Ejecuta data.sql SIEMPRE
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 10
 
   config:
     import: optional:configserver:http://localhost:8888
