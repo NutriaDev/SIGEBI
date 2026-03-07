@@ -1,14 +1,15 @@
 package equipment.repository;
 
 import equipment.entities.LocationEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<LocationEntity, Long> {
 
-    List<LocationEntity> findAllByActive(Boolean active);
+    Page<LocationEntity> findAllByActive(Boolean active, Pageable pageable);
 
     Optional<LocationEntity> findByNameIgnoreCase(String name);
 
@@ -16,9 +17,9 @@ public interface LocationRepository extends JpaRepository<LocationEntity, Long> 
 
     boolean existsByNameAndLocationIdNot(String name, Long locationId);
 
-    List<LocationEntity> findByType(String type);
+    Page<LocationEntity> findByType(String type, Pageable pageable);
 
-    List<LocationEntity> findByFloor(String floor);
+    Page<LocationEntity> findByFloor(String floor, Pageable pageable);
 
-    List<LocationEntity> findByNameContainingIgnoreCase(String name);
+    Page<LocationEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

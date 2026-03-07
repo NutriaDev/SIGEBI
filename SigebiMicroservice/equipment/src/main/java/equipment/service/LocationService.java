@@ -9,6 +9,8 @@ import equipment.exception.ResourceNotFoundException;
 import equipment.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +24,11 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
 
-    // Crear una nueva ubicación
+    // ================= CREATE =================
     @Transactional
     public LocationResponse createLocation(CreateLocationRequest request) {
-        log.info("Creando nueva ubicación: {}", request.getName());
 
-        if (locationRepository.existsByName(request.getName())) {
-            log.warn("Intento de crear ubicación duplicada: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe una ubicación con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), null);
 
         LocationEntity location = LocationEntity.builder()
                 .name(request.getName())
@@ -40,96 +38,100 @@ public class LocationService {
                 .active(true)
                 .build();
 
-        LocationEntity savedLocation = locationRepository.save(location);
-        log.info("Ubicación creada exitosamente con ID: {}", savedLocation.getLocationId());
-
-        return mapToResponse(savedLocation);
+        return mapToResponse(locationRepository.save(location));
     }
 
-    // Obtener todas las ubicaciones
+    // ================= GET ALL =================
     @Transactional(readOnly = true)
-    public List<LocationResponse> getAllLocations() {
-        log.info("Obteniendo todas las ubicaciones");
-        return locationRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<LocationResponse> getAllLocations(Pageable pageable) {
+
+        return locationRepository
+                .findAll(pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener todas las ubicaciones activas
+    // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
-    public List<LocationResponse> getActiveLocations() {
-        log.info("Obteniendo ubicaciones activas");
-        return locationRepository.findAllByActive(true).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<LocationResponse> getActiveLocations(Pageable pageable) {
+
+        return locationRepository
+                .findAllByActive(true, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener una ubicación por su ID
+    // ================= GET BY ID =================
     @Transactional(readOnly = true)
     public LocationResponse getLocationById(Long idLocation) {
-        log.info("Buscando ubicación con ID: {}", idLocation);
-        LocationEntity location = locationRepository.findById(idLocation)
-                .orElseThrow(() -> {
-                    log.error("Ubicación no encontrada con ID: {}", idLocation);
-                    return new ResourceNotFoundException("Ubicación no encontrada con ID: " + idLocation);
-                });
-        return mapToResponse(location);
+
+        return mapToResponse(findLocationOrThrow(idLocation));
     }
 
-    // Obtener una ubicación por su nombre
+    // ================= GET BY NAME =================
     @Transactional(readOnly = true)
     public LocationResponse getLocationByName(String name) {
-        log.info("Buscando ubicación con nombre: {}", name);
-        LocationEntity location = locationRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> {
-                    log.error("Ubicación no encontrada con nombre: {}", name);
-                    return new ResourceNotFoundException("Ubicación no encontrada con nombre: " + name);
-                });
+
+        LocationEntity location = locationRepository
+                .findByNameIgnoreCase(name)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Ubicación no encontrada con nombre: " + name)
+                );
+
         return mapToResponse(location);
     }
 
-    // Obtener ubicaciones por tipo
+    // ================= GET BY TYPE =================
     @Transactional(readOnly = true)
-    public List<LocationResponse> getLocationsByType(String type) {
-        log.info("Obteniendo ubicaciones por tipo: {}", type);
-        return locationRepository.findByType(type).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<LocationResponse> getLocationsByType(String type, Pageable pageable) {
+
+        Page<LocationEntity> locations = locationRepository.findByType(type, pageable);
+
+        if (locations.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No se encontraron ubicaciones para el tipo: " + type
+            );
+        }
+
+        return locations.map(this::mapToResponse);
     }
 
-    // Obtener ubicaciones por piso
+    // ================= GET BY FLOOR =================
     @Transactional(readOnly = true)
-    public List<LocationResponse> getLocationsByFloor(String floor) {
-        log.info("Obteniendo ubicaciones por piso: {}", floor);
-        return locationRepository.findByFloor(floor).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<LocationResponse> getLocationsByFloor(String floor, Pageable pageable) {
+
+        Page<LocationEntity> locations = locationRepository.findByFloor(floor, pageable);
+
+        if (locations.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No se encontraron ubicaciones para el piso: " + floor
+            );
+        }
+
+        return locations.map(this::mapToResponse);
     }
 
-    // Buscar ubicaciones por nombre
+    // ================= SEARCH BY NAME =================
     @Transactional(readOnly = true)
-    public List<LocationResponse> searchLocationsByName(String name) {
-        log.info("Buscando ubicaciones con nombre: {}", name);
-        return locationRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<LocationResponse> searchLocationsByName(String name, Pageable pageable) {
+
+        Page<LocationEntity> locations =
+                locationRepository.findByNameContainingIgnoreCase(name, pageable);
+
+        if (locations.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No se encontraron ubicaciones con el nombre: " + name
+            );
+        }
+
+        return locations.map(this::mapToResponse);
     }
 
-    // Actualizar una ubicación existente
+    // ================= UPDATE =================
     @Transactional
     public LocationResponse updateLocation(Long idLocation, UpdateLocationRequest request) {
-        log.info("Actualizando ubicación con ID: {}", idLocation);
 
-        LocationEntity location = locationRepository.findById(idLocation)
-                .orElseThrow(() -> {
-                    log.error("Ubicación no encontrada con ID: {}", idLocation);
-                    return new ResourceNotFoundException("Ubicación no encontrada con ID: " + idLocation);
-                });
+        LocationEntity location = findLocationOrThrow(idLocation);
 
-        if (locationRepository.existsByNameAndLocationIdNot(request.getName(), idLocation)) {
-            log.warn("Intento de actualizar ubicación con nombre duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe otra ubicación con el nombre: " + request.getName());
-        }
+        validateDuplicateName(request.getName(), idLocation);
 
         location.setName(request.getName());
         location.setType(request.getType());
@@ -140,30 +142,53 @@ public class LocationService {
             location.setActive(request.getActive());
         }
 
-        LocationEntity updatedLocation = locationRepository.save(location);
-        log.info("Ubicación actualizada exitosamente: {}", updatedLocation.getLocationId());
-
-        return mapToResponse(updatedLocation);
+        return mapToResponse(locationRepository.save(location));
     }
 
-    // Desactivar una ubicación
+    // ================= DEACTIVATE =================
     @Transactional
     public void deactivateLocation(Long idLocation) {
-        log.info("Desactivando ubicación con ID: {}", idLocation);
 
-        LocationEntity location = locationRepository.findById(idLocation)
-                .orElseThrow(() -> {
-                    log.error("Ubicación no encontrada con ID: {}", idLocation);
-                    return new ResourceNotFoundException("Ubicación no encontrada con ID: " + idLocation);
-                });
+        LocationEntity location = findLocationOrThrow(idLocation);
+
+        if (!location.getActive()) {
+            throw new IllegalStateException("La ubicación ya está desactivada");
+        }
 
         location.setActive(false);
+
         locationRepository.save(location);
-        log.info("Ubicación desactivada exitosamente: {}", idLocation);
     }
 
-    // Convertir entidad a DTO de respuesta
+    // ================= VALIDATIONS =================
+
+    private void validateDuplicateName(String name, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = locationRepository.existsByName(name);
+        } else {
+            exists = locationRepository.existsByNameAndLocationIdNot(name, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe una ubicación con el nombre: " + name);
+        }
+    }
+
+    private LocationEntity findLocationOrThrow(Long idLocation) {
+
+        return locationRepository.findById(idLocation)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Ubicación no encontrada con ID: " + idLocation)
+                );
+    }
+
+    // ================= MAPPER =================
+
     private LocationResponse mapToResponse(LocationEntity location) {
+
         return LocationResponse.builder()
                 .locationId(location.getLocationId())
                 .name(location.getName())
