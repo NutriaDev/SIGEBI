@@ -1,5 +1,6 @@
 package equipment.dto_request;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -64,4 +65,7 @@ public class UpdateEquipmentRequest {
     private Integer calibrationFrequency;
 
     private Boolean active;
+
+    @Column(name = "updated_by")
+    private Long updatedBy;
 }

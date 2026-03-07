@@ -3,27 +3,18 @@ package equipment.service;
 import equipment.dto_request.CreateEquipmentRequest;
 import equipment.dto_request.UpdateEquipmentRequest;
 import equipment.dto_response.EquipmentResponse;
-import equipment.entities.AreaEntity;
-import equipment.entities.ClassificationEntity;
-import equipment.entities.EquipmentEntity;
-import equipment.entities.LocationEntity;
-import equipment.entities.ProviderEntity;
-import equipment.entities.StateEntity;
+import equipment.entities.*;
 import equipment.exception.DuplicateResourceException;
 import equipment.exception.ResourceNotFoundException;
-import equipment.repository.AreaRepository;
-import equipment.repository.ClassificationRepository;
-import equipment.repository.EquipmentRepository;
-import equipment.repository.LocationRepository;
-import equipment.repository.ProviderRepository;
-import equipment.repository.StatesRepository;
+import equipment.repository.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,40 +28,45 @@ public class EquipmentService {
     private final StatesRepository statesRepository;
     private final LocationRepository locationRepository;
 
-    // Crear un nuevo equipo
+    // ================= CREATE =================
+
     @Transactional
     public EquipmentResponse createEquipment(CreateEquipmentRequest request) {
-        log.info("Creando nuevo equipo: {}", request.getSerie());
 
         // Validar serie duplicada
         if (equipmentRepository.existsBySerie(request.getSerie())) {
-            log.warn("Intento de crear equipo con serie duplicada: {}", request.getSerie());
             throw new DuplicateResourceException("Ya existe un equipo con la serie: " + request.getSerie());
         }
 
         // Buscar área
         AreaEntity area = areaRepository.findById(request.getAreaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Área no encontrada con ID: " + request.getAreaId()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Área no encontrada con ID: " + request.getAreaId()));
 
         // Buscar clasificación
         ClassificationEntity classification = classificationRepository.findById(request.getClassificationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Clasificación no encontrada con ID: " + request.getClassificationId()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Clasificación no encontrada con ID: " + request.getClassificationId()));
 
         // Buscar proveedor (opcional)
         ProviderEntity provider = null;
         if (request.getProviderId() != null) {
             provider = providerRepository.findById(request.getProviderId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID: " + request.getProviderId()));
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Proveedor no encontrado con ID: " + request.getProviderId()));
         }
 
         // Buscar estado
         StateEntity state = statesRepository.findById(request.getStateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado con ID: " + request.getStateId()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Estado no encontrado con ID: " + request.getStateId()));
 
         // Buscar ubicación
         LocationEntity location = locationRepository.findById(request.getLocationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ubicación no encontrada con ID: " + request.getLocationId()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Ubicación no encontrada con ID: " + request.getLocationId()));
 
+        // Crear equipo
         EquipmentEntity equipment = EquipmentEntity.builder()
                 .serie(request.getSerie())
                 .name(request.getName())
@@ -88,161 +84,132 @@ public class EquipmentService {
                 .warrantyEnd(request.getWarrantyEnd())
                 .maintenanceFrequency(request.getMaintenanceFrequency())
                 .calibrationFrequency(request.getCalibrationFrequency())
+                .createdBy(request.getResponsibleUserId())   // 👈 FALTA ESTO
                 .active(true)
                 .build();
 
         EquipmentEntity savedEquipment = equipmentRepository.save(equipment);
-        log.info("Equipo creado exitosamente con ID: {}", savedEquipment.getEquipmentId());
 
         return mapToResponse(savedEquipment);
     }
 
-    // Obtener todos los equipos
+    // ================= GET ALL =================
+
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getAllEquipments() {
-        log.info("Obteniendo todos los equipos");
-        return equipmentRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getAllEquipments(Pageable pageable) {
+
+        return equipmentRepository
+                .findAll(pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener todos los equipos activos
+    // ================= GET ACTIVE =================
+
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getActiveEquipments() {
-        log.info("Obteniendo equipos activos");
-        return equipmentRepository.findAllByActive(true).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getActiveEquipments(Pageable pageable) {
+
+        return equipmentRepository
+                .findAllByActive(true, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener un equipo por ID
+    // ================= GET BY ID =================
+
     @Transactional(readOnly = true)
     public EquipmentResponse getEquipmentById(Long idEquipment) {
-        log.info("Buscando equipo con ID: {}", idEquipment);
-        EquipmentEntity equipment = equipmentRepository.findById(idEquipment)
-                .orElseThrow(() -> {
-                    log.error("Equipo no encontrado con ID: {}", idEquipment);
-                    return new ResourceNotFoundException("Equipo no encontrado con ID: " + idEquipment);
-                });
-        return mapToResponse(equipment);
+
+        return mapToResponse(findEquipmentOrThrow(idEquipment));
     }
 
-    // Obtener un equipo por serie
+    // ================= GET BY SERIE =================
+
     @Transactional(readOnly = true)
     public EquipmentResponse getEquipmentBySerie(String serie) {
-        log.info("Buscando equipo con serie: {}", serie);
-        EquipmentEntity equipment = equipmentRepository.findBySerieIgnoreCase(serie)
-                .orElseThrow(() -> {
-                    log.error("Equipo no encontrado con serie: {}", serie);
-                    return new ResourceNotFoundException("Equipo no encontrado con serie: " + serie);
-                });
+
+        EquipmentEntity equipment = equipmentRepository
+                .findBySerieIgnoreCase(serie)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Equipo no encontrado con serie: " + serie));
+
         return mapToResponse(equipment);
     }
 
-    // Obtener equipos por área
+    // ================= FILTERS =================
+
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getEquipmentsByArea(Long areaId) {
-        log.info("Obteniendo equipos del área: {}", areaId);
-        return equipmentRepository.findByAreaAreaId(areaId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getEquipmentsByArea(Long areaId, Pageable pageable) {
+
+        return equipmentRepository
+                .findByAreaAreaId(areaId, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener equipos por clasificación
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getEquipmentsByClassification(Long classificationId) {
-        log.info("Obteniendo equipos de la clasificación: {}", classificationId);
-        return equipmentRepository.findByClassificationClassificationId(classificationId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getEquipmentsByClassification(Long classificationId, Pageable pageable) {
+
+        return equipmentRepository
+                .findByClassificationClassificationId(classificationId, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener equipos por proveedor
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getEquipmentsByProvider(Long providerId) {
-        log.info("Obteniendo equipos del proveedor: {}", providerId);
-        return equipmentRepository.findByProviderProviderId(providerId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getEquipmentsByProvider(Long providerId, Pageable pageable) {
+
+        return equipmentRepository
+                .findByProviderProviderId(providerId, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener equipos por estado
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getEquipmentsByState(Long stateId) {
-        log.info("Obteniendo equipos con estado: {}", stateId);
-        return equipmentRepository.findByStateStateId(stateId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getEquipmentsByState(Long stateId, Pageable pageable) {
+
+        return equipmentRepository
+                .findByStateStateId(stateId, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener equipos por ubicación
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> getEquipmentsByLocation(Long locationId) {
-        log.info("Obteniendo equipos en ubicación: {}", locationId);
-        return equipmentRepository.findByLocationLocationId(locationId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> getEquipmentsByLocation(Long locationId, Pageable pageable) {
+
+        return equipmentRepository
+                .findByLocationLocationId(locationId, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Buscar equipos por nombre
     @Transactional(readOnly = true)
-    public List<EquipmentResponse> searchEquipmentsByName(String name) {
-        log.info("Buscando equipos con nombre: {}", name);
-        return equipmentRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentResponse> searchEquipmentsByName(String name, Pageable pageable) {
+
+        return equipmentRepository
+                .findByNameContainingIgnoreCase(name, pageable)
+                .map(this::mapToResponse);
     }
 
-    // Actualizar un equipo
+    // ================= UPDATE =================
+
     @Transactional
     public EquipmentResponse updateEquipment(Long idEquipment, UpdateEquipmentRequest request) {
+
         log.info("Actualizando equipo con ID: {}", idEquipment);
 
-        EquipmentEntity equipment = equipmentRepository.findById(idEquipment)
-                .orElseThrow(() -> {
-                    log.error("Equipo no encontrado con ID: {}", idEquipment);
-                    return new ResourceNotFoundException("Equipo no encontrado con ID: " + idEquipment);
-                });
+        EquipmentEntity equipment = findEquipmentOrThrow(idEquipment);
 
         // Validar serie duplicada
-        if (equipmentRepository.existsBySerieAndEquipmentIdNot(request.getSerie(), idEquipment)) {
-            log.warn("Intento de actualizar equipo con serie duplicada: {}", request.getSerie());
-            throw new DuplicateResourceException("Ya existe otro equipo con la serie: " + request.getSerie());
-        }
-
-        // Buscar área
-        AreaEntity area = areaRepository.findById(request.getAreaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Área no encontrada con ID: " + request.getAreaId()));
-
-        // Buscar clasificación
-        ClassificationEntity classification = classificationRepository.findById(request.getClassificationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Clasificación no encontrada con ID: " + request.getClassificationId()));
-
-        // Buscar proveedor (opcional)
-        ProviderEntity provider = null;
-        if (request.getProviderId() != null) {
-            provider = providerRepository.findById(request.getProviderId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID: " + request.getProviderId()));
-        }
-
-        // Buscar estado
-        StateEntity state = statesRepository.findById(request.getStateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estado no encontrado con ID: " + request.getStateId()));
-
-        // Buscar ubicación
-        LocationEntity location = locationRepository.findById(request.getLocationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ubicación no encontrada con ID: " + request.getLocationId()));
+        validateDuplicateSerie(request.getSerie(), idEquipment);
 
         equipment.setSerie(request.getSerie());
         equipment.setName(request.getName());
         equipment.setBrand(request.getBrand());
         equipment.setModel(request.getModel());
         equipment.setInvima(request.getInvima());
-        equipment.setArea(area);
-        equipment.setClassification(classification);
-        equipment.setProvider(provider);
-        equipment.setState(state);
-        equipment.setLocation(location);
+
+        // Relaciones
+        equipment.setArea(findArea(request.getAreaId()));
+        equipment.setClassification(findClassification(request.getClassificationId()));
+        equipment.setProvider(findProvider(request.getProviderId()));
+        equipment.setState(findState(request.getStateId()));
+        equipment.setLocation(findLocation(request.getLocationId()));
+
+        // Datos del equipo
         equipment.setRiskLevel(request.getRiskLevel());
         equipment.setAcquisitionDate(request.getAcquisitionDate());
         equipment.setUsefulLife(request.getUsefulLife());
@@ -250,34 +217,101 @@ public class EquipmentService {
         equipment.setMaintenanceFrequency(request.getMaintenanceFrequency());
         equipment.setCalibrationFrequency(request.getCalibrationFrequency());
 
+        // Auditoría
+        equipment.setUpdatedBy(request.getUpdatedBy());
+
         if (request.getActive() != null) {
             equipment.setActive(request.getActive());
         }
 
         EquipmentEntity updatedEquipment = equipmentRepository.save(equipment);
-        log.info("Equipo actualizado exitosamente: {}", updatedEquipment.getEquipmentId());
+
+        log.info("Equipo actualizado exitosamente con ID: {}", updatedEquipment.getEquipmentId());
 
         return mapToResponse(updatedEquipment);
     }
 
-    // Desactivar un equipo
+    // ================= DEACTIVATE =================
+
     @Transactional
     public void deactivateEquipment(Long idEquipment) {
-        log.info("Desactivando equipo con ID: {}", idEquipment);
 
-        EquipmentEntity equipment = equipmentRepository.findById(idEquipment)
-                .orElseThrow(() -> {
-                    log.error("Equipo no encontrado con ID: {}", idEquipment);
-                    return new ResourceNotFoundException("Equipo no encontrado con ID: " + idEquipment);
-                });
+        EquipmentEntity equipment = findEquipmentOrThrow(idEquipment);
+
+        if (!equipment.getActive()) {
+            throw new IllegalStateException("El equipo ya está desactivado");
+        }
 
         equipment.setActive(false);
+
         equipmentRepository.save(equipment);
-        log.info("Equipo desactivado exitosamente: {}", idEquipment);
     }
 
-    // Convertir entidad a DTO de respuesta
+    // ================= VALIDATIONS =================
+
+    private void validateDuplicateSerie(String serie, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = equipmentRepository.existsBySerie(serie);
+        } else {
+            exists = equipmentRepository.existsBySerieAndEquipmentIdNot(serie, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe un equipo con la serie: " + serie);
+        }
+    }
+
+    private EquipmentEntity findEquipmentOrThrow(Long idEquipment) {
+
+        return equipmentRepository.findById(idEquipment)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Equipo no encontrado con ID: " + idEquipment));
+    }
+
+    private AreaEntity findArea(Long id) {
+
+        return areaRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Área no encontrada con ID: " + id));
+    }
+
+    private ClassificationEntity findClassification(Long id) {
+
+        return classificationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Clasificación no encontrada con ID: " + id));
+    }
+
+    private ProviderEntity findProvider(Long id) {
+
+        if (id == null) return null;
+
+        return providerRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Proveedor no encontrado con ID: " + id));
+    }
+
+    private StateEntity findState(Long id) {
+
+        return statesRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Estado no encontrado con ID: " + id));
+    }
+
+    private LocationEntity findLocation(Long id) {
+
+        return locationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Ubicación no encontrada con ID: " + id));
+    }
+
+    // ================= MAPPER =================
+
     private EquipmentResponse mapToResponse(EquipmentEntity equipment) {
+
         return EquipmentResponse.builder()
                 .equipmentId(equipment.getEquipmentId())
                 .serie(equipment.getSerie())

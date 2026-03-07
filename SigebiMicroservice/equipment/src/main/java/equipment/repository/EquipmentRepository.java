@@ -1,14 +1,15 @@
 package equipment.repository;
 
 import equipment.entities.EquipmentEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long> {
 
-    List<EquipmentEntity> findAllByActive(Boolean active);
+    Page<EquipmentEntity> findAllByActive(Boolean active, Pageable pageable);
 
     Optional<EquipmentEntity> findBySerieIgnoreCase(String serie);
 
@@ -16,15 +17,15 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long
 
     boolean existsBySerieAndEquipmentIdNot(String serie, Long equipmentId);
 
-    List<EquipmentEntity> findByAreaAreaId(Long areaId);
+    Page<EquipmentEntity> findByAreaAreaId(Long areaId, Pageable pageable);
 
-    List<EquipmentEntity> findByClassificationClassificationId(Long classificationId);
+    Page<EquipmentEntity> findByClassificationClassificationId(Long classificationId, Pageable pageable);
 
-    List<EquipmentEntity> findByProviderProviderId(Long providerId);
+    Page<EquipmentEntity> findByProviderProviderId(Long providerId, Pageable pageable);
 
-    List<EquipmentEntity> findByStateStateId(Long stateId);
+    Page<EquipmentEntity> findByStateStateId(Long stateId, Pageable pageable);
 
-    List<EquipmentEntity> findByLocationLocationId(Long locationId);
+    Page<EquipmentEntity> findByLocationLocationId(Long locationId, Pageable pageable);
 
-    List<EquipmentEntity> findByNameContainingIgnoreCase(String name);
+    Page<EquipmentEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }
