@@ -9,6 +9,8 @@ import equipment.exception.ResourceNotFoundException;
 import equipment.repository.ClassificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,20 +39,20 @@ public class ClassificationService {
 
     // ================= GET ALL =================
     @Transactional(readOnly = true)
-    public List<ClassificationResponse> getAllClassifications() {
-        return classificationRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    public Page<ClassificationResponse> getAllClassifications(Pageable pageable) {
+
+        return classificationRepository
+                .findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
-    public List<ClassificationResponse> getActiveClassifications() {
-        return classificationRepository.findAllByActive(true)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    public Page<ClassificationResponse> getActiveClassifications(Pageable pageable) {
+
+        return classificationRepository
+                .findAllByActive(true, pageable)
+                .map(this::mapToResponse);
     }
 
     // ================= GET BY ID =================

@@ -7,6 +7,7 @@ import equipment.service.ClassificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sigebi.users.dto_response.Response;
@@ -34,23 +35,23 @@ public class ClasificationController {
 
     // ================= GET ALL =================
     @GetMapping
-    public ResponseEntity<Response> getAllClassifications() {
+    public ResponseEntity<Response> getAllClassifications(Pageable pageable) {
 
         return ApiResponse.success(
                 "Classifications retrieved",
-                "All classifications list",
-                classificationService.getAllClassifications()
+                "Paginated classifications",
+                classificationService.getAllClassifications(pageable)
         );
     }
 
     // ================= GET ACTIVE =================
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveClassifications() {
+    public ResponseEntity<Response> getActiveClassifications(Pageable pageable) {
 
         return ApiResponse.success(
                 "Active classifications retrieved",
                 "Active classifications list",
-                classificationService.getActiveClassifications()
+                classificationService.getActiveClassifications(pageable)
         );
     }
 
