@@ -9,11 +9,10 @@ import equipment.exception.ResourceNotFoundException;
 import equipment.repository.ProviderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,22 +21,13 @@ public class ProviderService {
 
     private final ProviderRepository providerRepository;
 
-    // Crear un nuevo proveedor
+    // ================= CREATE =================
+
     @Transactional
     public ProviderResponse createProvider(CreateProviderRequest request) {
-        log.info("Creando nuevo proveedor: {}", request.getName());
 
-        // Validar que no exista otro proveedor con el mismo nombre
-        if (providerRepository.existsByName(request.getName())) {
-            log.warn("Intento de crear proveedor duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe un proveedor con el nombre: " + request.getName());
-        }
-
-        // Validar que no exista otro proveedor con el mismo email
-        if (request.getEmail() != null && providerRepository.existsByEmail(request.getEmail())) {
-            log.warn("Intento de crear proveedor con email duplicado: {}", request.getEmail());
-            throw new DuplicateResourceException("Ya existe un proveedor con el email: " + request.getEmail());
-        }
+        validateDuplicateName(request.getName(), null);
+        validateDuplicateEmail(request.getEmail(), null);
 
         ProviderEntity provider = ProviderEntity.builder()
                 .name(request.getName())
@@ -48,77 +38,65 @@ public class ProviderService {
                 .active(true)
                 .build();
 
-        ProviderEntity savedProvider = providerRepository.save(provider);
-        log.info("Proveedor creado exitosamente con ID: {}", savedProvider.getProviderId());
-
-        return mapToResponse(savedProvider);
+        return mapToResponse(providerRepository.save(provider));
     }
 
-    // Obtener todos los proveedores
+    // ================= GET ALL =================
+
     @Transactional(readOnly = true)
-    public List<ProviderResponse> getAllProviders() {
-        log.info("Obteniendo todos los proveedores");
-        return providerRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<ProviderResponse> getAllProviders(Pageable pageable) {
+
+        return providerRepository
+                .findAll(pageable)
+                .map(this::mapToResponse);
     }
 
-    // Obtener todos los proveedores activos
+    // ================= GET ACTIVE =================
+
     @Transactional(readOnly = true)
-    public List<ProviderResponse> getActiveProviders() {
-        log.info("Obteniendo proveedores activos");
-        return providerRepository.findAllByActive(true).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<ProviderResponse> getActiveProviders(Pageable pageable) {
+
+        Page<ProviderEntity> providers =
+                providerRepository.findAllByActive(true, pageable);
+
+        if (providers.isEmpty()) {
+            throw new ResourceNotFoundException("No hay proveedores activos registrados");
+        }
+
+        return providers.map(this::mapToResponse);
     }
 
-    // Obtener un proveedor por su ID
+    // ================= GET BY ID =================
+
     @Transactional(readOnly = true)
     public ProviderResponse getProviderById(Long idProvider) {
-        log.info("Buscando proveedor con ID: {}", idProvider);
-        ProviderEntity provider = providerRepository.findById(idProvider)
-                .orElseThrow(() -> {
-                    log.error("Proveedor no encontrado con ID: {}", idProvider);
-                    return new ResourceNotFoundException("Proveedor no encontrado con ID: " + idProvider);
-                });
-        return mapToResponse(provider);
+
+        return mapToResponse(findProviderOrThrow(idProvider));
     }
 
-    // Obtener un proveedor por su nombre
+    // ================= GET BY NAME =================
+
     @Transactional(readOnly = true)
     public ProviderResponse getProviderByName(String name) {
-        log.info("Buscando proveedor con nombre: {}", name);
-        ProviderEntity provider = providerRepository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> {
-                    log.error("Proveedor no encontrado con nombre: {}", name);
-                    return new ResourceNotFoundException("Proveedor no encontrado con nombre: " + name);
-                });
+
+        ProviderEntity provider = providerRepository
+                .findByNameIgnoreCase(name)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Proveedor no encontrado con nombre: " + name)
+                );
+
         return mapToResponse(provider);
     }
 
-    // Actualizar un proveedor existente
+    // ================= UPDATE =================
+
     @Transactional
     public ProviderResponse updateProvider(Long idProvider, UpdateProviderRequest request) {
-        log.info("Actualizando proveedor con ID: {}", idProvider);
 
-        ProviderEntity provider = providerRepository.findById(idProvider)
-                .orElseThrow(() -> {
-                    log.error("Proveedor no encontrado con ID: {}", idProvider);
-                    return new ResourceNotFoundException("Proveedor no encontrado con ID: " + idProvider);
-                });
+        ProviderEntity provider = findProviderOrThrow(idProvider);
 
-        // Validar que no exista otro proveedor con el mismo nombre
-        if (providerRepository.existsByNameAndProviderIdNot(request.getName(), idProvider)) {
-            log.warn("Intento de actualizar proveedor con nombre duplicado: {}", request.getName());
-            throw new DuplicateResourceException("Ya existe otro proveedor con el nombre: " + request.getName());
-        }
-
-        // Validar que no exista otro proveedor con el mismo email (si se proporciona)
-        if (request.getEmail() != null &&
-                providerRepository.existsByEmailAndProviderIdNot(request.getEmail(), idProvider)) {
-            log.warn("Intento de actualizar proveedor con email duplicado: {}", request.getEmail());
-            throw new DuplicateResourceException("Ya existe otro proveedor con el email: " + request.getEmail());
-        }
+        validateDuplicateName(request.getName(), idProvider);
+        validateDuplicateEmail(request.getEmail(), idProvider);
 
         provider.setName(request.getName());
         provider.setContactName(request.getContactName());
@@ -130,30 +108,71 @@ public class ProviderService {
             provider.setActive(request.getActive());
         }
 
-        ProviderEntity updatedProvider = providerRepository.save(provider);
-        log.info("Proveedor actualizado exitosamente: {}", updatedProvider.getProviderId());
-
-        return mapToResponse(updatedProvider);
+        return mapToResponse(providerRepository.save(provider));
     }
 
-    // Desactivar un proveedor (eliminación lógica)
+    // ================= DEACTIVATE =================
+
     @Transactional
     public void deactivateProvider(Long idProvider) {
-        log.info("Desactivando proveedor con ID: {}", idProvider);
 
-        ProviderEntity provider = providerRepository.findById(idProvider)
-                .orElseThrow(() -> {
-                    log.error("Proveedor no encontrado con ID: {}", idProvider);
-                    return new ResourceNotFoundException("Proveedor no encontrado con ID: " + idProvider);
-                });
+        ProviderEntity provider = findProviderOrThrow(idProvider);
+
+        if (!provider.getActive()) {
+            throw new IllegalStateException("El proveedor ya está desactivado");
+        }
 
         provider.setActive(false);
+
         providerRepository.save(provider);
-        log.info("Proveedor desactivado exitosamente: {}", idProvider);
     }
 
-    // Convertir entidad a DTO de respuesta
+    // ================= VALIDATIONS =================
+
+    private void validateDuplicateName(String name, Long idToExclude) {
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = providerRepository.existsByName(name);
+        } else {
+            exists = providerRepository.existsByNameAndProviderIdNot(name, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe un proveedor con el nombre: " + name);
+        }
+    }
+
+    private void validateDuplicateEmail(String email, Long idToExclude) {
+
+        if (email == null) return;
+
+        boolean exists;
+
+        if (idToExclude == null) {
+            exists = providerRepository.existsByEmail(email);
+        } else {
+            exists = providerRepository.existsByEmailAndProviderIdNot(email, idToExclude);
+        }
+
+        if (exists) {
+            throw new DuplicateResourceException("Ya existe un proveedor con el email: " + email);
+        }
+    }
+
+    private ProviderEntity findProviderOrThrow(Long idProvider) {
+
+        return providerRepository.findById(idProvider)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Proveedor no encontrado con ID: " + idProvider)
+                );
+    }
+
+    // ================= MAPPER =================
+
     private ProviderResponse mapToResponse(ProviderEntity provider) {
+
         return ProviderResponse.builder()
                 .providerId(provider.getProviderId())
                 .name(provider.getName())
