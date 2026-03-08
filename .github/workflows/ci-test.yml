@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         service:
-          - users         
-          # agrega aquí los MS que quieras
+          - users
 
     services:
       postgres:
@@ -46,5 +45,12 @@ jobs:
           java-version: 21
           cache: maven
 
-      - name: Run tests
-        run: mvn -f SigebiMicroservice/pom.xml -pl ${{ matrix.service }} -am test
+      - name: Check for sensitive prints
+        run: |
+          if grep -rE "System\.out\.println|print\(|password=|secret=|token=|clave=" SigebiMicroservice/${{ matrix.service }}/src; then
+            echo "Sensitive or debug prints found. Failing build."
+            exit 1
+          fi
+
+      - name: Run tests with coverage check
+        run: mvn -f SigebiMicroservice/pom.xml -pl ${{ matrix.service }} -am clean verify

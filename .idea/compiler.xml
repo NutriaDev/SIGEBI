@@ -7,10 +7,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="equipment" />
         <module name="config" />
         <module name="eureka" />
         <module name="users" />
+      </profile>
+      <profile name="Annotation profile for auth" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="auth" />
       </profile>
       <profile name="Annotation profile for SigebiMicroservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -23,14 +32,14 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="auth" target="17" />
+      <module name="JWT" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="SigebiMicroservice" options="-parameters" />
+      <module name="JWT" options="-parameters" />
+      <module name="auth" options="-parameters" />
       <module name="config" options="-parameters" />
-      <module name="equipment" options="-parameters" />
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="users" options="-parameters" />
