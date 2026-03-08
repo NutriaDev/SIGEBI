@@ -127,4 +127,70 @@ class ClassificationServiceTest {
 
         assertEquals("Equipo de Diagnóstico", response.getName());
     }
+
+    @Test
+    void shouldReturnActiveClassifications() {
+
+        Page<ClassificationEntity> page = new PageImpl<>(List.of(classification));
+
+        when(classificationRepository.findAllByActive(true, PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<ClassificationResponse> result =
+                classificationService.getActiveClassifications(PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldUpdateClassificationSuccessfully() {
+
+        UpdateClassificationRequest request = new UpdateClassificationRequest();
+        request.setName("Equipo UCI");
+        request.setActive(true);
+
+        when(classificationRepository.findById(1L))
+                .thenReturn(Optional.of(classification));
+
+        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo UCI",1L))
+                .thenReturn(false);
+
+        when(classificationRepository.save(any()))
+                .thenReturn(classification);
+
+        ClassificationResponse response =
+                classificationService.updateClassification(1L, request);
+
+        assertEquals("Equipo UCI", request.getName());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingDuplicateName() {
+
+        UpdateClassificationRequest request = new UpdateClassificationRequest();
+        request.setName("Equipo de Diagnóstico");
+
+        when(classificationRepository.findById(1L))
+                .thenReturn(Optional.of(classification));
+
+        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo de Diagnóstico",1L))
+                .thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class,
+                () -> classificationService.updateClassification(1L, request));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenClassificationAlreadyInactive() {
+
+        classification.setActive(false);
+
+        when(classificationRepository.findById(1L))
+                .thenReturn(Optional.of(classification));
+
+        assertThrows(IllegalStateException.class,
+                () -> classificationService.deactivateClassification(1L));
+    }
+
+
 }

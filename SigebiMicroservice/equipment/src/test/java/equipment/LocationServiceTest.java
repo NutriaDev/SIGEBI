@@ -109,4 +109,132 @@ class LocationServiceTest {
         assertThrows(IllegalStateException.class,
                 () -> locationService.deactivateLocation(1L));
     }
+
+    @Test
+    void shouldReturnActiveLocations() {
+
+        Page<LocationEntity> page = new PageImpl<>(List.of(location));
+
+        when(locationRepository.findAllByActive(true, PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<LocationResponse> result =
+                locationService.getActiveLocations(PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldReturnLocationByName() {
+
+        when(locationRepository.findByNameIgnoreCase("Sala UCI"))
+                .thenReturn(Optional.of(location));
+
+        LocationResponse response =
+                locationService.getLocationByName("Sala UCI");
+
+        assertEquals("Sala UCI", response.getName());
+    }
+
+    @Test
+    void shouldReturnLocationsByType() {
+
+        Page<LocationEntity> page = new PageImpl<>(List.of(location));
+
+        when(locationRepository.findByType("Unidad", PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<LocationResponse> result =
+                locationService.getLocationsByType("Unidad", PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTypeNotFound() {
+
+        Page<LocationEntity> page = new PageImpl<>(List.of());
+
+        when(locationRepository.findByType("XYZ", PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> locationService.getLocationsByType("XYZ", PageRequest.of(0,10)));
+    }
+
+    @Test
+    void shouldReturnLocationsByFloor() {
+
+        Page<LocationEntity> page = new PageImpl<>(List.of(location));
+
+        when(locationRepository.findByFloor("2", PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<LocationResponse> result =
+                locationService.getLocationsByFloor("2", PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldSearchLocationsByName() {
+
+        Page<LocationEntity> page = new PageImpl<>(List.of(location));
+
+        when(locationRepository.findByNameContainingIgnoreCase("Sala", PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<LocationResponse> result =
+                locationService.searchLocationsByName("Sala", PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldUpdateLocationSuccessfully() {
+
+        UpdateLocationRequest request = new UpdateLocationRequest();
+        request.setName("Sala UCI Updated");
+
+        when(locationRepository.findById(1L))
+                .thenReturn(Optional.of(location));
+
+        when(locationRepository.existsByNameAndLocationIdNot("Sala UCI Updated",1L))
+                .thenReturn(false);
+
+        when(locationRepository.save(any()))
+                .thenReturn(location);
+
+        LocationResponse response =
+                locationService.updateLocation(1L, request);
+
+        assertEquals("Sala UCI Updated", request.getName());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingDuplicateLocation() {
+
+        UpdateLocationRequest request = new UpdateLocationRequest();
+        request.setName("Sala UCI");
+
+        when(locationRepository.findById(1L))
+                .thenReturn(Optional.of(location));
+
+        when(locationRepository.existsByNameAndLocationIdNot("Sala UCI",1L))
+                .thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class,
+                () -> locationService.updateLocation(1L, request));
+    }
+
+    @Test
+    void shouldDeactivateLocation() {
+
+        when(locationRepository.findById(1L))
+                .thenReturn(Optional.of(location));
+
+        locationService.deactivateLocation(1L);
+
+        verify(locationRepository).save(location);
+    }
 }

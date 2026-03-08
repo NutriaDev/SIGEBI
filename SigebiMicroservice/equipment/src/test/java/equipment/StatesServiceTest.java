@@ -130,4 +130,76 @@ class StatesServiceTest {
                 () -> statesService.deactivateStatus(1L));
     }
 
+    @Test
+    void shouldReturnActiveStates() {
+
+        when(statesRepository.findAllByActive(true))
+                .thenReturn(List.of(state));
+
+        List<StatesResponse> result =
+                statesService.getActiveStatuses();
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void shouldReturnStateByName() {
+
+        when(statesRepository.findByNameIgnoreCase("Disponible"))
+                .thenReturn(Optional.of(state));
+
+        StatesResponse response =
+                statesService.getStatusByName("Disponible");
+
+        assertEquals("Disponible", response.getName());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStateNameNotFound() {
+
+        when(statesRepository.findByNameIgnoreCase("XYZ"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> statesService.getStatusByName("XYZ"));
+    }
+
+    @Test
+    void shouldUpdateStateSuccessfully() {
+
+        UpdateStatesRequest request = new UpdateStatesRequest();
+        request.setName("Ocupado");
+        request.setActive(true);
+
+        when(statesRepository.findById(1L))
+                .thenReturn(Optional.of(state));
+
+        when(statesRepository.existsByNameAndStateIdNot("Ocupado",1L))
+                .thenReturn(false);
+
+        when(statesRepository.save(any()))
+                .thenReturn(state);
+
+        StatesResponse response =
+                statesService.updateStatus(1L, request);
+
+        assertEquals("Ocupado", request.getName());
+    }
+
+    @Test
+    void shouldThrowDuplicateWhenUpdatingState() {
+
+        UpdateStatesRequest request = new UpdateStatesRequest();
+        request.setName("Disponible");
+
+        when(statesRepository.findById(1L))
+                .thenReturn(Optional.of(state));
+
+        when(statesRepository.existsByNameAndStateIdNot("Disponible",1L))
+                .thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class,
+                () -> statesService.updateStatus(1L, request));
+    }
+
 }

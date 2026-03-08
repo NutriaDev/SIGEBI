@@ -45,6 +45,9 @@ class EquipmentServiceTest {
     @Mock
     private LocationRepository locationRepository;
 
+    @Mock
+    private ProviderRepository providerRepository;
+
     @InjectMocks
     private EquipmentService equipmentService;
 
@@ -587,5 +590,278 @@ class EquipmentServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> equipmentService.updateEquipment(1L, request));
+    }
+
+    @Test
+    void shouldThrowProviderNotFoundWhenCreatingEquipment() {
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-888")
+                .areaId(1L)
+                .classificationId(1L)
+                .providerId(99L)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.existsBySerie("EQ-888")).thenReturn(false);
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(providerRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> equipmentService.createEquipment(request));
+    }
+
+    @Test
+    void shouldThrowStateNotFoundWhenCreatingEquipment() {
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-777")
+                .areaId(1L)
+                .classificationId(1L)
+                .stateId(99L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.existsBySerie("EQ-777")).thenReturn(false);
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> equipmentService.createEquipment(request));
+    }
+
+    @Test
+    void shouldThrowLocationNotFoundWhenCreatingEquipment() {
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-666")
+                .areaId(1L)
+                .classificationId(1L)
+                .stateId(1L)
+                .locationId(99L)
+                .build();
+
+        when(equipmentRepository.existsBySerie("EQ-666")).thenReturn(false);
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> equipmentService.createEquipment(request));
+    }
+
+    @Test
+    void shouldThrowProviderNotFoundWhenUpdatingEquipment() {
+
+        UpdateEquipmentRequest request = UpdateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .areaId(1L)
+                .classificationId(1L)
+                .providerId(99L)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.findById(1L)).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.existsBySerieAndEquipmentIdNot("EQ-123",1L))
+                .thenReturn(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(providerRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> equipmentService.updateEquipment(1L, request));
+    }
+
+    @Test
+    void shouldCreateEquipmentWithoutProvider() {
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-321")
+                .areaId(1L)
+                .classificationId(1L)
+                .stateId(1L)
+                .locationId(1L)
+                .providerId(null)
+                .build();
+
+        when(equipmentRepository.existsBySerie("EQ-321")).thenReturn(false);
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        EquipmentResponse result = equipmentService.createEquipment(request);
+
+        assertEquals("EQ-123", result.getSerie());
+    }
+
+    @Test
+    void shouldUpdateEquipmentWithoutProvider() {
+
+        UpdateEquipmentRequest request = UpdateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .areaId(1L)
+                .classificationId(1L)
+                .providerId(null)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.findById(1L)).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.existsBySerieAndEquipmentIdNot("EQ-123",1L))
+                .thenReturn(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        var result = equipmentService.updateEquipment(1L, request);
+
+        assertEquals("EQ-123", result.getSerie());
+    }
+
+    @Test
+    void shouldThrowDuplicateSerieOnCreateValidation() {
+
+        when(equipmentRepository.existsBySerie("EQ-123"))
+                .thenReturn(true);
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .build();
+
+        assertThrows(DuplicateResourceException.class,
+                () -> equipmentService.createEquipment(request));
+    }
+
+    @Test
+    void shouldUpdateEquipmentWithoutActiveChange() {
+
+        UpdateEquipmentRequest request = UpdateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .areaId(1L)
+                .classificationId(1L)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.findById(1L)).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.existsBySerieAndEquipmentIdNot("EQ-123",1L))
+                .thenReturn(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        EquipmentResponse response =
+                equipmentService.updateEquipment(1L, request);
+
+        assertNotNull(response);
+    }
+
+    @Test
+    void shouldCreateEquipmentWithProvider() {
+
+        ProviderEntity provider = ProviderEntity.builder()
+                .providerId(1L)
+                .name("Provider")
+                .build();
+
+        CreateEquipmentRequest request = CreateEquipmentRequest.builder()
+                .serie("EQ-555")
+                .areaId(1L)
+                .classificationId(1L)
+                .providerId(1L)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.existsBySerie("EQ-555")).thenReturn(false);
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(providerRepository.findById(1L)).thenReturn(Optional.of(provider));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        var result = equipmentService.createEquipment(request);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void shouldUpdateEquipmentToInactive() {
+
+        UpdateEquipmentRequest request = UpdateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .areaId(1L)
+                .classificationId(1L)
+                .stateId(1L)
+                .locationId(1L)
+                .active(false)
+                .build();
+
+        when(equipmentRepository.findById(1L)).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.existsBySerieAndEquipmentIdNot("EQ-123",1L))
+                .thenReturn(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        var result = equipmentService.updateEquipment(1L, request);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void shouldUpdateEquipmentWithProvider() {
+
+        ProviderEntity provider = ProviderEntity.builder()
+                .providerId(1L)
+                .name("Provider")
+                .build();
+
+        UpdateEquipmentRequest request = UpdateEquipmentRequest.builder()
+                .serie("EQ-123")
+                .areaId(1L)
+                .classificationId(1L)
+                .providerId(1L)
+                .stateId(1L)
+                .locationId(1L)
+                .build();
+
+        when(equipmentRepository.findById(1L)).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.existsBySerieAndEquipmentIdNot("EQ-123",1L))
+                .thenReturn(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(classificationRepository.findById(1L)).thenReturn(Optional.of(classification));
+        when(providerRepository.findById(1L)).thenReturn(Optional.of(provider));
+        when(statesRepository.findById(1L)).thenReturn(Optional.of(state));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        when(equipmentRepository.save(any())).thenReturn(equipment);
+
+        var result = equipmentService.updateEquipment(1L, request);
+
+        assertNotNull(result);
     }
 }

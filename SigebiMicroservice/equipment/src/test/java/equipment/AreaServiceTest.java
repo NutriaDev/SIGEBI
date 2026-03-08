@@ -165,4 +165,44 @@ class AreaServiceTest {
                 () -> areaService.getAreaByName("XYZ"));
     }
 
+    @Test
+    void shouldReturnActiveAreas() {
+
+        Page<AreaEntity> page = new PageImpl<>(List.of(area));
+
+        when(areaRepository.findAllByActive(true, PageRequest.of(0,10)))
+                .thenReturn(page);
+
+        Page<AreaResponse> result =
+                areaService.getActiveAreas(PageRequest.of(0,10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingWithDuplicateName() {
+
+        UpdateAreaRequest request = new UpdateAreaRequest();
+        request.setName("Urgencias");
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(areaRepository.existsByNameAndAreaIdNot("Urgencias",1L))
+                .thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class,
+                () -> areaService.updateArea(1L, request));
+    }
+
+    @Test
+    void shouldReturnAreaByName() {
+
+        when(areaRepository.findByNameIgnoreCase("Urgencias"))
+                .thenReturn(Optional.of(area));
+
+        AreaResponse response =
+                areaService.getAreaByName("Urgencias");
+
+        assertEquals("Urgencias", response.getName());
+    }
+
 }
