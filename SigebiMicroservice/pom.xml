@@ -19,6 +19,7 @@
         <module>config</module>
         <module>users</module>
         <module>auth</module>
+        <module>equipment</module>
 
     </modules>
 
