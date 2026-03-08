@@ -143,4 +143,26 @@ class AreaServiceTest {
         verify(areaRepository).save(area);
     }
 
+    @Test
+    void shouldThrowExceptionWhenAreaAlreadyInactive() {
+
+        area.setActive(false);
+
+        when(areaRepository.findById(1L))
+                .thenReturn(Optional.of(area));
+
+        assertThrows(IllegalStateException.class,
+                () -> areaService.deactivateArea(1L));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAreaNameNotFound() {
+
+        when(areaRepository.findByNameIgnoreCase("XYZ"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> areaService.getAreaByName("XYZ"));
+    }
+
 }
