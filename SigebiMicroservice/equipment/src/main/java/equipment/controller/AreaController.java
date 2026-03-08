@@ -3,15 +3,16 @@ package equipment.controller;
 import equipment.dto_request.CreateAreaRequest;
 import equipment.dto_request.UpdateAreaRequest;
 import equipment.dto_response.AreaResponse;
+import equipment.dto_response.Response;
 import equipment.service.AreaService;
+import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sigebi.users.dto_response.Response;
-import sigebi.users.util.ApiResponse;
+;
 
 import java.util.List;
 

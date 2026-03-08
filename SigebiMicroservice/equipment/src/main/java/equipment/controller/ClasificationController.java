@@ -2,16 +2,16 @@ package equipment.controller;
 
 import equipment.dto_request.CreateClassificationRequest;
 import equipment.dto_request.UpdateClassificationRequest;
-import equipment.dto_response.ClassificationResponse;
+import equipment.dto_response.Response;
 import equipment.service.ClassificationService;
+import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sigebi.users.dto_response.Response;
-import sigebi.users.util.ApiResponse;
+
 
 @Slf4j
 @RestController

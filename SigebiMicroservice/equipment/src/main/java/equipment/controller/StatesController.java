@@ -2,15 +2,16 @@ package equipment.controller;
 
 import equipment.dto_request.CreateStatesRequest;
 import equipment.dto_request.UpdateStatesRequest;
+import equipment.dto_response.Response;
 import equipment.dto_response.StatesResponse;
 import equipment.service.StatesService;
+import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sigebi.users.dto_response.Response;
-import sigebi.users.util.ApiResponse;
+
 
 @Slf4j
 @RestController

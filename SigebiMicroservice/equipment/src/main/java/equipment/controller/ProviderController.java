@@ -3,15 +3,16 @@ package equipment.controller;
 import equipment.dto_request.CreateProviderRequest;
 import equipment.dto_request.UpdateProviderRequest;
 import equipment.dto_response.ProviderResponse;
+import equipment.dto_response.Response;
 import equipment.service.ProviderService;
+import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sigebi.users.dto_response.Response;
-import sigebi.users.util.ApiResponse;
+
 
 @Slf4j
 @RestController
