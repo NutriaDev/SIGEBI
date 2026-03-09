@@ -36,12 +36,12 @@ INSERT INTO auth_permission (id, name, description) VALUES
 
 -- REPORTES
 (gen_random_uuid(), 'reports.read', 'Ver reportes'),
-(gen_random_uuid(), 'reports.write', 'Crear/editar reportes');
+(gen_random_uuid(), 'reports.write', 'Crear/editar reportes'),
 
 -- AREA EQUIPOS
 (gen_random_uuid(), 'equipment.area.create', 'Crear Areas de los equipos'),
-(gen_random_uuid(), 'equipment.area.read', 'Ver areas de equipos');
-(gen_random_uuid(), 'equipment.area.update', 'Actualizar areas de equipos');
+(gen_random_uuid(), 'equipment.area.read', 'Ver areas de equipos'),
+(gen_random_uuid(), 'equipment.area.update', 'Actualizar areas de equipos'),
 
 -- CLASIFICACION DE EQUIPOS
 (gen_random_uuid(), 'equipment.classification.create', 'Crear clasificación de equipos'),
@@ -66,7 +66,7 @@ INSERT INTO auth_permission (id, name, description) VALUES
 -- EQUIPOS
 (gen_random_uuid(), 'equipment.create', 'Crear equipos'),
 (gen_random_uuid(), 'equipment.read', 'Ver equipos'),
-(gen_random_uuid(), 'equipment.update', 'Actualizar equipos'),
+(gen_random_uuid(), 'equipment.update', 'Actualizar equipos');
 
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
