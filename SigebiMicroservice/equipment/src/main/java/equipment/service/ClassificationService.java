@@ -48,7 +48,7 @@ public class ClassificationService {
 
     // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
-    public Page<ClassificationResponse> getActiveClassifications(Pageable pageable) {
+    public Page<ClassificationResponse> getActiveClassifications(Boolean active, Pageable pageable) {
 
         return classificationRepository
                 .findAllByActive(true, pageable)

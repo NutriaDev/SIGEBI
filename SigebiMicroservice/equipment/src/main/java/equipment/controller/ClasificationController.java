@@ -50,12 +50,12 @@ public class ClasificationController {
     // ================= GET ACTIVE =================
     @PreAuthorize("hasAuthority('equipment.classification.read')")
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveClassifications(Pageable pageable) {
+    public ResponseEntity<Response> getActiveClassifications(Pageable pageable, Boolean active) {
 
         return ApiResponse.success(
                 "Active classifications retrieved",
                 "Active classifications list",
-                classificationService.getActiveClassifications(pageable)
+                classificationService.getActiveClassifications(active, pageable)
         );
     }
 

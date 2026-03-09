@@ -40,6 +40,17 @@ public class JwtUtils {
         return Long.valueOf(getClaims(token).getSubject());
     }
 
+    public List<String> getPermissions(String token) {
+        var claims = getClaims(token);
+        var permissions = claims.get("permissions");
+        if (permissions == null) return List.of();
+
+        return ((List<?>) permissions)
+                .stream()
+                .map(Object::toString)
+                .toList();
+    }
+
     public List<String> getRoles(String token) {
         var roles = getClaims(token).get("roles");
 

@@ -5,7 +5,7 @@ spring:
     config:
       enabled: false
   application:
-    name: equipment
+    name: ms-equipments
 
   datasource:
     driver-class-name: org.postgresql.Driver
