@@ -38,6 +38,36 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'reports.read', 'Ver reportes'),
 (gen_random_uuid(), 'reports.write', 'Crear/editar reportes');
 
+-- AREA EQUIPOS
+(gen_random_uuid(), 'equipment.area.create', 'Crear Areas de los equipos'),
+(gen_random_uuid(), 'equipment.area.read', 'Ver areas de equipos');
+(gen_random_uuid(), 'equipment.area.update', 'Actualizar areas de equipos');
+
+-- CLASIFICACION DE EQUIPOS
+(gen_random_uuid(), 'equipment.classification.create', 'Crear clasificación de equipos'),
+(gen_random_uuid(), 'equipment.classification.read', 'Ver clasificación de equipos'),
+(gen_random_uuid(), 'equipment.classification.update', 'Actualizar clasificación de equipos'),
+
+-- ESTADOS DE EQUIPOS
+(gen_random_uuid(), 'equipment.state.create', 'Crear estados de equipos'),
+(gen_random_uuid(), 'equipment.state.read', 'Ver estados de equipos'),
+(gen_random_uuid(), 'equipment.state.update', 'Actualizar estados de equipos'),
+
+-- UBICACION DE EQUIPOS
+(gen_random_uuid(), 'equipment.location.create', 'Crear ubicaciones de equipos'),
+(gen_random_uuid(), 'equipment.location.read', 'Ver ubicaciones de equipos'),
+(gen_random_uuid(), 'equipment.location.update', 'Actualizar ubicaciones de equipos'),
+
+-- PROVEEDOR DE EQUIPOS
+(gen_random_uuid(), 'equipment.provider.create', 'Crear proveedores de equipos'),
+(gen_random_uuid(), 'equipment.provider.read', 'Ver proveedores de equipos'),
+(gen_random_uuid(), 'equipment.provider.update', 'Actualizar proveedores de equipos'),
+
+-- EQUIPOS
+(gen_random_uuid(), 'equipment.create', 'Crear equipos'),
+(gen_random_uuid(), 'equipment.read', 'Ver equipos'),
+(gen_random_uuid(), 'equipment.update', 'Actualizar equipos'),
+
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
 (gen_random_uuid(), 'SUPERADMIN'),
@@ -74,7 +104,24 @@ JOIN auth_permission p ON p.name IN (
   'users.delete.supervisor',
   'users.delete.tecnico',
   'reports.read',
-  'reports.write'
+  'equipment.classification.read',
+  'equipment.state.read',
+  'equipment.location.read',
+  'equipment.provider.read',
+  'equipment.read',
+  'equipment.create',
+  'equipment.update',
+  'equipment.provider.create',
+  'equipment.provider.update',
+  'equipment.location.create',
+  'equipment.location.update',
+  'equipment.state.create',
+  'equipment.state.update',
+  'equipment.classification.create',
+  'equipment.classification.update',
+  'equipment.area.create',
+  'equipment.area.update'
+
 )
 WHERE r.name = 'ADMIN'
 AND NOT EXISTS (
@@ -94,7 +141,21 @@ JOIN auth_permission p ON p.name IN (
   'users.update.supervisor',
   'users.update.tecnico',
   'reports.read',
-  'reports.write'
+  'reports.write',
+  'equipment.classification.read',
+  'equipment.state.read',
+  'equipment.location.read',
+  'equipment.provider.read',
+  'equipment.read',
+  'equipment.create',
+  'equipment.update',
+  'equipment.provider.update',
+  'equipment.provider.create',
+  'equipment.location.create',
+  'equipment.location.update',
+  'equipment.classification.create',
+  'equipment.classification.update'
+
 )
 WHERE r.name = 'SUPERVISOR'
 AND NOT EXISTS (
@@ -111,7 +172,19 @@ JOIN auth_permission p ON p.name IN (
   'users.read.supervisor',
   'users.read.tecnico',
   'reports.read',
-  'reports.write'
+  'reports.write',
+  'equipment.classification.read',
+  'equipment.state.read',
+  'equipment.location.read',
+  'equipment.provider.read',
+  'equipment.read',
+  'equipment.create',
+  'equipment.update',
+  'equipment.location.create',
+  'equipment.location.update',
+  'equipment.classification.create',
+  'equipment.classification.update'
+
 )
 WHERE r.name = 'TECNICO'
 AND NOT EXISTS (
