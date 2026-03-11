@@ -28,7 +28,7 @@ spring:
         - id: ms-equipment
           uri: http://localhost:8091
           predicates:
-            - Path=/api/equipments/**,/api/classifications/**,/api/areas/**,/api/providers/**,/api/states/**,/api/locations/**
+            - Path=/api/equipments/**,/api/classifications/**,/api/equipments-area/**,/api/providers/**,/api/states/**,/api/locations/**
 
       globalcors:
         corsConfigurations:
