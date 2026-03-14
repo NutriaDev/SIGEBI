@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 
 import java.util.Optional;
 import java.util.List;
@@ -101,9 +102,9 @@ class StatesServiceTest {
 
         when(statesRepository.findAll()).thenReturn(List.of(state));
 
-        List<StatesResponse> result = statesService.getAllStatuses();
+        Page<StatesResponse> result = statesService.getAllStatuses();
 
-        assertEquals(1, result.size());
+        assertEquals(1, result.map());
     }
 
     // DEACTIVATE

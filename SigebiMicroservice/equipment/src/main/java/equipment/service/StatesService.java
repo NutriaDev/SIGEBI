@@ -9,6 +9,8 @@ import equipment.exception.ResourceNotFoundException;
 import equipment.repository.StatesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,20 +39,19 @@ public class StatesService {
 
     // ================= GET ALL =================
     @Transactional(readOnly = true)
-    public List<StatesResponse> getAllStatuses() {
-        return statesRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    public Page<StatesResponse> getAllStatuses(Pageable pageable) {
+        return statesRepository
+                .findAll(pageable)
+                .map(this::mapToResponse);
+
     }
 
     // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
-    public List<StatesResponse> getActiveStatuses() {
-        return statesRepository.findAllByActive(true)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+    public Page<StatesResponse> getActiveStatuses(Pageable pageable) {
+        return statesRepository.findAllByActive(true, pageable)
+                .map(this::mapToResponse);
+
     }
 
     // ================= GET BY ID =================
@@ -88,18 +89,12 @@ public class StatesService {
         return mapToResponse(statesRepository.save(status));
     }
 
-    // ================= DEACTIVATE =================
+
+    // ================= DEACTIVATE (toggle) =================
     @Transactional
     public void deactivateStatus(Long idState) {
-
         StateEntity status = findStatusOrThrow(idState);
-
-        if (!status.getActive()) {
-            throw new IllegalStateException("El estado ya está desactivado");
-        }
-
-        status.setActive(false);
-
+        status.setActive(!status.getActive());
         statesRepository.save(status);
     }
 

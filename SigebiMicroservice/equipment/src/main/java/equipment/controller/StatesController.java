@@ -9,6 +9,7 @@ import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -40,24 +41,24 @@ public class StatesController {
     // ================= GET ALL =================
     @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping
-    public ResponseEntity<Response> getAllStatuses() {
+    public ResponseEntity<Response> getAllStatuses(Pageable pageable) {
 
         return ApiResponse.success(
                 "States retrieved",
                 "All states list",
-                statesService.getAllStatuses()
+                statesService.getAllStatuses(pageable)
         );
     }
 
     // ================= GET ACTIVE =================
     @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveStatuses() {
+    public ResponseEntity<Response> getActiveStatuses(Pageable pageable) {
 
         return ApiResponse.success(
                 "Active states retrieved",
                 "Active states list",
-                statesService.getActiveStatuses()
+                statesService.getActiveStatuses(pageable)
         );
     }
 

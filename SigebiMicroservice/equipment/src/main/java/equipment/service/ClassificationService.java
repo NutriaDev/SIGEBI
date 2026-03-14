@@ -91,18 +91,11 @@ public class ClassificationService {
         return mapToResponse(classificationRepository.save(classification));
     }
 
-    // ================= DEACTIVATE =================
+    // ================= DEACTIVATE (toggle) =================
     @Transactional
     public void deactivateClassification(Long idClassification) {
-
         ClassificationEntity classification = findClassificationOrThrow(idClassification);
-
-        if (!classification.getActive()) {
-            throw new IllegalStateException("La clasificación ya está desactivada");
-        }
-
-        classification.setActive(false);
-
+        classification.setActive(!classification.getActive());
         classificationRepository.save(classification);
     }
 
