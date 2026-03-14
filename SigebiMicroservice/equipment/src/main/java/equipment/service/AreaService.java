@@ -91,17 +91,11 @@ public class AreaService {
         return mapToResponse(areaRepository.save(area));
     }
 
-    // ================= DEACTIVATE =================
+    // ================= DEACTIVATE (toggle) =================
     @Transactional
     public void deactivateArea(Long idArea) {
-
         AreaEntity area = findAreaOrThrow(idArea);
-
-        if (!area.getActive()) {
-            throw new IllegalStateException("El área ya está desactivada");
-        }
-
-        area.setActive(false);
+        area.setActive(!area.getActive());
         areaRepository.save(area);
     }
 

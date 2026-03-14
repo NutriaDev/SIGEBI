@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -22,6 +23,7 @@ public class ClasificationController {
     private final ClassificationService classificationService;
 
     // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.classification.create')")
     @PostMapping
     public ResponseEntity<Response> createClassification(
             @Valid @RequestBody CreateClassificationRequest request) {
@@ -34,6 +36,7 @@ public class ClasificationController {
     }
 
     // ================= GET ALL =================
+    @PreAuthorize("hasAuthority('equipment.classification.read')")
     @GetMapping
     public ResponseEntity<Response> getAllClassifications(Pageable pageable) {
 
@@ -45,17 +48,19 @@ public class ClasificationController {
     }
 
     // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.classification.read')")
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveClassifications(Pageable pageable) {
+    public ResponseEntity<Response> getActiveClassifications(Pageable pageable, Boolean active) {
 
         return ApiResponse.success(
                 "Active classifications retrieved",
                 "Active classifications list",
-                classificationService.getActiveClassifications(pageable)
+                classificationService.getActiveClassifications(active, pageable)
         );
     }
 
     // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.classification.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getClassificationById(@PathVariable Long id) {
 
@@ -67,6 +72,7 @@ public class ClasificationController {
     }
 
     // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.classification.read')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Response> getClassificationByName(@PathVariable String name) {
 
@@ -78,6 +84,7 @@ public class ClasificationController {
     }
 
     // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.classification.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateClassification(
             @PathVariable Long id,
@@ -91,6 +98,7 @@ public class ClasificationController {
     }
 
     // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.classification.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateClassification(@PathVariable Long id) {
 
