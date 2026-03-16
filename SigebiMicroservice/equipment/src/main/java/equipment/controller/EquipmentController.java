@@ -85,69 +85,70 @@ public class EquipmentController {
         );
     }
 
-    // ================= FILTERS =================
+    // ================= FILTERS BY NAME =================
+
     @PreAuthorize("hasAuthority('equipment.read')")
-    @GetMapping("/area/{id}")
-    public ResponseEntity<Response> getEquipmentsByArea(
-            @PathVariable Long id,
+    @GetMapping("/area")
+    public ResponseEntity<Response> getEquipmentsByAreaName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by area",
-                equipmentService.getEquipmentsByArea(id, pageable)
+                "Equipments filtered by area name",
+                equipmentService.getEquipmentsByAreaName(name, pageable)
         );
     }
 
     @PreAuthorize("hasAuthority('equipment.read')")
-    @GetMapping("/classification/{id}")
-    public ResponseEntity<Response> getEquipmentsByClassification(
-            @PathVariable Long id,
+    @GetMapping("/classification")
+    public ResponseEntity<Response> getEquipmentsByClassificationName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by classification",
-                equipmentService.getEquipmentsByClassification(id, pageable)
+                "Equipments filtered by classification name",
+                equipmentService.getEquipmentsByClassificationName(name, pageable)
         );
     }
 
     @PreAuthorize("hasAuthority('equipment.read')")
-    @GetMapping("/provider/{id}")
-    public ResponseEntity<Response> getEquipmentsByProvider(
-            @PathVariable Long id,
+    @GetMapping("/provider")
+    public ResponseEntity<Response> getEquipmentsByProviderName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by provider",
-                equipmentService.getEquipmentsByProvider(id, pageable)
+                "Equipments filtered by provider name",
+                equipmentService.getEquipmentsByProviderName(name, pageable)
         );
     }
 
     @PreAuthorize("hasAuthority('equipment.read')")
-    @GetMapping("/state/{id}")
-    public ResponseEntity<Response> getEquipmentsByState(
-            @PathVariable Long id,
+    @GetMapping("/state")
+    public ResponseEntity<Response> getEquipmentsByStateName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by state",
-                equipmentService.getEquipmentsByState(id, pageable)
+                "Equipments filtered by state name",
+                equipmentService.getEquipmentsByStateName(name, pageable)
         );
     }
 
     @PreAuthorize("hasAuthority('equipment.read')")
-    @GetMapping("/location/{id}")
-    public ResponseEntity<Response> getEquipmentsByLocation(
-            @PathVariable Long id,
+    @GetMapping("/location")
+    public ResponseEntity<Response> getEquipmentsByLocationName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by location",
-                equipmentService.getEquipmentsByLocation(id, pageable)
+                "Equipments filtered by location name",
+                equipmentService.getEquipmentsByLocationName(name, pageable)
         );
     }
 
