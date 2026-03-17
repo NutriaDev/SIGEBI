@@ -195,4 +195,18 @@ public class EquipmentController {
                 null
         );
     }
+
+    // ================= ACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.update')")
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Response> activateEquipment(@PathVariable Long id) {
+
+        equipmentService.activateEquipment(id);
+
+        return ApiResponse.success(
+                "Equipment activated successfully",
+                "The equipment was activated correctly",
+                null
+        );
+    }
 }

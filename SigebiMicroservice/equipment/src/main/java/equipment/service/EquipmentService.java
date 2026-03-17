@@ -243,6 +243,20 @@ public class EquipmentService {
         equipmentRepository.save(equipment);
     }
 
+    // ================= ACTIVATE =================
+    @Transactional
+    public void activateEquipment(Long idEquipment) {
+
+        EquipmentEntity equipment = findEquipmentOrThrow(idEquipment);
+
+        if (equipment.getActive()) {
+            throw new IllegalStateException("El equipo ya está activo");
+        }
+
+        equipment.setActive(true);
+        equipmentRepository.save(equipment);
+    }
+
     // ================= VALIDATIONS =================
 
     private void validateDuplicateSerie(String serie, Long idToExclude) {
