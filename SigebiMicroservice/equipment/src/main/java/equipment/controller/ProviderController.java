@@ -1,0 +1,118 @@
+package equipment.controller;
+
+import equipment.dto_request.CreateProviderRequest;
+import equipment.dto_request.UpdateProviderRequest;
+import equipment.dto_response.ProviderResponse;
+import equipment.dto_response.Response;
+import equipment.service.ProviderService;
+import equipment.util.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+
+@Slf4j
+@RestController
+@RequestMapping("/api/providers")
+@RequiredArgsConstructor
+public class ProviderController {
+
+    private final ProviderService providerService;
+
+    // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.create')")
+    @PostMapping
+    public ResponseEntity<Response> createProvider(
+            @Valid @RequestBody CreateProviderRequest request) {
+
+        ProviderResponse provider = providerService.createProvider(request);
+
+        return ApiResponse.success(
+                "Provider created",
+                "Provider registered successfully",
+                provider
+        );
+    }
+
+    // ================= GET ALL =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
+    @GetMapping
+    public ResponseEntity<Response> getAllProviders(Pageable pageable) {
+
+        return ApiResponse.success(
+                "Providers retrieved",
+                "Paginated providers list",
+                providerService.getAllProviders(pageable)
+        );
+    }
+
+    // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
+    @GetMapping("/active")
+    public ResponseEntity<Response> getActiveProviders(Pageable pageable) {
+
+        return ApiResponse.success(
+                "Active providers retrieved",
+                "Paginated active providers",
+                providerService.getActiveProviders(pageable)
+        );
+    }
+
+    // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
+    @GetMapping("/{id}")
+    public ResponseEntity<Response> getProviderById(@PathVariable Long id) {
+
+        return ApiResponse.success(
+                "Provider retrieved",
+                "Provider found",
+                providerService.getProviderById(id)
+        );
+    }
+
+    // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Response> getProviderByName(@PathVariable String name) {
+
+        return ApiResponse.success(
+                "Provider retrieved",
+                "Provider found by name",
+                providerService.getProviderByName(name)
+        );
+    }
+
+    // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.update')")
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> updateProvider(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateProviderRequest request) {
+
+        ProviderResponse provider = providerService.updateProvider(id, request);
+
+        return ApiResponse.success(
+                "Provider updated",
+                "Provider updated successfully",
+                provider
+        );
+    }
+
+    // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.update')")
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Response> deactivateProvider(@PathVariable Long id) {
+
+        providerService.deactivateProvider(id);
+
+        return ApiResponse.success(
+                "Provider deactivated",
+                "Provider deactivated successfully",
+                null
+        );
+    }
+}

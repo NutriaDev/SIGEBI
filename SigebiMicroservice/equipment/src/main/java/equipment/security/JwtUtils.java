@@ -1,10 +1,11 @@
-package sigebi.users.security;
+package equipment.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -51,8 +52,8 @@ public class JwtUtils {
     }
 
     public List<String> getRoles(String token) {
-        var claims = getClaims(token);
-        var roles = claims.get("roles");
+        var roles = getClaims(token).get("roles");
+
         if (roles == null) return List.of();
 
         return ((List<?>) roles)
@@ -60,9 +61,6 @@ public class JwtUtils {
                 .map(Object::toString)
                 .toList();
     }
-
-
-
 
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
@@ -72,4 +70,3 @@ public class JwtUtils {
                 .getBody();
     }
 }
-
