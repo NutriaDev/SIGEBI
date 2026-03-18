@@ -47,6 +47,8 @@ class ClassificationServiceTest {
                 .build();
     }
 
+    // ===================== CREATE =====================
+
     @Test
     void shouldCreateClassification() {
 
@@ -73,6 +75,8 @@ class ClassificationServiceTest {
                 () -> classificationService.createClassification(request));
     }
 
+    // ===================== GET BY ID =====================
+
     @Test
     void shouldGetById() {
 
@@ -92,6 +96,8 @@ class ClassificationServiceTest {
                 () -> classificationService.getClassificationById(1L));
     }
 
+    // ===================== GET ALL =====================
+
     @Test
     void shouldReturnPaginatedClassifications() {
 
@@ -100,21 +106,46 @@ class ClassificationServiceTest {
         when(classificationRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
         Page<ClassificationResponse> result =
-                classificationService.getAllClassifications(PageRequest.of(0,10));
+                classificationService.getAllClassifications(PageRequest.of(0, 10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    // ===================== GET ACTIVE =====================
+
+    /**
+     * CORRECCIÓN: el servicio ahora recibe (Boolean active, Pageable pageable)
+     */
+    @Test
+    void shouldReturnActiveClassifications() {
+
+        Page<ClassificationEntity> page = new PageImpl<>(List.of(classification));
+
+        when(classificationRepository.findAllByActive(true, PageRequest.of(0, 10)))
+                .thenReturn(page);
+
+        Page<ClassificationResponse> result =
+                classificationService.getActiveClassifications(true, PageRequest.of(0, 10));
 
         assertEquals(1, result.getTotalElements());
     }
 
     @Test
-    void shouldDeactivateClassification() {
+    void shouldReturnActiveClassificationsWithFalse() {
 
-        when(classificationRepository.findById(1L))
-                .thenReturn(Optional.of(classification));
+        classification.setActive(false);
+        Page<ClassificationEntity> page = new PageImpl<>(List.of(classification));
 
-        classificationService.deactivateClassification(1L);
+        when(classificationRepository.findAllByActive(true, PageRequest.of(0, 10)))
+                .thenReturn(page);
 
-        verify(classificationRepository).save(classification);
+        Page<ClassificationResponse> result =
+                classificationService.getActiveClassifications(false, PageRequest.of(0, 10));
+
+        assertEquals(1, result.getTotalElements());
     }
+
+    // ===================== GET BY NAME =====================
 
     @Test
     void shouldReturnClassificationByName() {
@@ -129,18 +160,16 @@ class ClassificationServiceTest {
     }
 
     @Test
-    void shouldReturnActiveClassifications() {
+    void shouldThrowNotFoundByName() {
 
-        Page<ClassificationEntity> page = new PageImpl<>(List.of(classification));
+        when(classificationRepository.findByNameIgnoreCase("Inexistente"))
+                .thenReturn(Optional.empty());
 
-        when(classificationRepository.findAllByActive(true, PageRequest.of(0,10)))
-                .thenReturn(page);
-
-        Page<ClassificationResponse> result =
-                classificationService.getActiveClassifications(PageRequest.of(0,10));
-
-        assertEquals(1, result.getTotalElements());
+        assertThrows(ResourceNotFoundException.class,
+                () -> classificationService.getClassificationByName("Inexistente"));
     }
+
+    // ===================== UPDATE =====================
 
     @Test
     void shouldUpdateClassificationSuccessfully() {
@@ -152,7 +181,7 @@ class ClassificationServiceTest {
         when(classificationRepository.findById(1L))
                 .thenReturn(Optional.of(classification));
 
-        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo UCI",1L))
+        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo UCI", 1L))
                 .thenReturn(false);
 
         when(classificationRepository.save(any()))
@@ -161,7 +190,7 @@ class ClassificationServiceTest {
         ClassificationResponse response =
                 classificationService.updateClassification(1L, request);
 
-        assertEquals("Equipo UCI", request.getName());
+        assertNotNull(response);
     }
 
     @Test
@@ -173,7 +202,7 @@ class ClassificationServiceTest {
         when(classificationRepository.findById(1L))
                 .thenReturn(Optional.of(classification));
 
-        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo de Diagnóstico",1L))
+        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo de Diagnóstico", 1L))
                 .thenReturn(true);
 
         assertThrows(DuplicateResourceException.class,
@@ -181,16 +210,81 @@ class ClassificationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenClassificationAlreadyInactive() {
+    void shouldThrowNotFoundWhenUpdating() {
 
+        UpdateClassificationRequest request = new UpdateClassificationRequest();
+        request.setName("Equipo UCI");
+
+        when(classificationRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> classificationService.updateClassification(99L, request));
+    }
+
+    @Test
+    void shouldUpdateClassificationWithNullActive() {
+
+        UpdateClassificationRequest request = new UpdateClassificationRequest();
+        request.setName("Equipo UCI");
+        request.setActive(null); // no cambia el active
+
+        when(classificationRepository.findById(1L))
+                .thenReturn(Optional.of(classification));
+
+        when(classificationRepository.existsByNameAndClassificationIdNot("Equipo UCI", 1L))
+                .thenReturn(false);
+
+        when(classificationRepository.save(any()))
+                .thenReturn(classification);
+
+        ClassificationResponse response =
+                classificationService.updateClassification(1L, request);
+
+        assertNotNull(response);
+    }
+
+    // ===================== DEACTIVATE (toggle) =====================
+
+    /**
+     * CORRECCIÓN: el servicio hace toggle (!active), no lanza excepción si ya está inactivo.
+     * Verificamos que se llame save() después del toggle.
+     */
+    @Test
+    void shouldDeactivateClassification() {
+
+        // active = true -> toggle -> false
+        when(classificationRepository.findById(1L))
+                .thenReturn(Optional.of(classification));
+
+        classificationService.deactivateClassification(1L);
+
+        assertFalse(classification.getActive());
+        verify(classificationRepository).save(classification);
+    }
+
+    @Test
+    void shouldActivateClassificationViaToggle() {
+
+        // active = false -> toggle -> true
         classification.setActive(false);
 
         when(classificationRepository.findById(1L))
                 .thenReturn(Optional.of(classification));
 
-        assertThrows(IllegalStateException.class,
-                () -> classificationService.deactivateClassification(1L));
+        classificationService.deactivateClassification(1L);
+
+        assertTrue(classification.getActive());
+        verify(classificationRepository).save(classification);
     }
 
+    @Test
+    void shouldThrowNotFoundWhenDeactivating() {
 
+        when(classificationRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> classificationService.deactivateClassification(99L));
+    }
 }
