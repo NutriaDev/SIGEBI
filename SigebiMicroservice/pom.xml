@@ -20,6 +20,7 @@
         <module>users</module>
         <module>auth</module>
         <module>equipment</module>
+        <module>cms</module>
 
     </modules>
 
