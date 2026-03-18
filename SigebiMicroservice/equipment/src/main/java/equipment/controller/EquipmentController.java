@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
 
     // ================= CREATE =================
-
+    @PreAuthorize("hasAuthority('equipment.create')")
     @PostMapping
     public ResponseEntity<Response> createEquipment(
             @Valid @RequestBody CreateEquipmentRequest request) {
@@ -37,7 +38,7 @@ public class EquipmentController {
     }
 
     // ================= GET ALL =================
-
+    @PreAuthorize("hasAuthority('equipment.read')")
     @GetMapping
     public ResponseEntity<Response> getAllEquipments(Pageable pageable) {
 
@@ -49,7 +50,7 @@ public class EquipmentController {
     }
 
     // ================= GET ACTIVE =================
-
+    @PreAuthorize("hasAuthority('equipment.read')")
     @GetMapping("/active")
     public ResponseEntity<Response> getActiveEquipments(Pageable pageable) {
 
@@ -61,7 +62,7 @@ public class EquipmentController {
     }
 
     // ================= GET BY ID =================
-
+    @PreAuthorize("hasAuthority('equipment.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getEquipmentById(@PathVariable Long id) {
 
@@ -73,7 +74,7 @@ public class EquipmentController {
     }
 
     // ================= GET BY SERIE =================
-
+    @PreAuthorize("hasAuthority('equipment.read')")
     @GetMapping("/serie/{serie}")
     public ResponseEntity<Response> getEquipmentBySerie(@PathVariable String serie) {
 
@@ -84,70 +85,75 @@ public class EquipmentController {
         );
     }
 
-    // ================= FILTERS =================
+    // ================= FILTERS BY NAME =================
 
-    @GetMapping("/area/{id}")
-    public ResponseEntity<Response> getEquipmentsByArea(
-            @PathVariable Long id,
+    @PreAuthorize("hasAuthority('equipment.read')")
+    @GetMapping("/area")
+    public ResponseEntity<Response> getEquipmentsByAreaName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by area",
-                equipmentService.getEquipmentsByArea(id, pageable)
+                "Equipments filtered by area name",
+                equipmentService.getEquipmentsByAreaName(name, pageable)
         );
     }
 
-    @GetMapping("/classification/{id}")
-    public ResponseEntity<Response> getEquipmentsByClassification(
-            @PathVariable Long id,
+    @PreAuthorize("hasAuthority('equipment.read')")
+    @GetMapping("/classification")
+    public ResponseEntity<Response> getEquipmentsByClassificationName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by classification",
-                equipmentService.getEquipmentsByClassification(id, pageable)
+                "Equipments filtered by classification name",
+                equipmentService.getEquipmentsByClassificationName(name, pageable)
         );
     }
 
-    @GetMapping("/provider/{id}")
-    public ResponseEntity<Response> getEquipmentsByProvider(
-            @PathVariable Long id,
+    @PreAuthorize("hasAuthority('equipment.read')")
+    @GetMapping("/provider")
+    public ResponseEntity<Response> getEquipmentsByProviderName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by provider",
-                equipmentService.getEquipmentsByProvider(id, pageable)
+                "Equipments filtered by provider name",
+                equipmentService.getEquipmentsByProviderName(name, pageable)
         );
     }
 
-    @GetMapping("/state/{id}")
-    public ResponseEntity<Response> getEquipmentsByState(
-            @PathVariable Long id,
+    @PreAuthorize("hasAuthority('equipment.read')")
+    @GetMapping("/state")
+    public ResponseEntity<Response> getEquipmentsByStateName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by state",
-                equipmentService.getEquipmentsByState(id, pageable)
+                "Equipments filtered by state name",
+                equipmentService.getEquipmentsByStateName(name, pageable)
         );
     }
 
-    @GetMapping("/location/{id}")
-    public ResponseEntity<Response> getEquipmentsByLocation(
-            @PathVariable Long id,
+    @PreAuthorize("hasAuthority('equipment.read')")
+    @GetMapping("/location")
+    public ResponseEntity<Response> getEquipmentsByLocationName(
+            @RequestParam String name,
             Pageable pageable) {
 
         return ApiResponse.success(
                 "Equipments retrieved",
-                "Equipments filtered by location",
-                equipmentService.getEquipmentsByLocation(id, pageable)
+                "Equipments filtered by location name",
+                equipmentService.getEquipmentsByLocationName(name, pageable)
         );
     }
 
     // ================= SEARCH =================
-
+    @PreAuthorize("hasAuthority('equipment.read')")
     @GetMapping("/search")
     public ResponseEntity<Response> searchEquipments(
             @RequestParam String name,
@@ -161,7 +167,7 @@ public class EquipmentController {
     }
 
     // ================= UPDATE =================
-
+    @PreAuthorize("hasAuthority('equipment.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateEquipment(
             @PathVariable Long id,
@@ -177,7 +183,7 @@ public class EquipmentController {
     }
 
     // ================= DEACTIVATE =================
-
+    @PreAuthorize("hasAuthority('equipment.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateEquipment(@PathVariable Long id) {
 
@@ -186,6 +192,20 @@ public class EquipmentController {
         return ApiResponse.success(
                 "Equipment deactivated successfully",
                 "The equipment was deactivated correctly",
+                null
+        );
+    }
+
+    // ================= ACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.update')")
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Response> activateEquipment(@PathVariable Long id) {
+
+        equipmentService.activateEquipment(id);
+
+        return ApiResponse.success(
+                "Equipment activated successfully",
+                "The equipment was activated correctly",
                 null
         );
     }

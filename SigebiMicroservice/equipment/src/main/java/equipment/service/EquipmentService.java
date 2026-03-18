@@ -136,46 +136,42 @@ public class EquipmentService {
 
     // ================= FILTERS =================
 
-    @Transactional(readOnly = true)
-    public Page<EquipmentResponse> getEquipmentsByArea(Long areaId, Pageable pageable) {
+    // ================= FILTERS BY NAME =================
 
+    @Transactional(readOnly = true)
+    public Page<EquipmentResponse> getEquipmentsByAreaName(String areaName, Pageable pageable) {
         return equipmentRepository
-                .findByAreaAreaId(areaId, pageable)
+                .findByAreaNameContainingIgnoreCase(areaName, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<EquipmentResponse> getEquipmentsByClassification(Long classificationId, Pageable pageable) {
-
+    public Page<EquipmentResponse> getEquipmentsByClassificationName(String classificationName, Pageable pageable) {
         return equipmentRepository
-                .findByClassificationClassificationId(classificationId, pageable)
+                .findByClassificationNameContainingIgnoreCase(classificationName, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<EquipmentResponse> getEquipmentsByProvider(Long providerId, Pageable pageable) {
-
+    public Page<EquipmentResponse> getEquipmentsByProviderName(String providerName, Pageable pageable) {
         return equipmentRepository
-                .findByProviderProviderId(providerId, pageable)
+                .findByProviderNameContainingIgnoreCase(providerName, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<EquipmentResponse> getEquipmentsByState(Long stateId, Pageable pageable) {
-
+    public Page<EquipmentResponse> getEquipmentsByStateName(String stateName, Pageable pageable) {
         return equipmentRepository
-                .findByStateStateId(stateId, pageable)
+                .findByStateNameContainingIgnoreCase(stateName, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<EquipmentResponse> getEquipmentsByLocation(Long locationId, Pageable pageable) {
-
+    public Page<EquipmentResponse> getEquipmentsByLocationName(String locationName, Pageable pageable) {
         return equipmentRepository
-                .findByLocationLocationId(locationId, pageable)
+                .findByLocationNameContainingIgnoreCase(locationName, pageable)
                 .map(this::mapToResponse);
     }
-
     @Transactional(readOnly = true)
     public Page<EquipmentResponse> searchEquipmentsByName(String name, Pageable pageable) {
 
@@ -244,6 +240,20 @@ public class EquipmentService {
 
         equipment.setActive(false);
 
+        equipmentRepository.save(equipment);
+    }
+
+    // ================= ACTIVATE =================
+    @Transactional
+    public void activateEquipment(Long idEquipment) {
+
+        EquipmentEntity equipment = findEquipmentOrThrow(idEquipment);
+
+        if (equipment.getActive()) {
+            throw new IllegalStateException("El equipo ya está activo");
+        }
+
+        equipment.setActive(true);
         equipmentRepository.save(equipment);
     }
 

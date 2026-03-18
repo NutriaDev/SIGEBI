@@ -17,15 +17,10 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Long
 
     boolean existsBySerieAndEquipmentIdNot(String serie, Long equipmentId);
 
-    Page<EquipmentEntity> findByAreaAreaId(Long areaId, Pageable pageable);
-
-    Page<EquipmentEntity> findByClassificationClassificationId(Long classificationId, Pageable pageable);
-
-    Page<EquipmentEntity> findByProviderProviderId(Long providerId, Pageable pageable);
-
-    Page<EquipmentEntity> findByStateStateId(Long stateId, Pageable pageable);
-
-    Page<EquipmentEntity> findByLocationLocationId(Long locationId, Pageable pageable);
-
+    Page<EquipmentEntity> findByAreaNameContainingIgnoreCase(String areaName, Pageable pageable);
+    Page<EquipmentEntity> findByClassificationNameContainingIgnoreCase(String classificationName, Pageable pageable);
+    Page<EquipmentEntity> findByProviderNameContainingIgnoreCase(String providerName, Pageable pageable);
+    Page<EquipmentEntity> findByStateNameContainingIgnoreCase(String stateName, Pageable pageable);
+    Page<EquipmentEntity> findByLocationNameContainingIgnoreCase(String locationName, Pageable pageable);
     Page<EquipmentEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

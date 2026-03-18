@@ -1,6 +1,11 @@
+server:
+  port: 8091
 spring:
+  cloud:
+    config:
+      enabled: false
   application:
-    name: equipment
+    name: ms-equipments
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -26,12 +31,9 @@ spring:
       pageable:
         default-page-size: 10
         max-page-size: 10
-
-  config:
-    import: optional:configserver:http://localhost:8888
-
 eureka:
   instance:
     hostname: localhost
   client:
-    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka

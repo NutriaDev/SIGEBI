@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +24,7 @@ public class ProviderController {
     private final ProviderService providerService;
 
     // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.create')")
     @PostMapping
     public ResponseEntity<Response> createProvider(
             @Valid @RequestBody CreateProviderRequest request) {
@@ -37,6 +39,7 @@ public class ProviderController {
     }
 
     // ================= GET ALL =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
     @GetMapping
     public ResponseEntity<Response> getAllProviders(Pageable pageable) {
 
@@ -48,6 +51,7 @@ public class ProviderController {
     }
 
     // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
     @GetMapping("/active")
     public ResponseEntity<Response> getActiveProviders(Pageable pageable) {
 
@@ -59,6 +63,7 @@ public class ProviderController {
     }
 
     // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getProviderById(@PathVariable Long id) {
 
@@ -70,6 +75,7 @@ public class ProviderController {
     }
 
     // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.provider.read')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Response> getProviderByName(@PathVariable String name) {
 
@@ -81,6 +87,7 @@ public class ProviderController {
     }
 
     // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateProvider(
             @PathVariable Long id,
@@ -96,6 +103,7 @@ public class ProviderController {
     }
 
     // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.provider.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateProvider(@PathVariable Long id) {
 

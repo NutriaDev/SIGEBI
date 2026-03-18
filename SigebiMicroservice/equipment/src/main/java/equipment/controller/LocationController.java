@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +24,7 @@ public class LocationController {
     private final LocationService locationService;
 
     // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.location.create')")
     @PostMapping
     public ResponseEntity<Response> createLocation(
             @Valid @RequestBody CreateLocationRequest request) {
@@ -37,6 +39,7 @@ public class LocationController {
     }
 
     // ================= GET ALL =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping
     public ResponseEntity<Response> getAllLocations(Pageable pageable) {
 
@@ -47,6 +50,7 @@ public class LocationController {
         );
     }
     // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/active")
     public ResponseEntity<Response> getActiveLocations(Pageable pageable) {
 
@@ -58,6 +62,7 @@ public class LocationController {
     }
 
     // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getLocationById(@PathVariable Long id) {
 
@@ -69,6 +74,7 @@ public class LocationController {
     }
 
     // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Response> getLocationByName(@PathVariable String name) {
 
@@ -80,6 +86,7 @@ public class LocationController {
     }
 
     // ================= GET BY TYPE =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/type/{type}")
     public ResponseEntity<Response> getLocationsByType(
             @PathVariable String type,
@@ -93,6 +100,7 @@ public class LocationController {
     }
 
     // ================= GET BY FLOOR =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/floor/{floor}")
     public ResponseEntity<Response> getLocationsByFloor(
             @PathVariable String floor,
@@ -106,6 +114,7 @@ public class LocationController {
     }
 
     // ================= SEARCH =================
+    @PreAuthorize("hasAuthority('equipment.location.read')")
     @GetMapping("/search")
     public ResponseEntity<Response> searchLocationsByName(
             @RequestParam String name,
@@ -119,6 +128,7 @@ public class LocationController {
     }
 
     // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.location.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateLocation(
             @PathVariable Long id,
@@ -134,6 +144,7 @@ public class LocationController {
     }
 
     // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.location.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateLocation(@PathVariable Long id) {
 

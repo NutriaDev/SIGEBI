@@ -48,7 +48,7 @@ public class ClassificationService {
 
     // ================= GET ACTIVE =================
     @Transactional(readOnly = true)
-    public Page<ClassificationResponse> getActiveClassifications(Pageable pageable) {
+    public Page<ClassificationResponse> getActiveClassifications(Boolean active, Pageable pageable) {
 
         return classificationRepository
                 .findAllByActive(true, pageable)
@@ -91,18 +91,11 @@ public class ClassificationService {
         return mapToResponse(classificationRepository.save(classification));
     }
 
-    // ================= DEACTIVATE =================
+    // ================= DEACTIVATE (toggle) =================
     @Transactional
     public void deactivateClassification(Long idClassification) {
-
         ClassificationEntity classification = findClassificationOrThrow(idClassification);
-
-        if (!classification.getActive()) {
-            throw new IllegalStateException("La clasificación ya está desactivada");
-        }
-
-        classification.setActive(false);
-
+        classification.setActive(!classification.getActive());
         classificationRepository.save(classification);
     }
 
