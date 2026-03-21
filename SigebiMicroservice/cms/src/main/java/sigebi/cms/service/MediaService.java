@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sigebi.cms.DTO.ImageResponse;
+import sigebi.cms.clients.EquipmentClient;
 import sigebi.cms.entities.EquipmentImageEntity;
 import sigebi.cms.exception.ResourceNotFoundException;
 import sigebi.cms.repository.EquipmentImageRepository;
@@ -22,9 +23,18 @@ public class MediaService {
 
     private final Cloudinary cloudinary;
     private final EquipmentImageRepository imageRepository;
+    private final EquipmentClient equipmentClient;
 
     public ImageResponse uploadImage(Long equipmentId, MultipartFile file) throws IOException {
 
+        // Validar que el equipo existe
+        try {
+            equipmentClient.getEquipmentById(equipmentId);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Equipo no encontrado con ID: " + equipmentId);
+        }
+
+        // Si ya tiene imagen, eliminarla de Cloudinary primero
         imageRepository.findByEquipmentId(equipmentId).ifPresent(existing -> {
             try {
                 cloudinary.uploader().destroy(existing.getPublicId(), ObjectUtils.emptyMap());
@@ -34,12 +44,13 @@ public class MediaService {
             }
         });
 
+        // Subir nueva imagen a Cloudinary
         Map uploadResult = cloudinary.uploader().upload(
                 file.getBytes(),
                 ObjectUtils.asMap(
-                        "folder",     "sigebi/equipments",
-                        "public_id",  "equipment_" + equipmentId,
-                        "overwrite",  true
+                        "folder",    "sigebi/equipments",
+                        "public_id", "equipment_" + equipmentId,
+                        "overwrite", true
                 )
         );
 
@@ -54,9 +65,9 @@ public class MediaService {
                 .build();
 
         imageRepository.save(entity);
-
         return new ImageResponse(equipmentId, imageUrl, publicId);
     }
+
 
     public ImageResponse getImage(Long equipmentId) {
         return imageRepository.findByEquipmentId(equipmentId)

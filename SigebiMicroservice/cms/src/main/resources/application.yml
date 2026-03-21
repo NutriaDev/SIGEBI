@@ -33,6 +33,10 @@ cloudinary:
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 
+equipment:
+  service:
+    url: http://localhost:8091  # 👈 aquí
+
 eureka:
   instance:
     hostname: localhost
