@@ -30,6 +30,12 @@ spring:
           predicates:
             - Path=/api/equipments/**,/api/classifications/**,/api/equipments-area/**,/api/providers/**,/api/states/**,/api/locations/**
 
+        # CMS - MEDIA
+        - id: ms-cms
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/media/**
+
       globalcors:
         corsConfigurations:
           '[/**]':

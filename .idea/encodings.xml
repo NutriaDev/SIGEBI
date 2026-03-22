@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/SigebiMicroservice/JWT/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/SigebiMicroservice/auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SigebiMicroservice/cms/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/SigebiMicroservice/config/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/SigebiMicroservice/equipment/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/SigebiMicroservice/eureka/src/main/java" charset="UTF-8" />
