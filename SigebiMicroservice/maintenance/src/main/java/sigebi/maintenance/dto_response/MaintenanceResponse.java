@@ -1,37 +1,16 @@
-package sigebi.maintenance.entities;
-
-import jakarta.persistence.*;
+package sigebi.maintenance.dto_response;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "maintenances")
-public class MaintenanceEntity {
+public class MaintenanceResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMaintenance;
-
-    @Column(nullable = false)
     private Long equipmentId;
-
-    @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
-    private MaintenanceTypeEntity type;
-
-    @Column(nullable = false)
+    private String maintenanceType;
     private LocalDateTime date;
-
-    @Column(nullable = false, length = 500)
     private String description;
-
-    @Column(nullable = false)
-    private Long responsibleUserId;
-
-    @Column(nullable = false)
+    private String technicianName;
     private String status;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public Long getIdMaintenance() {
@@ -50,12 +29,12 @@ public class MaintenanceEntity {
         this.equipmentId = equipmentId;
     }
 
-    public MaintenanceTypeEntity getType() {
-        return type;
+    public String getMaintenanceType() {
+        return maintenanceType;
     }
 
-    public void setType(MaintenanceTypeEntity type) {
-        this.type = type;
+    public void setMaintenanceType(String maintenanceType) {
+        this.maintenanceType = maintenanceType;
     }
 
     public LocalDateTime getDate() {
@@ -74,12 +53,12 @@ public class MaintenanceEntity {
         this.description = description;
     }
 
-    public Long getResponsibleUserId() {
-        return responsibleUserId;
+    public String getTechnicianName() {
+        return technicianName;
     }
 
-    public void setResponsibleUserId(Long responsibleUserId) {
-        this.responsibleUserId = responsibleUserId;
+    public void setTechnicianName(String technicianName) {
+        this.technicianName = technicianName;
     }
 
     public String getStatus() {

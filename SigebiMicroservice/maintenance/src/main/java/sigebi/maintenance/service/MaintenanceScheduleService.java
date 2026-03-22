@@ -1,25 +1,91 @@
 package sigebi.maintenance.service;
 
 import org.springframework.stereotype.Service;
+import sigebi.maintenance.dto_request.MaintenanceScheduleRequest;
+import sigebi.maintenance.dto_response.MaintenanceScheduleResponse;
 import sigebi.maintenance.entities.MaintenanceScheduleEntity;
+import sigebi.maintenance.entities.MaintenanceTypeEntity;
+import sigebi.maintenance.exception.BusinessException;
 import sigebi.maintenance.repository.MaintenanceScheduleRepository;
+import sigebi.maintenance.repository.MaintenanceTypeRepository;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class MaintenanceScheduleService {
 
     private final MaintenanceScheduleRepository repository;
+    private final MaintenanceTypeRepository maintenanceTypeRepository;
 
-    public MaintenanceScheduleService(MaintenanceScheduleRepository repository) {
+    public MaintenanceScheduleService(MaintenanceScheduleRepository repository,
+                                      MaintenanceTypeRepository maintenanceTypeRepository) {
         this.repository = repository;
+        this.maintenanceTypeRepository = maintenanceTypeRepository;
     }
 
-    public List<MaintenanceScheduleEntity> getAllSchedules() {
-        return repository.findAll();
+    public MaintenanceScheduleResponse scheduleMaintenance(MaintenanceScheduleRequest request) {
+        validateScheduleRequest(request);
+
+        MaintenanceTypeEntity maintenanceType = maintenanceTypeRepository.findById(request.getMaintenanceType())
+                .orElseThrow(() -> new BusinessException("El tipo de mantenimiento no existe"));
+
+        repository.findByEquipmentIdAndScheduledDateAndStatus(
+                        request.getEquipmentId(),
+                        request.getScheduledDate(),
+                        "PENDIENTE"
+                )
+                .ifPresent(schedule -> {
+                    throw new BusinessException("Ya existe una programación activa para esta fecha");
+                });
+
+        MaintenanceScheduleEntity entity = new MaintenanceScheduleEntity();
+        entity.setEquipmentId(request.getEquipmentId());
+        entity.setType(maintenanceType);
+        entity.setScheduledDate(request.getScheduledDate());
+        entity.setResponsibleUserId(request.getTechnicianId());
+        entity.setStatus("PENDIENTE");
+        entity.setCreatedAt(LocalDateTime.now());
+
+        MaintenanceScheduleEntity saved = repository.save(entity);
+
+        MaintenanceScheduleResponse response = new MaintenanceScheduleResponse();
+        response.setIdSchedule(saved.getIdSchedule());
+        response.setEquipmentId(saved.getEquipmentId());
+        response.setMaintenanceType(saved.getType().getName());
+        response.setScheduledDate(saved.getScheduledDate());
+        response.setStatus(saved.getStatus());
+        response.setTechnicianName("Pendiente integración usuario");
+
+        return response;
     }
 
-    public MaintenanceScheduleEntity saveSchedule(MaintenanceScheduleEntity schedule) {
-        return repository.save(schedule);
+    private void validateScheduleRequest(MaintenanceScheduleRequest request) {
+        if (request.getScheduledDate() == null) {
+            throw new BusinessException("La fecha programada es obligatoria");
+        }
+
+        if (!request.getScheduledDate().isAfter(LocalDateTime.now())) {
+            throw new BusinessException("La fecha debe ser futura para programaciones");
+        }
+
+        if (request.getEquipmentId() == null) {
+            throw new BusinessException("El equipo es obligatorio");
+        }
+
+        if (request.getTechnicianId() == null) {
+            throw new BusinessException("El técnico es obligatorio");
+        }
+
+        if (request.getMaintenanceType() == null) {
+            throw new BusinessException("El tipo de mantenimiento es obligatorio");
+        }
+
+        // Pendiente integración con equipment:
+        // validar que el equipo exista
+        // validar que esté disponible
+        // validar que no esté bloqueado o en préstamo
+
+        // Pendiente integración con users/auth:
+        // validar que el técnico exista y esté activo
     }
 }

@@ -1,23 +1,31 @@
 package sigebi.maintenance.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "maintenance_types")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class MaintenanceTypeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idType;
 
     @Column(nullable = false)
     private String name;
 
-    private String description;
+    public Long getIdType() {
+        return idType;
+    }
+
+    public void setIdType(Long idType) {
+        this.idType = idType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
