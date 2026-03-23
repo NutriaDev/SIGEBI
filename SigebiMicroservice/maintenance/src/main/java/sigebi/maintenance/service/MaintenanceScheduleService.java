@@ -14,12 +14,12 @@ import java.time.LocalDateTime;
 @Service
 public class MaintenanceScheduleService {
 
-    private final MaintenanceScheduleRepository repository;
+    private final MaintenanceScheduleRepository maintenanceScheduleRepository;
     private final MaintenanceTypeRepository maintenanceTypeRepository;
 
-    public MaintenanceScheduleService(MaintenanceScheduleRepository repository,
+    public MaintenanceScheduleService(MaintenanceScheduleRepository maintenanceScheduleRepository,
                                       MaintenanceTypeRepository maintenanceTypeRepository) {
-        this.repository = repository;
+        this.maintenanceScheduleRepository = maintenanceScheduleRepository;
         this.maintenanceTypeRepository = maintenanceTypeRepository;
     }
 
@@ -29,29 +29,34 @@ public class MaintenanceScheduleService {
         MaintenanceTypeEntity maintenanceType = maintenanceTypeRepository.findById(request.getMaintenanceType())
                 .orElseThrow(() -> new BusinessException("El tipo de mantenimiento no existe"));
 
-        repository.findByEquipmentIdAndScheduledDateAndStatus(
+        boolean duplicated = maintenanceScheduleRepository
+                .findByEquipmentIdAndScheduledDateAndStatus(
                         request.getEquipmentId(),
                         request.getScheduledDate(),
-                        "PENDIENTE"
+                        "PROGRAMADO"
                 )
-                .ifPresent(schedule -> {
-                    throw new BusinessException("Ya existe una programación activa para esta fecha");
-                });
+                .isPresent();
+
+        if (duplicated) {
+            throw new BusinessException("Ya existe una programación para ese equipo en la misma fecha");
+        }
 
         MaintenanceScheduleEntity entity = new MaintenanceScheduleEntity();
         entity.setEquipmentId(request.getEquipmentId());
-        entity.setType(maintenanceType);
         entity.setScheduledDate(request.getScheduledDate());
         entity.setResponsibleUserId(request.getTechnicianId());
-        entity.setStatus("PENDIENTE");
+        entity.setStatus("PROGRAMADO");
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setType(maintenanceType);
 
-        MaintenanceScheduleEntity saved = repository.save(entity);
+        MaintenanceScheduleEntity saved = maintenanceScheduleRepository.save(entity);
 
         MaintenanceScheduleResponse response = new MaintenanceScheduleResponse();
         response.setIdSchedule(saved.getIdSchedule());
         response.setEquipmentId(saved.getEquipmentId());
-        response.setMaintenanceType(saved.getType().getName());
+        response.setMaintenanceType(
+                saved.getType() != null ? saved.getType().getName() : "N/A"
+        );
         response.setScheduledDate(saved.getScheduledDate());
         response.setStatus(saved.getStatus());
         response.setTechnicianName("Pendiente integración usuario");
@@ -60,32 +65,24 @@ public class MaintenanceScheduleService {
     }
 
     private void validateScheduleRequest(MaintenanceScheduleRequest request) {
-        if (request.getScheduledDate() == null) {
-            throw new BusinessException("La fecha programada es obligatoria");
-        }
-
-        if (!request.getScheduledDate().isAfter(LocalDateTime.now())) {
-            throw new BusinessException("La fecha debe ser futura para programaciones");
-        }
-
         if (request.getEquipmentId() == null) {
             throw new BusinessException("El equipo es obligatorio");
-        }
-
-        if (request.getTechnicianId() == null) {
-            throw new BusinessException("El técnico es obligatorio");
         }
 
         if (request.getMaintenanceType() == null) {
             throw new BusinessException("El tipo de mantenimiento es obligatorio");
         }
 
-        // Pendiente integración con equipment:
-        // validar que el equipo exista
-        // validar que esté disponible
-        // validar que no esté bloqueado o en préstamo
+        if (request.getTechnicianId() == null) {
+            throw new BusinessException("El técnico es obligatorio");
+        }
 
-        // Pendiente integración con users/auth:
-        // validar que el técnico exista y esté activo
+        if (request.getScheduledDate() == null) {
+            throw new BusinessException("La fecha programada es obligatoria");
+        }
+
+        if (!request.getScheduledDate().isAfter(LocalDateTime.now())) {
+            throw new BusinessException("La fecha programada debe ser futura");
+        }
     }
 }

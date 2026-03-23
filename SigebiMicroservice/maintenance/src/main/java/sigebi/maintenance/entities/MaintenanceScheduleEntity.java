@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "maintenance_schedule")
 public class MaintenanceScheduleEntity {
@@ -86,4 +87,5 @@ public class MaintenanceScheduleEntity {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
 }

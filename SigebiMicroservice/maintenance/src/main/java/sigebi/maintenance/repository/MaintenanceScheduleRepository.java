@@ -1,5 +1,7 @@
 package sigebi.maintenance.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import sigebi.maintenance.entities.MaintenanceScheduleEntity;
 
@@ -12,5 +14,11 @@ public interface MaintenanceScheduleRepository extends JpaRepository<Maintenance
             Long equipmentId,
             LocalDateTime scheduledDate,
             String status
+    );
+
+    Page<MaintenanceScheduleEntity> findByScheduledDateBeforeAndStatus(
+            LocalDateTime scheduledDate,
+            String status,
+            Pageable pageable
     );
 }

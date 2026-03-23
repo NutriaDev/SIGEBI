@@ -22,6 +22,7 @@ public class MaintenanceController {
     @PostMapping
     public ResponseEntity<Response> registerMaintenance(@Valid @RequestBody MaintenanceRequest request) {
         MaintenanceResponse maintenanceResponse = maintenanceService.registerMaintenance(request);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new Response("Mantenimiento registrado correctamente", maintenanceResponse));
     }

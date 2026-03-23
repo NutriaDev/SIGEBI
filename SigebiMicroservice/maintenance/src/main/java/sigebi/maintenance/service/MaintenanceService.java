@@ -1,5 +1,7 @@
 package sigebi.maintenance.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sigebi.maintenance.dto_request.MaintenanceRequest;
 import sigebi.maintenance.dto_response.MaintenanceResponse;
@@ -31,11 +33,11 @@ public class MaintenanceService {
 
         MaintenanceEntity entity = new MaintenanceEntity();
         entity.setEquipmentId(request.getEquipmentId());
-        entity.setDate(request.getDate());
         entity.setDescription(request.getDescription());
         entity.setResponsibleUserId(request.getTechnicianId());
         entity.setStatus("REGISTRADO");
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setDate(request.getDate());
         entity.setType(maintenanceType);
 
         MaintenanceEntity saved = maintenanceRepository.save(entity);
@@ -43,7 +45,9 @@ public class MaintenanceService {
         MaintenanceResponse response = new MaintenanceResponse();
         response.setIdMaintenance(saved.getIdMaintenance());
         response.setEquipmentId(saved.getEquipmentId());
-        response.setMaintenanceType(saved.getType().getName());
+        response.setMaintenanceType(
+                saved.getType() != null ? saved.getType().getName() : "N/A"
+        );
         response.setDate(saved.getDate());
         response.setDescription(saved.getDescription());
         response.setTechnicianName("Pendiente integración usuario");
@@ -51,6 +55,38 @@ public class MaintenanceService {
         response.setCreatedAt(saved.getCreatedAt());
 
         return response;
+    }
+
+    public Page<MaintenanceResponse> getMaintenanceHistory(
+            Long equipmentId,
+            String maintenanceType,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            Pageable pageable
+    ) {
+        Page<MaintenanceEntity> page = maintenanceRepository
+                .findByEquipmentIdAndType_NameContainingIgnoreCaseAndDateBetweenOrderByDateDesc(
+                        equipmentId,
+                        maintenanceType == null ? "" : maintenanceType,
+                        fromDate,
+                        toDate,
+                        pageable
+                );
+
+        return page.map(entity -> {
+            MaintenanceResponse response = new MaintenanceResponse();
+            response.setIdMaintenance(entity.getIdMaintenance());
+            response.setEquipmentId(entity.getEquipmentId());
+            response.setMaintenanceType(
+                    entity.getType() != null ? entity.getType().getName() : "N/A"
+            );
+            response.setDate(entity.getDate());
+            response.setDescription(entity.getDescription());
+            response.setTechnicianName("Pendiente integración usuario");
+            response.setStatus(entity.getStatus());
+            response.setCreatedAt(entity.getCreatedAt());
+            return response;
+        });
     }
 
     private void validateMaintenanceRequest(MaintenanceRequest request) {
@@ -73,11 +109,5 @@ public class MaintenanceService {
         if (request.getMaintenanceType() == null) {
             throw new BusinessException("El tipo de mantenimiento es obligatorio");
         }
-
-        // Pendiente integración con microservicio equipment:
-        // validar que el equipo exista y no esté bloqueado
-
-        // Pendiente integración con microservicio users/auth:
-        // validar que el usuario exista y tenga rol técnico/admin
     }
 }

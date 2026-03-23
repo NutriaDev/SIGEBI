@@ -8,20 +8,20 @@ import java.time.LocalDateTime;
 
 public class MaintenanceRequest {
 
-    @NotNull
+    @NotNull(message = "El equipo es obligatorio")
     private Long equipmentId;
 
-    @NotNull
+    @NotNull(message = "El tipo de mantenimiento es obligatorio")
     private Long maintenanceType;
 
-    @NotNull
+    @NotNull(message = "La fecha es obligatoria")
     private LocalDateTime date;
 
-    @NotBlank
+    @NotBlank(message = "La descripción es obligatoria")
     @Size(min = 20, message = "La descripción debe tener al menos 20 caracteres")
     private String description;
 
-    @NotNull
+    @NotNull(message = "El técnico es obligatorio")
     private Long technicianId;
 
     private String replacedParts;
