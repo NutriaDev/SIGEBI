@@ -94,18 +94,7 @@ public class PasswordResetService {
         String hashedPassword = passwordEncoder.encode(request.getNewPassword());
         usersClient.updatePassword(resetToken.getUserId(), hashedPassword);
 
-        // ─────────────────────────────────────────────────────────────────────
-        // AJUSTA LOS NOMBRES DE MÉTODO A LOS DE TUS REPOS EXISTENTES:
-        //
-        // Busca en RefreshTokenRepository y SessionRepository qué métodos
-        // tienes para revocar/invalidar por userId y reemplaza abajo.
-        //
-        // Ejemplos comunes:
-        //   refreshTokenRepo.revokeAllByUserId(userId)
-        //   refreshTokenRepo.deleteAllByUserId(userId)
-        //   sessionRepo.deactivateAllByUserId(userId)
-        //   sessionRepo.invalidateByUserId(userId)
-        // ─────────────────────────────────────────────────────────────────────
+
         Long userId = resetToken.getUserId();
 
         refreshTokenRepo.revokedBySession(userId);   // ← ajusta al nombre real
