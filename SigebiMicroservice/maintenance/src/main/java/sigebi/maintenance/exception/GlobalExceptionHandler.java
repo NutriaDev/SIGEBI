@@ -1,6 +1,5 @@
 package sigebi.maintenance.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +12,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Response> handleBusinessException(BusinessException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(ex.getStatus())
                 .body(new Response(ex.getMessage(), null));
     }
 
@@ -27,14 +26,14 @@ public class GlobalExceptionHandler {
                 .orElse("Error de validación");
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .badRequest()
                 .body(new Response(message, null));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> handleGeneralException(Exception ex) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .internalServerError()
                 .body(new Response("Error interno del servidor", null));
     }
 }

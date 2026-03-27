@@ -90,6 +90,18 @@ public class MaintenanceService {
     }
 
     private void validateMaintenanceRequest(MaintenanceRequest request) {
+        if (request.getEquipmentId() == null) {
+            throw new BusinessException("El equipo es obligatorio");
+        }
+
+        if (request.getMaintenanceType() == null) {
+            throw new BusinessException("El tipo de mantenimiento es obligatorio");
+        }
+
+        if (request.getTechnicianId() == null) {
+            throw new BusinessException("El técnico es obligatorio");
+        }
+
         if (request.getDescription() == null || request.getDescription().trim().length() < 20) {
             throw new BusinessException("Ingrese al menos 20 caracteres describiendo la intervención");
         }
@@ -98,16 +110,9 @@ public class MaintenanceService {
             throw new BusinessException("La fecha no puede ser futura para un mantenimiento realizado");
         }
 
-        if (request.getEquipmentId() == null) {
-            throw new BusinessException("El equipo es obligatorio");
-        }
-
-        if (request.getTechnicianId() == null) {
-            throw new BusinessException("El técnico es obligatorio");
-        }
-
-        if (request.getMaintenanceType() == null) {
-            throw new BusinessException("El tipo de mantenimiento es obligatorio");
-        }
+        // Pendiente integración:
+        // - equipo en préstamo / bloqueado
+        // - técnico con rol válido
+    }
     }
 }

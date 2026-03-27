@@ -30,6 +30,15 @@
         </processorPath>
         <module name="gateway" />
       </profile>
+      <profile name="Annotation profile for maintenance" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="maintenance" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="JWT" target="17" />
@@ -43,6 +52,7 @@
       <module name="equipment" options="-parameters" />
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="maintenance" options="-parameters" />
       <module name="users" options="-parameters" />
     </option>
   </component>
