@@ -20,7 +20,7 @@ public interface UserInternalClient {
     @GetMapping("/internal/auth/users/by-email/{email}")
     UserBasicResponse getUserByEmail(@PathVariable("email") String email);
 
-    @PatchMapping("/internal/auth/users/{id}/password")
+    @PostMapping("/internal/auth/users/{id}/password")
     void updatePassword(@PathVariable("id") Long userId,
                         @RequestBody UpdatePasswordFeignRequest request);
 }

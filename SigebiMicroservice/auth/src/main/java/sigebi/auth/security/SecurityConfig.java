@@ -36,7 +36,7 @@ public class SecurityConfig {
                         // 🔥 Permitir todas las preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST,
+                        .requestMatchers(
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/auth/logout",

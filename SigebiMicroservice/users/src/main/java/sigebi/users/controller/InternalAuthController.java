@@ -42,12 +42,16 @@ public class InternalAuthController {
     }
 
     // 🔑 Actualizar contraseña
-    @PatchMapping("/users/{id}/password")
+    @PostMapping("/users/{id}/password")
     public ResponseEntity<Void> updatePassword(
             @PathVariable Long id,
             @RequestBody UpdatePasswordInternalDto req) {
 
+        System.out.println("🔥 ENTRO PATCH USERS");
         internalAuthService.updateHashedPassword(id, req.hashedPassword());
+
+        System.out.println("🔥 SALI PATCH USERS");
+
         return ResponseEntity.noContent().build();
     }
 }

@@ -77,31 +77,38 @@ public class PasswordResetService {
             throw new IllegalArgumentException("Las contraseñas no coinciden");
         }
 
+        log.info("=== 1. Buscando token: {}", request.getToken());
         PasswordResetTokenEntity resetToken = resetTokenRepo
                 .findByToken(request.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Token inválido o expirado"));
 
+        log.info("=== 2. Token encontrado, válido: {}", resetToken.isValid());
         if (!resetToken.isValid()) {
             throw new IllegalArgumentException("Token inválido o expirado");
         }
 
         // Marcar como usado ANTES de cualquier otra operación
+        log.info("=== 3. Marcando token como usado");
         resetToken.markAsUsed();
         resetTokenRepo.save(resetToken);
 
+        log.info("=== 4. Hasheando contraseña");
         // Actualizar contraseña en MS-Users vía Feign (ya hasheada con BCrypt)
         String hashedPassword = passwordEncoder.encode(request.getNewPassword());
+        log.info("=== 5. Llamando a MS-Users para actualizar contraseña, userId={}", resetToken.getUserId());
         usersClient.updatePassword(
                 resetToken.getUserId(),
                 new UpdatePasswordFeignRequest(hashedPassword)
-        );;
+        );
 
 
         Long userId = resetToken.getUserId();
 
+        log.info("=== 6. Revocando sesiones para userId={}", resetToken.getUserId());
         refreshTokenRepo.revokeAllByUserId(userId);   // ← ajusta al nombre real
         sessionRepo.invalidateAllByUserId(userId);     // ← ajusta al nombre real
 
+        log.info("=== 7. Reset completado para userId={}", resetToken.getUserId());
         log.info("Contraseña restablecida y sesiones revocadas para userId={}", userId);
     }
 }
