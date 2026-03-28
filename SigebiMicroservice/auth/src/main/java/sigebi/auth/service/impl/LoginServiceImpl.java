@@ -12,10 +12,7 @@ import sigebi.auth.client.UserInternalClient;
 import sigebi.auth.entities.RefreshTokenEntity;
 import sigebi.auth.entities.SessionEntity;
 import sigebi.auth.repository.RefreshTokenRepository;
-import sigebi.auth.service.JwtService;
-import sigebi.auth.service.LoginService;
-import sigebi.auth.service.PermissionService;
-import sigebi.auth.service.SessionService;
+import sigebi.auth.service.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -30,6 +27,7 @@ public class LoginServiceImpl implements LoginService {
     private final JwtService jwtService;
     private final PermissionService permissionService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailService emailService;
 
     public LoginResponse login(LoginRequest request) {
 
@@ -74,6 +72,14 @@ public class LoginServiceImpl implements LoginService {
                     .active(true)
                     .build();
             refreshTokenRepository.save(refreshToken);
+
+            emailService.sendLoginNotificationEmail(
+                    authData.email(),
+                    authData.name(),
+                    request.getIp(),           // ← nuevo campo en LoginRequest
+                    request.getUserAgent(),    // ← nuevo campo en LoginRequest
+                    Instant.now().toString()
+            );
 
 
 

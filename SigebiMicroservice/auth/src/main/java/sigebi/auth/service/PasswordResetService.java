@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sigebi.auth.DTO.request.ForgotPasswordRequest;
 import sigebi.auth.DTO.request.ResetPasswordRequest;
+import sigebi.auth.DTO.request.UpdatePasswordFeignRequest;
 import sigebi.auth.client.UserInternalClient;
 import sigebi.auth.entities.PasswordResetTokenEntity;
 import sigebi.auth.repository.PasswordResetTokenRepository;
@@ -37,35 +38,33 @@ public class PasswordResetService {
     public void requestPasswordReset(ForgotPasswordRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
-        // SIEMPRE responder igual al cliente — no revelar si el email existe
         try {
             var user = usersClient.getUserByEmail(email);
-
             if (user == null || !user.isActive()) {
                 log.warn("Reset solicitado para email inexistente o inactivo: {}", email);
-                return; // salir en silencio
+                return;
             }
 
-            // Invalida tokens pendientes anteriores del mismo usuario
             resetTokenRepo.invalidatePreviousTokensByUserId(user.getId());
 
-            // Crea el nuevo token
             PasswordResetTokenEntity token = PasswordResetTokenEntity.create(
                     user.getId(), email, expirationMinutes
             );
             resetTokenRepo.save(token);
+            log.info("TOKEN RESET: {}", token.getToken());
+            log.info("Reset password solicitado para userId={}", user.getId());
 
-            // Envío asíncrono — no bloquea el response al cliente
+            // ← directamente aquí, con el token que ya tenemos en memoria
+            log.info("=== LLAMANDO EMAIL SERVICE para: {}", email);
             emailService.sendResetPasswordEmail(
                     email,
                     user.getName(),
                     token.getToken().toString()
             );
-
-            log.info("Reset password solicitado para userId={}", user.getId());
+            log.info("=== EMAIL SERVICE LLAMADO ===");
 
         } catch (Exception e) {
-            log.error("Error en requestPasswordReset para {}: {}", email, e.getMessage());
+            log.error("=== ERROR COMPLETO: {}", e.getMessage(), e);
         }
     }
 
@@ -92,12 +91,15 @@ public class PasswordResetService {
 
         // Actualizar contraseña en MS-Users vía Feign (ya hasheada con BCrypt)
         String hashedPassword = passwordEncoder.encode(request.getNewPassword());
-        usersClient.updatePassword(resetToken.getUserId(), hashedPassword);
+        usersClient.updatePassword(
+                resetToken.getUserId(),
+                new UpdatePasswordFeignRequest(hashedPassword)
+        );;
 
 
         Long userId = resetToken.getUserId();
 
-        refreshTokenRepo.revokedBySession(userId);   // ← ajusta al nombre real
+        refreshTokenRepo.revokeAllByUserId(userId);   // ← ajusta al nombre real
         sessionRepo.invalidateAllByUserId(userId);     // ← ajusta al nombre real
 
         log.info("Contraseña restablecida y sesiones revocadas para userId={}", userId);

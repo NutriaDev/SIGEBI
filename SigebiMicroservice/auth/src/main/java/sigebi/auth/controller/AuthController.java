@@ -14,11 +14,11 @@ import sigebi.auth.DTO.request.ResetPasswordRequest;
 import sigebi.auth.DTO.response.LoginResponse;
 import sigebi.auth.DTO.response.RefreshResponse;
 import sigebi.auth.DTO.response.Response;
-import sigebi.auth.constants.ErrorTitles;
 import sigebi.auth.service.LoginService;
 import sigebi.auth.service.PasswordResetService;
 import sigebi.auth.service.RefreshTokenService;
 import sigebi.auth.utils.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.UUID;
 
@@ -34,8 +34,12 @@ public class AuthController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<Response> login(
-            @Valid @RequestBody LoginRequest loginRequest
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest httpRequest
     ) {
+
+        loginRequest.setIp(httpRequest.getRemoteAddr());
+        loginRequest.setUserAgent(httpRequest.getHeader("User-Agent"));
         LoginResponse loginResponse = loginService.login(loginRequest);
 
         return ApiResponse.success(

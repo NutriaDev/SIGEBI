@@ -19,7 +19,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${app.mail-from:${spring.mail.username}}")
     private String fromEmail;
 
     @Value("${app.frontend-url}")
@@ -75,7 +75,7 @@ public class EmailService {
         MimeMessage msg = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
 
-        helper.setFrom(fromEmail, appName);
+        helper.setFrom("onboarding@resend.dev", appName);
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(html, true);

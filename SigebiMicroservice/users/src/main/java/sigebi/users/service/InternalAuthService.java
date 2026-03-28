@@ -9,6 +9,7 @@ import sigebi.users.dto_response.UserAuthDataResponse;
 import sigebi.users.dto_response.UserBasicResponse;
 import sigebi.users.entities.UserEntity;
 import sigebi.users.exception.ResourceNotFoundException;
+import sigebi.users.exception.UserNotFoundException;
 import sigebi.users.repository.UsersRepository;
 
 import java.util.List;
@@ -84,9 +85,9 @@ public class InternalAuthService {
     @Transactional
     public void updateHashedPassword(Long userId, String hashedPassword) {
         UserEntity user = usersRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        // La contraseña llega ya hasheada desde MS-Auth con BCrypt
+
         user.setPasswordHash(hashedPassword);
         usersRepository.save(user);
     }
