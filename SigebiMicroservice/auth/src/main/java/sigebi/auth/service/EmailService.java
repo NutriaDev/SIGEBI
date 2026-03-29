@@ -37,7 +37,7 @@ public class EmailService {
     @Async
     public void sendResetPasswordEmail(String toEmail, String userName, String token) {
         try {
-            String resetLink = frontendUrl + "/reset-password?token=" + token;
+            String resetLink = frontendUrl + "/auth/reset-password?token=" + token;
             String subject   = appName + " — Restablecimiento de contraseña";
             String html      = buildResetPasswordHtml(userName, resetLink);
 

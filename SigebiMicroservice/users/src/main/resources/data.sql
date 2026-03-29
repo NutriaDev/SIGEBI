@@ -81,7 +81,7 @@ INSERT INTO users (
         '1994-11-01',
         '3004444444',
         1000000004,
-        'pitinGatoMionTest@gmail.com',
+        'pitingatotovar@gmail.com',
         1,
         '$2a$10$/RvqmTaTMXu12dygu0DXne0uKsgOiF9Z2HeSz/nzucRWhyrCzoLke',
         true,
