@@ -114,5 +114,4 @@ public class MaintenanceService {
         // - equipo en préstamo / bloqueado
         // - técnico con rol válido
     }
-    }
 }
