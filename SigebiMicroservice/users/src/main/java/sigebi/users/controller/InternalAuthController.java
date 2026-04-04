@@ -46,11 +46,7 @@ public class InternalAuthController {
     public ResponseEntity<Void> updatePassword(
             @PathVariable Long id,
             @RequestBody UpdatePasswordInternalDto req) {
-
-        System.out.println("🔥 ENTRO PATCH USERS");
         internalAuthService.updateHashedPassword(id, req.hashedPassword());
-
-        System.out.println("🔥 SALI PATCH USERS");
 
         return ResponseEntity.noContent().build();
     }
