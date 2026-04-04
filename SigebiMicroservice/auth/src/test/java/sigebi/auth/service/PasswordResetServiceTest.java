@@ -119,7 +119,9 @@ class PasswordResetServiceTest {
         when(usersClient.getUserByEmail(any()))
                 .thenThrow(new RuntimeException("error"));
 
-        service.requestPasswordReset(request);
+        assertThrows(RuntimeException.class, () ->
+                service.requestPasswordReset(request)
+        );
 
         verify(emailService, never()).sendResetPasswordEmail(any(), any(), any());
     }

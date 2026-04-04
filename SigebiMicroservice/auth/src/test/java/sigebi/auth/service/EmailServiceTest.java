@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.mail.javamail.JavaMailSender;
+import sigebi.auth.exceptions.EmailSendException;
 
 import java.lang.reflect.Field;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class EmailServiceTest {
@@ -76,11 +78,12 @@ class EmailServiceTest {
 
         when(mailSender.createMimeMessage()).thenThrow(new RuntimeException("Error"));
 
-        // ❗ No debe lanzar excepción (porque el servicio la captura)
-        emailService.sendResetPasswordEmail(
-                "test@mail.com",
-                "Luis",
-                "token123"
+        assertThrows(EmailSendException.class, () ->
+                emailService.sendResetPasswordEmail(
+                        "test@mail.com",
+                        "Luis",
+                        "token123"
+                )
         );
 
         verify(mailSender, never()).send((MimeMessage) any());
@@ -98,17 +101,18 @@ class EmailServiceTest {
         doThrow(new RuntimeException("SMTP error"))
                 .when(mailSender).send(any(MimeMessage.class));
 
-        emailService.sendLoginNotificationEmail(
-                "test@mail.com",
-                "Luis",
-                "127.0.0.1",
-                "Chrome",
-                "2026-01-01T10:00:00"
+        assertThrows(EmailSendException.class, () ->
+                emailService.sendLoginNotificationEmail(
+                        "test@mail.com",
+                        "Luis",
+                        "127.0.0.1",
+                        "Chrome",
+                        "2026-01-01T10:00:00"
+                )
         );
 
         verify(mailSender).send(any(MimeMessage.class));
     }
-
     // =========================
     // 🛠 UTILIDAD REFLECTION
     // =========================

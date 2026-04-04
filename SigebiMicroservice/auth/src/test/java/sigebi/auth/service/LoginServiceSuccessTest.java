@@ -137,7 +137,7 @@ class LoginServiceTest {
             service.login(request);
         });
 
-        assertEquals("User disabled", ex.getMessage());
+        assertEquals("Usuario deshabilitado", ex.getMessage());
 
         verify(refreshTokenRepository, never()).save(any());
         verify(emailService, never()).sendLoginNotificationEmail(any(), any(), any(), any(), any());
