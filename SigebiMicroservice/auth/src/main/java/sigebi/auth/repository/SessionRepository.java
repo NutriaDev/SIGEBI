@@ -1,12 +1,15 @@
 package sigebi.auth.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sigebi.auth.entities.SessionEntity;
+
 
 import java.util.UUID;
 
@@ -23,4 +26,10 @@ public interface SessionRepository extends JpaRepository<SessionEntity, UUID> {
         WHERE s.userId = :userId AND s.active = true
     """)
     void invalidateAllByUserId(@Param("userId") Long userId);
+
+    Page<SessionEntity> findByUserIdOrderByLoginAtDesc(Long userId, Pageable pageable);
+
+    Page<SessionEntity> findByUserIdAndActiveTrue(Long userId, Pageable pageable);
+
+    void deleteByUserId(Long userId);
 }
