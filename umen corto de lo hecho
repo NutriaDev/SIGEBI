@@ -1,0 +1,30 @@
+[1mdiff --git a/.idea/compiler.xml b/.idea/compiler.xml[m
+[1mindex ab9fcb3..42d6e96 100644[m
+[1m--- a/.idea/compiler.xml[m
+[1m+++ b/.idea/compiler.xml[m
+[36m@@ -41,12 +41,11 @@[m
+       </profile>[m
+     </annotationProcessing>[m
+     <bytecodeTargetLevel>[m
+[31m-      <module name="JWT" target="17" />[m
+[32m+[m[32m      <module name="inventory" target="17" />[m
+     </bytecodeTargetLevel>[m
+   </component>[m
+   <component name="JavacSettings">[m
+     <option name="ADDITIONAL_OPTIONS_OVERRIDE">[m
+[31m-      <module name="JWT" options="-parameters" />[m
+       <module name="auth" options="-parameters" />[m
+       <module name="config" options="-parameters" />[m
+       <module name="equipment" options="-parameters" />[m
+[1mdiff --git a/.idea/encodings.xml b/.idea/encodings.xml[m
+[1mindex bf352c1..5ea1269 100644[m
+[1m--- a/.idea/encodings.xml[m
+[1m+++ b/.idea/encodings.xml[m
+[36m@@ -1,7 +1,6 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+ <project version="4">[m
+   <component name="Encoding">[m
+[31m-    <file url="file://$PROJECT_DIR$/SigebiMicroservice/JWT/src/main/java" charset="UTF-8" />[m
+     <file url="file://$PROJECT_DIR$/SigebiMicroservice/auth/src/main/java" charset="UTF-8" />[m
+     <file url="file://$PROJECT_DIR$/SigebiMicroservice/config/src/main/java" charset="UTF-8" />[m
+     <file url="file://$PROJECT_DIR$/SigebiMicroservice/equipment/src/main/java" charset="UTF-8" />[m
