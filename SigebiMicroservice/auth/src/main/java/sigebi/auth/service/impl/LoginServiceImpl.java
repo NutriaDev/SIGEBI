@@ -49,9 +49,6 @@ public class LoginServiceImpl implements LoginService {
             List<String> permissions =
                     permissionService.getPermissionsByRoles(authData.roles());
 
-            System.out.println("ROLES DESDE USERS: " + authData.roles());
-            System.out.println("PERMISSIONS: " + permissions);
-
             //emitir JWT con roles y permisos
 
             String token = jwtService.generate(
@@ -76,8 +73,8 @@ public class LoginServiceImpl implements LoginService {
             emailService.sendLoginNotificationEmail(
                     authData.email(),
                     authData.name(),
-                    request.getIp(),           // ← nuevo campo en LoginRequest
-                    request.getUserAgent(),    // ← nuevo campo en LoginRequest
+                    request.getIp(),
+                    request.getUserAgent(),
                     Instant.now().toString()
             );
 
@@ -93,11 +90,11 @@ public class LoginServiceImpl implements LoginService {
         } catch (FeignException ex) {
 
             if (ex.status() == 401) {
-                throw new BadCredentialsException("Invalid credentials");
+                throw new BadCredentialsException("Credenciales invalidas");
             }
 
             if (ex.status() == 403) {
-                throw new RuntimeException("User disabled");
+                throw new RuntimeException("Usuario deshabilitado");
             }
 
             throw ex; // cualquier otro error real

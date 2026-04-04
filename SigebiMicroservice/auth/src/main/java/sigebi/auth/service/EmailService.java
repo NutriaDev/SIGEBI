@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import sigebi.auth.exceptions.EmailSendException;
 
 import java.io.UnsupportedEncodingException;
 
@@ -42,11 +43,9 @@ public class EmailService {
             String html      = buildResetPasswordHtml(userName, resetLink);
 
             send(toEmail, subject, html);
-            log.info("Email de reset enviado a {}", toEmail);
 
         } catch (Exception e) {
-            // No propagar — es async. El usuario puede volver a solicitarlo.
-            log.error("Error enviando email de reset a {}: {}", toEmail, e.getMessage());
+            throw new EmailSendException("Error enviando email de reset", e);
         }
     }
 
@@ -61,10 +60,9 @@ public class EmailService {
             String html    = buildLoginNotificationHtml(userName, ip, userAgent, dateTime);
 
             send(toEmail, subject, html);
-            log.info("Notificación de login enviada a {}", toEmail);
 
         } catch (Exception e) {
-            log.error("Error enviando notificación de login a {}: {}", toEmail, e.getMessage());
+            throw new EmailSendException("Error enviando notificación de login", e);
         }
     }
 
