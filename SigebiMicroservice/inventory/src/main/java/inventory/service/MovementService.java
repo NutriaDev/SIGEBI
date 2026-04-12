@@ -1,5 +1,6 @@
 package inventory.service;
 
+import inventory.dto_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,23 @@ public class MovementService {
     private final EquipmentClient equipmentClient;
 
     private EquipmentResponse validateEquipment(Long equipmentId) {
-        EquipmentResponse equipment;
+
+        ApiResponse response;
+
         try {
-            equipment = equipmentClient.getEquipmentById(equipmentId);
+            response = equipmentClient.getEquipmentById(equipmentId);
         } catch (Exception e) {
-            log.error("Error consultando equipo {} en Equipment MS: {}",
-                    equipmentId, e.getMessage());
+            log.error("Error consultando equipo {} en Equipment MS",
+                    equipmentId, e);
             throw new EquipmentNotFoundException("El equipo no existe");
         }
+
+        if (response == null || response.getBody() == null) {
+            throw new EquipmentNotFoundException("El equipo no existe");
+        }
+
+        EquipmentResponse equipment = (EquipmentResponse) response.getBody();
+
 
         if (Boolean.TRUE.equals(equipment.getMaintenanceBlocked()) ||
                 "MAINTENANCE".equalsIgnoreCase(equipment.getStatus())) {

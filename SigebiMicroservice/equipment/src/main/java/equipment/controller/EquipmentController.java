@@ -62,7 +62,7 @@ public class EquipmentController {
     }
 
     // ================= GET BY ID =================
-    @PreAuthorize("hasAuthority('equipment.read')")
+
     @GetMapping("/{id}")
     public ResponseEntity<Response> getEquipmentById(@PathVariable Long id) {
 

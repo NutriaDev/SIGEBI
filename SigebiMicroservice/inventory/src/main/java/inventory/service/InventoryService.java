@@ -1,5 +1,7 @@
 package inventory.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import inventory.dto_response.ApiResponse;
 import inventory.entities.InventoryDetailEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import inventory.exception.EquipmentNotFoundException;
 import inventory.repository.InventoryRepository;
 import inventory.util.RoleValidator;
 
+
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,6 +28,7 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final EquipmentClient equipmentClient;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public String createPhysicalInventory(InventoryRequest req) {
@@ -45,15 +49,7 @@ public class InventoryService {
         Map<Long, EquipmentResponse> equipmentsById = physicalIds.stream()
                 .collect(Collectors.toMap(
                         id -> id,
-                        id -> {
-                            try {
-                                return equipmentClient.getEquipmentById(id);
-                            } catch (Exception e) {
-                                log.error("Equipo {} no encontrado en Equipment MS", id);
-                                throw new EquipmentNotFoundException(
-                                        "El equipo " + id + " no existe");
-                            }
-                        }
+                        this::validateEquipment
                 ));
 
         InventoryEntity inv = InventoryEntity.builder()
@@ -101,5 +97,36 @@ public class InventoryService {
 
         log.info("Inventario creado correctamente — locationId={}", req.locationId());
         return "Inventario realizado correctamente";
+    }
+
+    // 🔥 MÉTODO CLAVE
+    private EquipmentResponse validateEquipment(Long equipmentId) {
+
+        ApiResponse response;
+
+        try {
+            response = equipmentClient.getEquipmentById(equipmentId);
+        } catch (Exception e) {
+            log.error("ERROR REAL:", e);
+            throw new EquipmentNotFoundException("El equipo no existe");
+        }
+
+        if (response == null || response.getBody() == null) {
+            throw new EquipmentNotFoundException("El equipo no existe");
+        }
+
+
+        EquipmentResponse equipment = objectMapper.convertValue(
+                response.getBody(),
+                EquipmentResponse.class
+        );
+
+        if (Boolean.TRUE.equals(equipment.getMaintenanceBlocked()) ||
+                "MAINTENANCE".equalsIgnoreCase(equipment.getStatus())) {
+            throw new BusinessException(
+                    "El equipo está bloqueado por mantenimiento");
+        }
+
+        return equipment;
     }
 }
