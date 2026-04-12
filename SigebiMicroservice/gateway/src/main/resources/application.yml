@@ -36,6 +36,12 @@ spring:
           predicates:
             - Path=/api/media/**
 
+        # INVENTORY
+        - id: ms-inventory
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/inventories/**,/api/movements/**
+
       globalcors:
         corsConfigurations:
           '[/**]':
