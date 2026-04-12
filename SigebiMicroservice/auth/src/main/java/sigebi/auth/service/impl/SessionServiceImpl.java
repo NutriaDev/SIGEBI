@@ -1,7 +1,10 @@
 package sigebi.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sigebi.auth.DTO.response.SessionResponse;
 import sigebi.auth.entities.SessionEntity;
 import sigebi.auth.exceptions.SessionNotActiveException;
 import sigebi.auth.exceptions.SessionNotFoundException;
@@ -50,6 +53,23 @@ public class SessionServiceImpl implements SessionService {
         // Opcional: Actualizar última actividad
         session.setLastActivityAt(Instant.now());
         sessionRepository.save(session);
+    }
+
+    @Override
+    public Page<SessionResponse> getUserSessions(Long userId, Pageable pageable) {
+        return sessionRepository
+                .findByUserIdOrderByLoginAtDesc(userId, pageable)
+                .map(session -> new SessionResponse(
+                        session.getId(),
+                        session.getLoginAt(),
+                        session.getLogoutAt(),
+                        session.getActive()
+                ));
+    }
+
+    @Override
+    public Page<SessionEntity> getActiveSessions(Long userId, Pageable pageable) {
+        return sessionRepository.findByUserIdAndActiveTrue(userId, pageable);
     }
 
     }

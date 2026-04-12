@@ -415,9 +415,6 @@ public class UsersService {
         return mapToResponse(user);
     }
 
-
-
-
     private UserResponse mapToResponse(UserEntity entity){
         return UserResponse.builder()
                 .idUsers(entity.getIdUsers())

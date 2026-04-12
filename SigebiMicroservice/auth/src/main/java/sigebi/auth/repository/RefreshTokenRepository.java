@@ -16,4 +16,9 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     @Modifying
     @Query("UPDATE RefreshTokenEntity r SET r.active = false WHERE r.sessionId = :sessionId")
     void revokedBySession(@Param("sessionId") UUID sessionId);
+
+    // NUEVO — para reset password (revoca TODOS los tokens del usuario)
+    @Modifying
+    @Query("UPDATE RefreshTokenEntity r SET r.active = false WHERE r.userId = :userId AND r.active = true")
+    void revokeAllByUserId(@Param("userId") Long userId);
 }
