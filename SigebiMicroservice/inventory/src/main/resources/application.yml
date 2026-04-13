@@ -41,6 +41,11 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+# 🔥 CONFIGURACIÓN FEIGN (IMPORTANTE)
+feign:
+  httpclient:
+    enabled: true
+
 # Feign — URL del Equipment MS
 equipment-service:
   url: http://localhost:8091

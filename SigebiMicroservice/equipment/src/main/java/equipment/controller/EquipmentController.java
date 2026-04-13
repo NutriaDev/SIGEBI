@@ -1,7 +1,9 @@
 package equipment.controller;
 
 import equipment.dto_request.CreateEquipmentRequest;
+import equipment.dto_request.UpdateEquipmentLocationRequest;
 import equipment.dto_request.UpdateEquipmentRequest;
+import equipment.dto_request.UpdateLocationRequest;
 import equipment.dto_response.EquipmentResponse;
 import equipment.dto_response.Response;
 import equipment.service.EquipmentService;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("api/equipments")
+@RequestMapping("/api/equipments")
 @RequiredArgsConstructor
 public class EquipmentController {
 
@@ -206,6 +208,20 @@ public class EquipmentController {
         return ApiResponse.success(
                 "Equipment activated successfully",
                 "The equipment was activated correctly",
+                null
+        );
+    }
+
+    @PutMapping("/{id}/location")
+    public ResponseEntity<Response> updateLocation(
+            @PathVariable Long id,
+            @RequestBody UpdateEquipmentLocationRequest request) {
+
+        equipmentService.updateLocation(id, request);
+
+        return ApiResponse.success(
+                "Location updated successfully",
+                "Equipment location updated",
                 null
         );
     }

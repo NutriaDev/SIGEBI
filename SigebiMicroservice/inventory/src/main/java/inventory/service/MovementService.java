@@ -1,5 +1,7 @@
 package inventory.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import inventory.dto_request.UpdateEquipmentLocationRequest;
 import inventory.dto_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ public class MovementService {
 
     private final MovementRepository movementRepository;
     private final EquipmentClient equipmentClient;
+    private final ObjectMapper objectMapper;
 
     private EquipmentResponse validateEquipment(Long equipmentId) {
 
@@ -39,7 +42,10 @@ public class MovementService {
             throw new EquipmentNotFoundException("El equipo no existe");
         }
 
-        EquipmentResponse equipment = (EquipmentResponse) response.getBody();
+        EquipmentResponse equipment = objectMapper.convertValue(
+                response.getBody(),
+                EquipmentResponse.class
+        );
 
 
         if (Boolean.TRUE.equals(equipment.getMaintenanceBlocked()) ||
@@ -79,15 +85,15 @@ public class MovementService {
         movementRepository.save(movement);
 
         try {
+            log.info("Request a enviar: {}", req.destinationLocationId());
             equipmentClient.updateLocation(
                     req.equipmentId(),
-                    new UpdateLocationRequest(req.destinationLocationId())
+                    new UpdateEquipmentLocationRequest(req.destinationLocationId())
             );
             log.info("Ubicación del equipo {} actualizada a {}",
                     req.equipmentId(), req.destinationLocationId());
         } catch (Exception e) {
-            log.error("Error actualizando ubicación del equipo {}: {}",
-                    req.equipmentId(), e.getMessage());
+            log.error("ERROR REAL:", e);
             throw new BusinessException(
                     "No se pudo actualizar la ubicación del equipo");
         }

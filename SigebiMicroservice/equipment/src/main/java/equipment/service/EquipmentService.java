@@ -1,7 +1,9 @@
 package equipment.service;
 
 import equipment.dto_request.CreateEquipmentRequest;
+import equipment.dto_request.UpdateEquipmentLocationRequest;
 import equipment.dto_request.UpdateEquipmentRequest;
+import equipment.dto_request.UpdateLocationRequest;
 import equipment.dto_response.EquipmentResponse;
 import equipment.entities.*;
 import equipment.exception.DuplicateResourceException;
@@ -316,6 +318,19 @@ public class EquipmentService {
         return locationRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Ubicación no encontrada con ID: " + id));
+    }
+
+    @Transactional
+    public void updateLocation(Long id, UpdateEquipmentLocationRequest request) {
+
+        EquipmentEntity equipment = findEquipmentOrThrow(id);
+
+        LocationEntity location = locationRepository.findById(request.locationId())
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        equipment.setLocation(location);
+
+        equipmentRepository.save(equipment);
     }
 
     // ================= MAPPER =================
