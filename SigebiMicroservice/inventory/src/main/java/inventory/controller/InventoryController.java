@@ -3,6 +3,7 @@ package inventory.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import inventory.dto_request.InventoryRequest;
 import inventory.service.InventoryService;
@@ -17,6 +18,7 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    @PreAuthorize("hasAuthority('inventory.create')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(
             @RequestBody @Valid InventoryRequest request) {

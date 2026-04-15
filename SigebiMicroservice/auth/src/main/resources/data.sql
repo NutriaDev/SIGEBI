@@ -66,7 +66,16 @@ INSERT INTO auth_permission (id, name, description) VALUES
 -- EQUIPOS
 (gen_random_uuid(), 'equipment.create', 'Crear equipos'),
 (gen_random_uuid(), 'equipment.read', 'Ver equipos'),
-(gen_random_uuid(), 'equipment.update', 'Actualizar equipos');
+(gen_random_uuid(), 'equipment.update', 'Actualizar equipos'),
+
+-- INVENTORY
+(gen_random_uuid(), 'inventory.create', 'Crear inventarios'),
+(gen_random_uuid(), 'inventory.read', 'Ver inventarios'),
+
+-- MOVEMENTS
+(gen_random_uuid(), 'movement.create', 'Registrar movimientos'),
+(gen_random_uuid(), 'movement.read', 'Ver movimientos');
+
 
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
@@ -121,7 +130,10 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.update',
   'equipment.area.create',
   'equipment.area.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'inventory.create',
+  'movement.create'
+
 
 )
 WHERE r.name = 'ADMIN'
@@ -156,7 +168,9 @@ JOIN auth_permission p ON p.name IN (
   'equipment.location.update',
   'equipment.classification.create',
   'equipment.classification.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'inventory.create',
+  'movement.create'
 
 )
 WHERE r.name = 'SUPERVISOR'
