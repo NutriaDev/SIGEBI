@@ -50,13 +50,24 @@ public class LocationService {
                 .map(this::mapToResponse);
     }
 
-    // ================= GET ACTIVE =================
+    // ================= GET ACTIVE (PAGINADO) =================
     @Transactional(readOnly = true)
     public Page<LocationResponse> getActiveLocations(Pageable pageable) {
 
         return locationRepository
                 .findAllByActive(true, pageable)
                 .map(this::mapToResponse);
+    }
+
+    // ================= GET ALL ACTIVE (SIN PAGINACIÓN) =================
+    @Transactional(readOnly = true)
+    public List<LocationResponse> getAllActive(Boolean active) {
+
+        return locationRepository
+                .getAllActive(active)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     // ================= GET BY ID =================

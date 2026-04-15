@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<LocationEntity, Long> {
 
     Page<LocationEntity> findAllByActive(Boolean active, Pageable pageable);
+
+    List<LocationEntity> getAllActive(Boolean active);
 
     Optional<LocationEntity> findByNameIgnoreCase(String name);
 
