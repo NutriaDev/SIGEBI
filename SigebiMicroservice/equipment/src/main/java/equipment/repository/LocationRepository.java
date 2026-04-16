@@ -12,7 +12,7 @@ public interface LocationRepository extends JpaRepository<LocationEntity, Long> 
 
     Page<LocationEntity> findAllByActive(Boolean active, Pageable pageable);
 
-    List<LocationEntity> getAllActive(Boolean active);
+    List<LocationEntity> findAllByActive(Boolean active);
 
     Optional<LocationEntity> findByNameIgnoreCase(String name);
 

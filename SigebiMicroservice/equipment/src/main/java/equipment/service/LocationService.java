@@ -64,7 +64,7 @@ public class LocationService {
     public List<LocationResponse> getAllActive(Boolean active) {
 
         return locationRepository
-                .getAllActive(active)
+                .findAllByActive(active)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
