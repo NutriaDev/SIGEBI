@@ -26,15 +26,15 @@ public class MovementService {
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
 
-    private EquipmentResponse validateEquipment(Long equipmentId) {
+    private EquipmentResponse validateEquipment(String serie) {
 
         ApiResponse response;
 
         try {
-            response = equipmentClient.getEquipmentById(equipmentId);
+            response = equipmentClient.findBySerial(serie);
         } catch (Exception e) {
             log.error("Error consultando equipo {} en Equipment MS",
-                    equipmentId, e);
+                    serie, e);
             throw new EquipmentNotFoundException("El equipo no existe");
         }
 
@@ -59,15 +59,12 @@ public class MovementService {
 
     @Transactional
     public void registerMovement(MovementRequest req) {
-        log.info("Registrando movimiento — equipmentId={}, origin={}, destination={}, user={}",
-                req.equipmentId(),
-                req.originLocationId(),
-                req.destinationLocationId(),
-                req.responsibleUserId());
 
         RoleValidator.validate(req.userRole());
 
-        EquipmentResponse equipment = validateEquipment(req.equipmentId());
+        EquipmentResponse equipment = validateEquipment(req.serie());
+
+        Long equipmentId = equipment.getId();
 
         if (!req.originLocationId().equals(equipment.getLocationId())) {
             throw new BusinessException(
@@ -75,7 +72,7 @@ public class MovementService {
         }
 
         MovementEntity movement = MovementEntity.builder()
-                .equipmentId(req.equipmentId())
+                .equipmentId(equipmentId)
                 .originLocationId(req.originLocationId())
                 .destinationLocationId(req.destinationLocationId())
                 .reason(req.reason())
@@ -85,20 +82,14 @@ public class MovementService {
         movementRepository.save(movement);
 
         try {
-            log.info("Request a enviar: {}", req.destinationLocationId());
             equipmentClient.updateLocation(
-                    req.equipmentId(),
+                    equipmentId,
                     new UpdateEquipmentLocationRequest(req.destinationLocationId())
             );
-            log.info("Ubicación del equipo {} actualizada a {}",
-                    req.equipmentId(), req.destinationLocationId());
         } catch (Exception e) {
             log.error("ERROR REAL:", e);
             throw new BusinessException(
                     "No se pudo actualizar la ubicación del equipo");
         }
-
-        log.info("Movimiento registrado correctamente para equipo {}",
-                req.equipmentId());
     }
 }

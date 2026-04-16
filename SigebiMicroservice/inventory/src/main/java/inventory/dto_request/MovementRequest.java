@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record MovementRequest(
-        @NotNull(message = "equipmentId es requerido")
-        Long equipmentId,
+
+        @NotBlank(message = "serie es requerido")
+        String serie,
 
         @NotNull(message = "originLocationId es requerido")
         Long originLocationId,

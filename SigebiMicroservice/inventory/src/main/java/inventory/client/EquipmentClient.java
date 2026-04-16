@@ -11,6 +11,9 @@ public interface EquipmentClient {
     @GetMapping("/api/equipments/{id}")
     ApiResponse getEquipmentById(@PathVariable("id") Long id);
 
+    @GetMapping("/api/equipments/serie/{serie}")
+    ApiResponse findBySerial(@RequestParam("serie") String serie);
+
     @PutMapping(
             value = "/api/equipments/{id}/location",
             consumes = "application/json"
