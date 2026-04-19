@@ -3,6 +3,7 @@ package inventory.controller;
 import feign.Response;
 import inventory.client.EquipmentClient;
 import inventory.dto_response.ApiResponse;
+import inventory.dto_response.EquipmentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +21,28 @@ import java.util.Map;
 public class MovementController {
 
     private final MovementService movementService;
-    private final EquipmentClient equipmentClient;
 
+    // ================= CREATE MOVEMENT =================
     @PreAuthorize("hasAuthority('movement.create')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> register(
             @Valid @RequestBody MovementRequest request) {
+
         movementService.registerMovement(request);
+
         return ResponseEntity.ok(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "message", "Movimiento registrado correctamente"
         ));
     }
 
+    // ================= GET EQUIPMENT BY SERIAL =================
     @PreAuthorize("hasAuthority('movement.read')")
     @GetMapping("/equipments/by-serial")
     public ResponseEntity<?> findBySerial(@RequestParam String serial) {
+
         return ResponseEntity.ok(
-                equipmentClient.findBySerial(serial)
+                movementService.findEquipmentBySerial(serial)
         );
     }
 }

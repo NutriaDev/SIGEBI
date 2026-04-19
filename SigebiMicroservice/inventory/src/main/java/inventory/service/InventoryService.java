@@ -74,7 +74,7 @@ public class InventoryService {
 
         Set<Long> registeredIds = equipmentsById.values().stream()
                 .filter(eq -> req.locationId().equals(eq.getLocationId()))
-                .map(EquipmentResponse::getId)
+                .map(EquipmentResponse::getEquipmentId)
                 .collect(Collectors.toSet());
 
         Set<Long> physicalSet = new HashSet<>(physicalIds);
@@ -120,12 +120,6 @@ public class InventoryService {
                 response.getBody(),
                 EquipmentResponse.class
         );
-
-        if (Boolean.TRUE.equals(equipment.getMaintenanceBlocked()) ||
-                "MAINTENANCE".equalsIgnoreCase(equipment.getStatus())) {
-            throw new BusinessException(
-                    "El equipo está bloqueado por mantenimiento");
-        }
 
         return equipment;
     }

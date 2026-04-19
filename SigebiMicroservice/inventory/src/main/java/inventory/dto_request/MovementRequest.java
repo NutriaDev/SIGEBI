@@ -7,7 +7,9 @@ import jakarta.validation.constraints.Size;
 public record MovementRequest(
 
         @NotBlank(message = "serie es requerido")
-        String serie,
+        String serial,
+
+        Long equipmentId,
 
         @NotNull(message = "originLocationId es requerido")
         Long originLocationId,

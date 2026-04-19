@@ -17,6 +17,8 @@ import inventory.exception.EquipmentNotFoundException;
 import inventory.repository.MovementRepository;
 import inventory.util.RoleValidator;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,33 +28,28 @@ public class MovementService {
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
 
-    private EquipmentResponse validateEquipment(String serie) {
+    @SuppressWarnings("unchecked")
+    private EquipmentResponse validateEquipment(String serial) {
 
         ApiResponse response;
 
         try {
-            response = equipmentClient.findBySerial(serie);
+            response = equipmentClient.findBySerial(serial);
+            log.info("Llamando equipment con serie: {}", serial);
         } catch (Exception e) {
-            log.error("Error consultando equipo {} en Equipment MS",
-                    serie, e);
-            throw new EquipmentNotFoundException("El equipo no existe");
+            log.error("Error consultando equipo {}", serial, e);
+            throw new EquipmentNotFoundException("Equipo no encontrado");
         }
 
         if (response == null || response.getBody() == null) {
-            throw new EquipmentNotFoundException("El equipo no existe");
+            throw new EquipmentNotFoundException("Equipo no encontrado");
         }
 
+        // 🔥 AQUÍ ESTÁ EL FIX REAL
         EquipmentResponse equipment = objectMapper.convertValue(
                 response.getBody(),
                 EquipmentResponse.class
         );
-
-
-        if (Boolean.TRUE.equals(equipment.getMaintenanceBlocked()) ||
-                "MAINTENANCE".equalsIgnoreCase(equipment.getStatus())) {
-            throw new BusinessException(
-                    "El equipo está bloqueado por mantenimiento");
-        }
 
         return equipment;
     }
@@ -62,15 +59,18 @@ public class MovementService {
 
         RoleValidator.validate(req.userRole());
 
-        EquipmentResponse equipment = validateEquipment(req.serie());
+        // 🔥 1. BUSCAR EQUIPO POR SERIAL
+        EquipmentResponse equipment = validateEquipment(req.serial());
 
-        Long equipmentId = equipment.getId();
+        Long equipmentId = equipment.getEquipmentId();
+        Long currentLocation = equipment.getLocationId();
 
-        if (!req.originLocationId().equals(equipment.getLocationId())) {
-            throw new BusinessException(
-                    "El equipo no pertenece a la ubicación origen");
+        // 🔥 2. VALIDAR UBICACIÓN ORIGEN
+        if (!req.originLocationId().equals(currentLocation)) {
+            throw new BusinessException("El equipo no pertenece a la ubicación origen");
         }
 
+        // 🔥 3. GUARDAR MOVIMIENTO
         MovementEntity movement = MovementEntity.builder()
                 .equipmentId(equipmentId)
                 .originLocationId(req.originLocationId())
@@ -81,15 +81,21 @@ public class MovementService {
 
         movementRepository.save(movement);
 
+        // 🔥 4. ACTUALIZAR UBICACIÓN EN EQUIPMENT
         try {
             equipmentClient.updateLocation(
                     equipmentId,
                     new UpdateEquipmentLocationRequest(req.destinationLocationId())
             );
         } catch (Exception e) {
-            log.error("ERROR REAL:", e);
-            throw new BusinessException(
-                    "No se pudo actualizar la ubicación del equipo");
+            log.error("Error actualizando ubicación", e);
+            throw new BusinessException("No se pudo actualizar la ubicación del equipo");
         }
     }
+
+    @Transactional(readOnly = true)
+    public EquipmentResponse findEquipmentBySerial(String serial) {
+        return validateEquipment(serial);
+    }
+
 }
