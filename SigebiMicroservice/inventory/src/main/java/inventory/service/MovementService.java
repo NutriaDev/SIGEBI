@@ -57,8 +57,6 @@ public class MovementService {
     @Transactional
     public void registerMovement(MovementRequest req) {
 
-        RoleValidator.validate(req.userRole());
-
         // 🔥 1. BUSCAR EQUIPO POR SERIAL
         EquipmentResponse equipment = validateEquipment(req.serial());
 

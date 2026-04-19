@@ -22,10 +22,7 @@ public record MovementRequest(
         String reason,
 
         @NotNull(message = "responsibleUserId es requerido")
-        Long responsibleUserId,
-
-        @NotBlank(message = "userRole es requerido")
-        String userRole
+        Long responsibleUserId
 ) {}
 
 
