@@ -132,7 +132,8 @@ JOIN auth_permission p ON p.name IN (
   'equipment.area.update',
   'equipment.area.read',
   'inventory.create',
-  'movement.create'
+  'movement.create',
+  'movement.read'
 
 
 )
@@ -170,7 +171,8 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.update',
   'equipment.area.read',
   'inventory.create',
-  'movement.create'
+  'movement.create',
+  'movement.read'
 
 )
 WHERE r.name = 'SUPERVISOR'
@@ -200,7 +202,8 @@ JOIN auth_permission p ON p.name IN (
   'equipment.location.update',
   'equipment.classification.create',
   'equipment.classification.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'movement.read'
 
 )
 WHERE r.name = 'TECNICO'
