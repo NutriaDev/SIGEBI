@@ -9,8 +9,6 @@ public record MovementRequest(
         @NotBlank(message = "serie es requerido")
         String serial,
 
-        Long equipmentId,
-
         @NotNull(message = "originLocationId es requerido")
         Long originLocationId,
 
@@ -19,10 +17,9 @@ public record MovementRequest(
 
         @NotBlank(message = "reason es requerido")
         @Size(max = 500, message = "reason no puede superar 500 caracteres")
-        String reason,
+        String reason
 
-        @NotNull(message = "responsibleUserId es requerido")
-        Long responsibleUserId
+
 ) {}
 
 

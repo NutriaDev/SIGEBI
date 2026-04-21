@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import inventory.dto_request.MovementRequest;
 import inventory.service.MovementService;
@@ -44,5 +45,13 @@ public class MovementController {
         return ResponseEntity.ok(
                 movementService.findEquipmentBySerial(serial)
         );
+    }
+
+    @GetMapping("/me")
+    public Long getUser() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 }

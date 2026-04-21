@@ -5,6 +5,7 @@ import inventory.dto_request.UpdateEquipmentLocationRequest;
 import inventory.dto_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import inventory.client.EquipmentClient;
@@ -68,13 +69,15 @@ public class MovementService {
             throw new BusinessException("El equipo no pertenece a la ubicación origen");
         }
 
+        Long userId = getCurrentUserId();
+
         // 🔥 3. GUARDAR MOVIMIENTO
         MovementEntity movement = MovementEntity.builder()
                 .equipmentId(equipmentId)
                 .originLocationId(req.originLocationId())
                 .destinationLocationId(req.destinationLocationId())
                 .reason(req.reason())
-                .responsibleUserId(req.responsibleUserId())
+                .responsibleUserId(userId)
                 .build();
 
         movementRepository.save(movement);
@@ -94,6 +97,13 @@ public class MovementService {
     @Transactional(readOnly = true)
     public EquipmentResponse findEquipmentBySerial(String serial) {
         return validateEquipment(serial);
+    }
+
+    private Long getCurrentUserId() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 
 }
