@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="equipment" />
+        <module name="inventory" />
         <module name="config" />
         <module name="eureka" />
         <module name="users" />
@@ -47,12 +48,14 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="JWT" options="-parameters" />
+      <module name="SigebiMicroservice" options="-parameters" />
       <module name="auth" options="-parameters" />
       <module name="cms" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="equipment" options="-parameters" />
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="inventory" options="-parameters" />
       <module name="users" options="-parameters" />
     </option>
   </component>
