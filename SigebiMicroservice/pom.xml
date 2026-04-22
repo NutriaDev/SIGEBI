@@ -21,6 +21,7 @@
         <module>auth</module>
         <module>equipment</module>
         <module>maintenance</module>
+        <module>cms</module>
 
     </modules>
 

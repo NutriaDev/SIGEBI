@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +24,7 @@ public class AreaController {
     private final AreaService areaService;
 
     // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.area.create')")
     @PostMapping
     public ResponseEntity<Response> createArea(
             @Valid @RequestBody CreateAreaRequest request) {
@@ -39,6 +41,7 @@ public class AreaController {
     // ================= GET ALL =================
 
 
+    @PreAuthorize("hasAuthority('equipment.area.read')")
     @GetMapping
     public ResponseEntity<Response> getAllAreas(Pageable pageable) {
 
@@ -50,6 +53,7 @@ public class AreaController {
     }
 
     // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.area.read')")
     @GetMapping("/active")
     public ResponseEntity<Response> getActiveAreas(Pageable pageable) {
 
@@ -61,6 +65,7 @@ public class AreaController {
     }
 
     // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.area.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getAreaById(@PathVariable Long id) {
 
@@ -74,6 +79,7 @@ public class AreaController {
     }
 
     // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.area.read')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Response> getAreaByName(@PathVariable String name) {
 
@@ -87,6 +93,7 @@ public class AreaController {
     }
 
     // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.area.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateArea(
             @PathVariable Long id,
@@ -102,6 +109,7 @@ public class AreaController {
     }
 
     // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.area.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateArea(@PathVariable Long id) {
 

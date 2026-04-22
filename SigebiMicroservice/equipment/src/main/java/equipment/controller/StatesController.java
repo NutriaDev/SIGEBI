@@ -9,7 +9,9 @@ import equipment.util.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -22,6 +24,7 @@ public class StatesController {
     private final StatesService statesService;
 
     // ================= CREATE =================
+    @PreAuthorize("hasAuthority('equipment.state.create')")
     @PostMapping
     public ResponseEntity<Response> createStatus(
             @Valid @RequestBody CreateStatesRequest request) {
@@ -36,28 +39,31 @@ public class StatesController {
     }
 
     // ================= GET ALL =================
+    @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping
-    public ResponseEntity<Response> getAllStatuses() {
+    public ResponseEntity<Response> getAllStatuses(Pageable pageable) {
 
         return ApiResponse.success(
                 "States retrieved",
                 "All states list",
-                statesService.getAllStatuses()
+                statesService.getAllStatuses(pageable)
         );
     }
 
     // ================= GET ACTIVE =================
+    @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping("/active")
-    public ResponseEntity<Response> getActiveStatuses() {
+    public ResponseEntity<Response> getActiveStatuses(Pageable pageable) {
 
         return ApiResponse.success(
                 "Active states retrieved",
                 "Active states list",
-                statesService.getActiveStatuses()
+                statesService.getActiveStatuses(pageable)
         );
     }
 
     // ================= GET BY ID =================
+    @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping("/{id}")
     public ResponseEntity<Response> getStatusById(@PathVariable Long id) {
 
@@ -69,6 +75,7 @@ public class StatesController {
     }
 
     // ================= GET BY NAME =================
+    @PreAuthorize("hasAuthority('equipment.state.read')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Response> getStatusByName(@PathVariable String name) {
 
@@ -80,6 +87,7 @@ public class StatesController {
     }
 
     // ================= UPDATE =================
+    @PreAuthorize("hasAuthority('equipment.state.update')")
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateStatus(
             @PathVariable Long id,
@@ -95,6 +103,7 @@ public class StatesController {
     }
 
     // ================= DEACTIVATE =================
+    @PreAuthorize("hasAuthority('equipment.state.update')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Response> deactivateStatus(@PathVariable Long id) {
 

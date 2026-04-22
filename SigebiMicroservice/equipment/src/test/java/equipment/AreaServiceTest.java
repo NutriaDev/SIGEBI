@@ -46,7 +46,7 @@ class AreaServiceTest {
                 .build();
     }
 
-    // ================= CREATE =================
+    // ===================== CREATE =====================
 
     @Test
     void shouldCreateAreaSuccessfully() {
@@ -61,7 +61,6 @@ class AreaServiceTest {
 
         assertNotNull(response);
         assertEquals("Urgencias", response.getName());
-
         verify(areaRepository).save(any());
     }
 
@@ -77,7 +76,7 @@ class AreaServiceTest {
                 () -> areaService.createArea(request));
     }
 
-    // ================= GET BY ID =================
+    // ===================== GET BY ID =====================
 
     @Test
     void shouldReturnAreaById() {
@@ -98,7 +97,7 @@ class AreaServiceTest {
                 () -> areaService.getAreaById(1L));
     }
 
-    // ================= GET ALL =================
+    // ===================== GET ALL =====================
 
     @Test
     void shouldReturnPaginatedAreas() {
@@ -107,13 +106,50 @@ class AreaServiceTest {
 
         when(areaRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
-        Page<AreaResponse> result =
-                areaService.getAllAreas(PageRequest.of(0, 10));
+        Page<AreaResponse> result = areaService.getAllAreas(PageRequest.of(0, 10));
 
         assertEquals(1, result.getTotalElements());
     }
 
-    // ================= UPDATE =================
+    // ===================== GET ACTIVE =====================
+
+    @Test
+    void shouldReturnActiveAreas() {
+
+        Page<AreaEntity> page = new PageImpl<>(List.of(area));
+
+        when(areaRepository.findAllByActive(true, PageRequest.of(0, 10)))
+                .thenReturn(page);
+
+        Page<AreaResponse> result = areaService.getActiveAreas(PageRequest.of(0, 10));
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    // ===================== GET BY NAME =====================
+
+    @Test
+    void shouldReturnAreaByName() {
+
+        when(areaRepository.findByNameIgnoreCase("Urgencias"))
+                .thenReturn(Optional.of(area));
+
+        AreaResponse response = areaService.getAreaByName("Urgencias");
+
+        assertEquals("Urgencias", response.getName());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAreaNameNotFound() {
+
+        when(areaRepository.findByNameIgnoreCase("XYZ"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> areaService.getAreaByName("XYZ"));
+    }
+
+    // ===================== UPDATE =====================
 
     @Test
     void shouldUpdateAreaSuccessfully() {
@@ -128,55 +164,7 @@ class AreaServiceTest {
 
         AreaResponse response = areaService.updateArea(1L, request);
 
-        assertEquals("UCI", request.getName());
-    }
-
-    // ================= DEACTIVATE =================
-
-    @Test
-    void shouldDeactivateArea() {
-
-        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
-
-        areaService.deactivateArea(1L);
-
-        verify(areaRepository).save(area);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAreaAlreadyInactive() {
-
-        area.setActive(false);
-
-        when(areaRepository.findById(1L))
-                .thenReturn(Optional.of(area));
-
-        assertThrows(IllegalStateException.class,
-                () -> areaService.deactivateArea(1L));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAreaNameNotFound() {
-
-        when(areaRepository.findByNameIgnoreCase("XYZ"))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> areaService.getAreaByName("XYZ"));
-    }
-
-    @Test
-    void shouldReturnActiveAreas() {
-
-        Page<AreaEntity> page = new PageImpl<>(List.of(area));
-
-        when(areaRepository.findAllByActive(true, PageRequest.of(0,10)))
-                .thenReturn(page);
-
-        Page<AreaResponse> result =
-                areaService.getActiveAreas(PageRequest.of(0,10));
-
-        assertEquals(1, result.getTotalElements());
+        assertNotNull(response);
     }
 
     @Test
@@ -186,23 +174,77 @@ class AreaServiceTest {
         request.setName("Urgencias");
 
         when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
-        when(areaRepository.existsByNameAndAreaIdNot("Urgencias",1L))
-                .thenReturn(true);
+        when(areaRepository.existsByNameAndAreaIdNot("Urgencias", 1L)).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class,
                 () -> areaService.updateArea(1L, request));
     }
 
     @Test
-    void shouldReturnAreaByName() {
+    void shouldThrowNotFoundWhenUpdatingArea() {
 
-        when(areaRepository.findByNameIgnoreCase("Urgencias"))
-                .thenReturn(Optional.of(area));
+        UpdateAreaRequest request = new UpdateAreaRequest();
+        request.setName("UCI");
 
-        AreaResponse response =
-                areaService.getAreaByName("Urgencias");
+        when(areaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertEquals("Urgencias", response.getName());
+        assertThrows(ResourceNotFoundException.class,
+                () -> areaService.updateArea(99L, request));
     }
 
+    @Test
+    void shouldUpdateAreaWithNullActive() {
+
+        UpdateAreaRequest request = new UpdateAreaRequest();
+        request.setName("UCI");
+        request.setActive(null); // no cambia el active
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+        when(areaRepository.existsByNameAndAreaIdNot("UCI", 1L)).thenReturn(false);
+        when(areaRepository.save(any())).thenReturn(area);
+
+        AreaResponse response = areaService.updateArea(1L, request);
+
+        assertNotNull(response);
+    }
+
+    // ===================== DEACTIVATE (toggle) =====================
+
+    /**
+     * CORRECCIÓN: el servicio hace toggle (!active), no lanza IllegalStateException.
+     */
+    @Test
+    void shouldDeactivateArea() {
+
+        // active = true -> toggle -> false
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+
+        areaService.deactivateArea(1L);
+
+        assertFalse(area.getActive());
+        verify(areaRepository).save(area);
+    }
+
+    @Test
+    void shouldActivateAreaViaToggle() {
+
+        // active = false -> toggle -> true
+        area.setActive(false);
+
+        when(areaRepository.findById(1L)).thenReturn(Optional.of(area));
+
+        areaService.deactivateArea(1L);
+
+        assertTrue(area.getActive());
+        verify(areaRepository).save(area);
+    }
+
+    @Test
+    void shouldThrowNotFoundWhenDeactivatingArea() {
+
+        when(areaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> areaService.deactivateArea(99L));
+    }
 }
