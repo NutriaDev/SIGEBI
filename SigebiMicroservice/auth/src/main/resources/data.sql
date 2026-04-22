@@ -76,13 +76,16 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'movement.create', 'Registrar movimientos'),
 (gen_random_uuid(), 'movement.read', 'Ver movimientos');
 
+(gen_random_uuid(), 'equipment.update', 'Actualizar equipos')
+ON CONFLICT (name) DO NOTHING;
 
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
 (gen_random_uuid(), 'SUPERADMIN'),
 (gen_random_uuid(), 'ADMIN'),
 (gen_random_uuid(), 'SUPERVISOR'),
-(gen_random_uuid(), 'TECNICO');
+(gen_random_uuid(), 'TECNICO')
+ON CONFLICT (name) DO NOTHING;
 
 -- 4️⃣ ASIGNAR PERMISOS A ROLES
 
