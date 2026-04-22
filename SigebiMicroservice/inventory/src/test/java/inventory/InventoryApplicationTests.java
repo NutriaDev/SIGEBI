@@ -1,4 +1,4 @@
-package inventory.src.test.java.sigebi.inventory;
+package inventory;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
