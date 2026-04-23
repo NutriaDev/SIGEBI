@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import sigebi.maintenance.entities.MaintenanceScheduleEntity;
+import sigebi.maintenance.entities.MaintenanceStatus;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -13,12 +14,12 @@ public interface MaintenanceScheduleRepository extends JpaRepository<Maintenance
     Optional<MaintenanceScheduleEntity> findByEquipmentIdAndScheduledDateAndStatus(
             Long equipmentId,
             LocalDateTime scheduledDate,
-            String status
+            MaintenanceStatus status
     );
 
     Page<MaintenanceScheduleEntity> findByScheduledDateBeforeAndStatus(
             LocalDateTime scheduledDate,
-            String status,
+            MaintenanceStatus status,
             Pageable pageable
     );
 }

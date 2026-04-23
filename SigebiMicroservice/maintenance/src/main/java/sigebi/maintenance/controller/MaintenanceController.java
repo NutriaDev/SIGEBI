@@ -38,8 +38,9 @@ public class MaintenanceController {
     }
 
     // 🔹 POST /maintenance/schedule
+    @PreAuthorize("hasAuthority('maintenance.create')")
     @PostMapping("/schedule")
-    @PreAuthorize("hasAnyAuthority('ROL_TECNICO','ROL_ADMIN')")
+
     public ResponseEntity<ApiResponse> scheduleMaintenance(
             @Valid @RequestBody MaintenanceScheduleRequest request
     ) {
@@ -57,7 +58,7 @@ public class MaintenanceController {
 
     // 🔹 GET /maintenance
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROL_ADMIN','ROL_TECNICO')")
+    @PreAuthorize("hasAuthority('maintenance.read')")
     public ResponseEntity<ApiResponse> getMaintenanceHistory(
             @RequestParam Long equipmentId,
             @RequestParam(required = false) String type,
@@ -84,7 +85,7 @@ public class MaintenanceController {
 
     // 🔹 GET /maintenance/overdue
     @GetMapping("/overdue")
-    @PreAuthorize("hasAuthority('ROL_ADMIN')")
+    @PreAuthorize("hasAuthority('maintenance.read')")
     public ResponseEntity<ApiResponse> getOverdueSchedules(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

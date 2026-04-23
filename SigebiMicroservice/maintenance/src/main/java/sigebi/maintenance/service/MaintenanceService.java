@@ -84,7 +84,9 @@ public class MaintenanceService {
         return MaintenanceResponse.builder()
                 .idMaintenance(e.getIdMaintenance())
                 .equipmentId(e.getEquipmentId())
-                .maintenanceType(e.getType().getName())
+                .maintenanceType(
+                e.getType() != null ? e.getType().getName() : "N/A"
+        )
                 .date(e.getDate())
                 .description(e.getDescription())
                 .technicianName("Pendiente integración usuario")

@@ -27,7 +27,6 @@ public class MaintenanceScheduleEntity {
     @JoinColumn(name = "type_id", nullable = false)
     private MaintenanceTypeEntity type;
 
-    @Future
     @Column(nullable = false)
     private LocalDateTime scheduledDate;
 

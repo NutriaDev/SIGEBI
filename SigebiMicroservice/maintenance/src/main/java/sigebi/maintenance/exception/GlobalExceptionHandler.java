@@ -1,5 +1,7 @@
 package sigebi.maintenance.exception;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,6 +10,7 @@ import sigebi.maintenance.dto_response.ErrorResponse;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -46,6 +49,7 @@ public class GlobalExceptionHandler {
     // 🔴 Errores inesperados
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        log.error("Error inesperado: {}", ex.getMessage(), ex); // 👈 esto
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ErrorResponse.builder()
                         .code("INTERNAL_ERROR")

@@ -35,7 +35,7 @@ public class MaintenanceScheduleService {
         repository.findByEquipmentIdAndScheduledDateAndStatus(
                 request.getEquipmentId(),
                 request.getScheduledDate(),
-                String.valueOf(MaintenanceStatus.PENDIENTE)
+                MaintenanceStatus.PENDIENTE
         ).ifPresent(s -> {
             throw new BusinessException(
                     "DUPLICATE_SCHEDULE",
@@ -58,7 +58,7 @@ public class MaintenanceScheduleService {
     public Page<MaintenanceScheduleResponse> getOverdueSchedules(Pageable pageable) {
         return repository.findByScheduledDateBeforeAndStatus(
                         LocalDateTime.now(),
-                        String.valueOf(MaintenanceStatus.PENDIENTE),
+                        MaintenanceStatus.PENDIENTE,
                         pageable
                 )
                 .map(this::mapToResponse);
@@ -67,19 +67,19 @@ public class MaintenanceScheduleService {
     private void validate(MaintenanceScheduleRequest request) {
 
         if (request.getEquipmentId() == null)
-            throw new BusinessException("TYPE_REQUIRED", "El tipo de mantenimiento es obligatorio");
+            throw new BusinessException("EQUIPMENT_REQUIRED", "El equipo es obligatorio");
 
         if (request.getMaintenanceType() == null)
-            throw new BusinessException("DATE_REQUIRED", "La fecha programada es obligatoria");
+            throw new BusinessException("TYPE_REQUIRED", "El tipo de mantenimiento es obligatorio");
 
         if (request.getTechnicianId() == null)
-            throw new BusinessException("INVALID_DATE", "La fecha debe ser futura para programaciones");
+            throw new BusinessException("TECHNICIAN_REQUIRED", "El técnico es obligatorio");
 
         if (request.getScheduledDate() == null)
-            throw new BusinessException("TYPE_NOT_FOUND", "El tipo de mantenimiento no existe");
+            throw new BusinessException("DATE_REQUIRED", "La fecha programada es obligatoria");
 
         if (!request.getScheduledDate().isAfter(LocalDateTime.now()))
-            throw new BusinessException("DUPLICATE_SCHEDULE", "Ya existe una programación activa para esta fecha");
+            throw new BusinessException("INVALID_DATE", "La fecha debe ser futura para programaciones");
     }
 
     private MaintenanceScheduleResponse mapToResponse(MaintenanceScheduleEntity e) {
