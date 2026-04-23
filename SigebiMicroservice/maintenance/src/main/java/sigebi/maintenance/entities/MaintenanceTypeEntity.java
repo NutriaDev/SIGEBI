@@ -1,7 +1,13 @@
 package sigebi.maintenance.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "maintenance_types")
 public class MaintenanceTypeEntity {
@@ -13,19 +19,5 @@ public class MaintenanceTypeEntity {
     @Column(nullable = false)
     private String name;
 
-    public Long getIdType() {
-        return idType;
-    }
 
-    public void setIdType(Long idType) {
-        this.idType = idType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

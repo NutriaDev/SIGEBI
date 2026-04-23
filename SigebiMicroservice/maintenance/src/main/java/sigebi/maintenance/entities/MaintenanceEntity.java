@@ -1,11 +1,20 @@
 package sigebi.maintenance.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "maintenances")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MaintenanceEntity {
 
     @Id
@@ -19,82 +28,18 @@ public class MaintenanceEntity {
     @JoinColumn(name = "type_id", nullable = false)
     private MaintenanceTypeEntity type;
 
+    @PastOrPresent
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @Size(min = 20)
     @Column(nullable = false, length = 500)
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "responsible_user_id", nullable = false)
     private Long responsibleUserId;
 
-    @Column(nullable = false)
-    private String status;
-
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    public Long getIdMaintenance() {
-        return idMaintenance;
-    }
-
-    public void setIdMaintenance(Long idMaintenance) {
-        this.idMaintenance = idMaintenance;
-    }
-
-    public Long getEquipmentId() {
-        return equipmentId;
-    }
-
-    public void setEquipmentId(Long equipmentId) {
-        this.equipmentId = equipmentId;
-    }
-
-    public MaintenanceTypeEntity getType() {
-        return type;
-    }
-
-    public void setType(MaintenanceTypeEntity type) {
-        this.type = type;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Long getResponsibleUserId() {
-        return responsibleUserId;
-    }
-
-    public void setResponsibleUserId(Long responsibleUserId) {
-        this.responsibleUserId = responsibleUserId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
