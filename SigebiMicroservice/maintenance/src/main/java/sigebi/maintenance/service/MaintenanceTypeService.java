@@ -1,5 +1,6 @@
 package sigebi.maintenance.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
@@ -7,13 +8,10 @@ import sigebi.maintenance.repository.MaintenanceTypeRepository;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MaintenanceTypeService {
 
     private final MaintenanceTypeRepository repository;
-
-    public MaintenanceTypeService(MaintenanceTypeRepository repository) {
-        this.repository = repository;
-    }
 
     public List<MaintenanceTypeEntity> getAllTypes() {
         return repository.findAll();

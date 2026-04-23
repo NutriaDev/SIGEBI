@@ -6,55 +6,39 @@ import org.springframework.stereotype.Service;
 import sigebi.maintenance.dto_request.MaintenanceRequest;
 import sigebi.maintenance.dto_response.MaintenanceResponse;
 import sigebi.maintenance.entities.MaintenanceEntity;
+import sigebi.maintenance.entities.MaintenanceStatus;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.exception.BusinessException;
 import sigebi.maintenance.repository.MaintenanceRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class MaintenanceService {
 
-    private final MaintenanceRepository maintenanceRepository;
-    private final MaintenanceTypeRepository maintenanceTypeRepository;
-
-    public MaintenanceService(MaintenanceRepository maintenanceRepository,
-                              MaintenanceTypeRepository maintenanceTypeRepository) {
-        this.maintenanceRepository = maintenanceRepository;
-        this.maintenanceTypeRepository = maintenanceTypeRepository;
-    }
+    private final MaintenanceRepository repository;
+    private final MaintenanceTypeRepository typeRepository;
 
     public MaintenanceResponse registerMaintenance(MaintenanceRequest request) {
-        validateMaintenanceRequest(request);
 
-        MaintenanceTypeEntity maintenanceType = maintenanceTypeRepository.findById(request.getMaintenanceType())
+        validate(request);
+
+        MaintenanceTypeEntity type = typeRepository.findById(request.getMaintenanceType())
                 .orElseThrow(() -> new BusinessException("El tipo de mantenimiento no existe"));
 
-        MaintenanceEntity entity = new MaintenanceEntity();
-        entity.setEquipmentId(request.getEquipmentId());
-        entity.setDescription(request.getDescription());
-        entity.setResponsibleUserId(request.getTechnicianId());
-        entity.setStatus("REGISTRADO");
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setDate(request.getDate());
-        entity.setType(maintenanceType);
+        MaintenanceEntity entity = MaintenanceEntity.builder()
+                .equipmentId(request.getEquipmentId())
+                .description(request.getDescription())
+                .responsibleUserId(request.getTechnicianId())
+                .date(request.getDate())
+                .type(type)
+                .status(MaintenanceStatus.REGISTRADO)
+                .build();
 
-        MaintenanceEntity saved = maintenanceRepository.save(entity);
-
-        MaintenanceResponse response = new MaintenanceResponse();
-        response.setIdMaintenance(saved.getIdMaintenance());
-        response.setEquipmentId(saved.getEquipmentId());
-        response.setMaintenanceType(
-                saved.getType() != null ? saved.getType().getName() : "N/A"
-        );
-        response.setDate(saved.getDate());
-        response.setDescription(saved.getDescription());
-        response.setTechnicianName("Pendiente integración usuario");
-        response.setStatus(saved.getStatus());
-        response.setCreatedAt(saved.getCreatedAt());
-
-        return response;
+        return mapToResponse(repository.save(entity));
     }
 
     public Page<MaintenanceResponse> getMaintenanceHistory(
@@ -64,54 +48,45 @@ public class MaintenanceService {
             LocalDateTime toDate,
             Pageable pageable
     ) {
-        Page<MaintenanceEntity> page = maintenanceRepository
+        return repository
                 .findByEquipmentIdAndType_NameContainingIgnoreCaseAndDateBetweenOrderByDateDesc(
                         equipmentId,
                         maintenanceType == null ? "" : maintenanceType,
                         fromDate,
                         toDate,
                         pageable
-                );
-
-        return page.map(entity -> {
-            MaintenanceResponse response = new MaintenanceResponse();
-            response.setIdMaintenance(entity.getIdMaintenance());
-            response.setEquipmentId(entity.getEquipmentId());
-            response.setMaintenanceType(
-                    entity.getType() != null ? entity.getType().getName() : "N/A"
-            );
-            response.setDate(entity.getDate());
-            response.setDescription(entity.getDescription());
-            response.setTechnicianName("Pendiente integración usuario");
-            response.setStatus(entity.getStatus());
-            response.setCreatedAt(entity.getCreatedAt());
-            return response;
-        });
+                )
+                .map(this::mapToResponse);
     }
 
-    private void validateMaintenanceRequest(MaintenanceRequest request) {
-        if (request.getEquipmentId() == null) {
+    private void validate(MaintenanceRequest request) {
+
+        if (request.getEquipmentId() == null)
             throw new BusinessException("El equipo es obligatorio");
-        }
 
-        if (request.getMaintenanceType() == null) {
+        if (request.getMaintenanceType() == null)
             throw new BusinessException("El tipo de mantenimiento es obligatorio");
-        }
 
-        if (request.getTechnicianId() == null) {
+        if (request.getTechnicianId() == null)
             throw new BusinessException("El técnico es obligatorio");
-        }
 
-        if (request.getDescription() == null || request.getDescription().trim().length() < 20) {
+        if (request.getDescription() == null || request.getDescription().length() < 20)
             throw new BusinessException("Ingrese al menos 20 caracteres describiendo la intervención");
-        }
 
-        if (request.getDate() != null && request.getDate().isAfter(LocalDateTime.now())) {
-            throw new BusinessException("La fecha no puede ser futura para un mantenimiento realizado");
-        }
+        if (request.getDate() != null && request.getDate().isAfter(LocalDateTime.now()))
+            throw new BusinessException("La fecha no puede ser futura");
+    }
 
-        // Pendiente integración:
-        // - equipo en préstamo / bloqueado
-        // - técnico con rol válido
+    private MaintenanceResponse mapToResponse(MaintenanceEntity e) {
+        return MaintenanceResponse.builder()
+                .idMaintenance(e.getIdMaintenance())
+                .equipmentId(e.getEquipmentId())
+                .maintenanceType(e.getType().getName())
+                .date(e.getDate())
+                .description(e.getDescription())
+                .technicianName("Pendiente integración usuario")
+                .status(e.getStatus().name())
+                .createdAt(e.getCreatedAt())
+                .build();
     }
 }

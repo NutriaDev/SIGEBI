@@ -28,7 +28,6 @@ public class MaintenanceEntity {
     @JoinColumn(name = "type_id", nullable = false)
     private MaintenanceTypeEntity type;
 
-    @PastOrPresent
     @Column(nullable = false)
     private LocalDateTime date;
 
@@ -38,6 +37,10 @@ public class MaintenanceEntity {
 
     @Column(name = "responsible_user_id", nullable = false)
     private Long responsibleUserId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MaintenanceStatus status;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
