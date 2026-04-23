@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  redis:
+    host: localhost
+    port: 6379
+
   cloud:
     config:
       enabled: false
@@ -11,18 +15,53 @@ spring:
         - PreserveHostHeader
 
       routes:
+        # 🔐 AUTH - LOGIN (con rate limit)
+        - id: auth-login
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/login
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 5
+                key-resolver: "#{@ipKeyResolver}"
+
+        # 🔐 AUTH - FORGOT PASSWORD
+        - id: auth-forgot
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/forgot-password
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 3
+                key-resolver: "#{@ipKeyResolver}"
+
+        # 🔐 AUTH - RESET PASSWORD
+        - id: auth-reset
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/reset-password
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 5
+                key-resolver: "#{@ipKeyResolver}"
+
+        # AUTH GENERAL (sin rate limit)
+        - id: ms-auth
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/**
 
         # USERS
         - id: ms-users
           uri: http://localhost:8090
           predicates:
             - Path=/api/users/**,/internal/auth/**
-
-        # AUTH
-        - id: ms-auth
-          uri: http://localhost:9090
-          predicates:
-            - Path=/auth/**
 
         # EQUIPMENT
         - id: ms-equipment
@@ -35,6 +74,12 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/api/media/**
+
+        # INVENTORY
+        - id: ms-inventory
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/inventories/**,/api/movements/**
 
       globalcors:
         corsConfigurations:

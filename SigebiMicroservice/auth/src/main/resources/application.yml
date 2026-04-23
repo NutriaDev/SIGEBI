@@ -1,6 +1,17 @@
 server:
   port: 9090
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ##############
+    password: ##############
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   application:
     name: ms-auth
 
@@ -12,7 +23,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -28,3 +39,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+app:
+  frontend-url: http://localhost:3000
+  mail-from: onboarding@resend.dev
