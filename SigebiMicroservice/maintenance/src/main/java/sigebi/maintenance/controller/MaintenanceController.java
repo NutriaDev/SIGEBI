@@ -1,53 +1,64 @@
 package sigebi.maintenance.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sigebi.maintenance.dto_request.MaintenanceRequest;
-import sigebi.maintenance.dto_request.MaintenanceScheduleRequest;
-import sigebi.maintenance.dto_response.MaintenanceResponse;
-import sigebi.maintenance.dto_response.MaintenanceScheduleResponse;
-import sigebi.maintenance.dto_response.Response;
-import sigebi.maintenance.service.MaintenanceService;
-import sigebi.maintenance.service.MaintenanceScheduleService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.RequestParam;
+import sigebi.maintenance.dto_request.*;
+import sigebi.maintenance.dto_response.*;
+import sigebi.maintenance.service.*;
+
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/maintenance")
+@RequestMapping("/api/maintenance")
+@RequiredArgsConstructor
 public class MaintenanceController {
 
     private final MaintenanceService maintenanceService;
     private final MaintenanceScheduleService maintenanceScheduleService;
 
-    public MaintenanceController(MaintenanceService maintenanceService,
-                                 MaintenanceScheduleService maintenanceScheduleService) {
-        this.maintenanceService = maintenanceService;
-        this.maintenanceScheduleService = maintenanceScheduleService;
-    }
-
+    // 🔹 POST /maintenance
     @PostMapping
-    public ResponseEntity<Response> registerMaintenance(@Valid @RequestBody MaintenanceRequest request) {
-        MaintenanceResponse maintenanceResponse = maintenanceService.registerMaintenance(request);
+    public ResponseEntity<ApiResponse> registerMaintenance(
+            @Valid @RequestBody MaintenanceRequest request
+    ) {
+        MaintenanceResponse response = maintenanceService.registerMaintenance(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Response("Mantenimiento registrado correctamente", maintenanceResponse));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Mantenimiento registrado")
+                        .message("Mantenimiento registrado correctamente")
+                        .body(response)
+                        .build()
+        );
     }
 
+    // 🔹 POST /maintenance/schedule
     @PostMapping("/schedule")
-    public ResponseEntity<Response> scheduleMaintenance(@Valid @RequestBody MaintenanceScheduleRequest request) {
-        MaintenanceScheduleResponse scheduleResponse = maintenanceScheduleService.scheduleMaintenance(request);
+    @PreAuthorize("hasAnyAuthority('ROL_TECNICO','ROL_ADMIN')")
+    public ResponseEntity<ApiResponse> scheduleMaintenance(
+            @Valid @RequestBody MaintenanceScheduleRequest request
+    ) {
+        MaintenanceScheduleResponse response = maintenanceScheduleService.scheduleMaintenance(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Response("Mantenimiento programado correctamente", scheduleResponse));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Mantenimiento programado")
+                        .message("Mantenimiento programado correctamente")
+                        .body(response)
+                        .build()
+        );
     }
 
+    // 🔹 GET /maintenance
     @GetMapping
-    public ResponseEntity<Page<MaintenanceResponse>> getMaintenanceHistory(
+    @PreAuthorize("hasAnyAuthority('ROL_ADMIN','ROL_TECNICO')")
+    public ResponseEntity<ApiResponse> getMaintenanceHistory(
             @RequestParam Long equipmentId,
             @RequestParam(required = false) String type,
             @RequestParam LocalDateTime fromDate,
@@ -56,25 +67,40 @@ public class MaintenanceController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MaintenanceResponse> response = maintenanceService.getMaintenanceHistory(
-                equipmentId,
-                type,
-                fromDate,
-                toDate,
-                pageable
+
+        Page<MaintenanceResponse> result = maintenanceService.getMaintenanceHistory(
+                equipmentId, type, fromDate, toDate, pageable
         );
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Historial obtenido")
+                        .message("Consulta realizada correctamente")
+                        .body(result)
+                        .build()
+        );
     }
 
+    // 🔹 GET /maintenance/overdue
     @GetMapping("/overdue")
-    public ResponseEntity<Page<MaintenanceScheduleResponse>> getOverdueSchedules(
+    @PreAuthorize("hasAuthority('ROL_ADMIN')")
+    public ResponseEntity<ApiResponse> getOverdueSchedules(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MaintenanceScheduleResponse> response = maintenanceScheduleService.getOverdueSchedules(pageable);
 
-        return ResponseEntity.ok(response);
+        Page<MaintenanceScheduleResponse> result =
+                maintenanceScheduleService.getOverdueSchedules(pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Mantenimientos vencidos")
+                        .message("Consulta realizada correctamente")
+                        .body(result)
+                        .build()
+        );
     }
 }
