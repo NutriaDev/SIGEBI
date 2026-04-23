@@ -27,7 +27,10 @@ public class MaintenanceService {
         validate(request);
 
         MaintenanceTypeEntity type = typeRepository.findById(request.getMaintenanceType())
-                .orElseThrow(() -> new BusinessException("El tipo de mantenimiento no existe"));
+                .orElseThrow(() -> new BusinessException(
+                        "TYPE_NOT_FOUND",
+                        "El tipo de mantenimiento no existe"
+                ));
 
         MaintenanceEntity entity = MaintenanceEntity.builder()
                 .equipmentId(request.getEquipmentId())
@@ -62,19 +65,19 @@ public class MaintenanceService {
     private void validate(MaintenanceRequest request) {
 
         if (request.getEquipmentId() == null)
-            throw new BusinessException("El equipo es obligatorio");
+            throw new BusinessException("EQUIPMENT_REQUIRED", "El equipo es obligatorio");
 
         if (request.getMaintenanceType() == null)
-            throw new BusinessException("El tipo de mantenimiento es obligatorio");
+            throw new BusinessException("TYPE_REQUIRED", "El tipo de mantenimiento es obligatorio");
 
         if (request.getTechnicianId() == null)
-            throw new BusinessException("El técnico es obligatorio");
+            throw new BusinessException("TECHNICIAN_REQUIRED", "El técnico es obligatorio");
 
         if (request.getDescription() == null || request.getDescription().length() < 20)
-            throw new BusinessException("Ingrese al menos 20 caracteres describiendo la intervención");
+            throw new BusinessException("INVALID_DESCRIPTION", "Ingrese al menos 20 caracteres describiendo la intervención");
 
         if (request.getDate() != null && request.getDate().isAfter(LocalDateTime.now()))
-            throw new BusinessException("La fecha no puede ser futura");
+            throw new BusinessException("INVALID_DATE", "La fecha no puede ser futura");
     }
 
     private MaintenanceResponse mapToResponse(MaintenanceEntity e) {
