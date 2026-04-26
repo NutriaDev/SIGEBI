@@ -46,9 +46,8 @@ feign:
   httpclient:
     enabled: true
 
-# 🔗 FUTURAS INTEGRACIONES (dejar listo)
 equipment-service:
   url: http://localhost:8091
 
 user-service:
-  url: http://localhost:8092
+  url: http://localhost:8090

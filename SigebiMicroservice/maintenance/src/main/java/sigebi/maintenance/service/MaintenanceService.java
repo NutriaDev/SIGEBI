@@ -3,15 +3,21 @@ package sigebi.maintenance.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sigebi.maintenance.client.EquipmentClient;
+import sigebi.maintenance.client.TechnicianClient;
 import sigebi.maintenance.dto_request.MaintenanceRequest;
+import sigebi.maintenance.dto_response.EquipmentApiResponse;
 import sigebi.maintenance.dto_response.MaintenanceResponse;
+import sigebi.maintenance.dto_response.UserAuthDataResponse;
 import sigebi.maintenance.entities.MaintenanceEntity;
 import sigebi.maintenance.entities.MaintenanceStatus;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.exception.BusinessException;
 import sigebi.maintenance.repository.MaintenanceRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.*;
+import feign.FeignException;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +27,15 @@ public class MaintenanceService {
 
     private final MaintenanceRepository repository;
     private final MaintenanceTypeRepository typeRepository;
+    private final EquipmentClient equipmentClient;
+    private final TechnicianClient technicianClient;
+
+    private Long getAuthenticatedUserId() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
 
     public MaintenanceResponse registerMaintenance(MaintenanceRequest request) {
 
@@ -32,10 +47,38 @@ public class MaintenanceService {
                         "El tipo de mantenimiento no existe"
                 ));
 
+        try {
+            EquipmentApiResponse equipmentResponse = equipmentClient.getEquipmentById(request.getEquipmentId());
+            if (equipmentResponse == null || !"success".equalsIgnoreCase(equipmentResponse.getStatus())) {
+                throw new BusinessException("EQUIPMENT_NOT_FOUND", "El equipo no existe");
+            }
+        } catch (FeignException.NotFound e) {
+            throw new BusinessException("EQUIPMENT_NOT_FOUND", "El equipo no existe");
+        } catch (FeignException e) {
+            throw new BusinessException("EQUIPMENT_SERVICE_ERROR", "Error al conectar con servicio de equipos");
+        }
+
+        Long userId = getAuthenticatedUserId();
+
+        try {
+            UserAuthDataResponse technician = technicianClient.getTechnicianById(userId);
+            if (technician == null || technician.getUserId() == null) {
+                throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
+            }
+        } catch (FeignException.NotFound e) {
+            throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
+        } catch (FeignException e) {
+            throw new BusinessException(
+                    "USER_SERVICE_ERROR",
+                    "Error users: " + e.contentUTF8()
+            );
+        }
+
+
         MaintenanceEntity entity = MaintenanceEntity.builder()
                 .equipmentId(request.getEquipmentId())
-                .description(request.getDescription())
-                .responsibleUserId(request.getTechnicianId())
+                .issueDescription(request.getIssueDescription())
+                .technicianId(userId)
                 .date(request.getDate())
                 .type(type)
                 .status(MaintenanceStatus.REGISTRADO)
@@ -43,6 +86,7 @@ public class MaintenanceService {
 
         return mapToResponse(repository.save(entity));
     }
+
 
     public Page<MaintenanceResponse> getMaintenanceHistory(
             Long equipmentId,
@@ -59,7 +103,7 @@ public class MaintenanceService {
                         toDate,
                         pageable
                 )
-                .map(this::mapToResponse);
+                .map(e -> mapToResponse(e));
     }
 
     private void validate(MaintenanceRequest request) {
@@ -70,14 +114,15 @@ public class MaintenanceService {
         if (request.getMaintenanceType() == null)
             throw new BusinessException("TYPE_REQUIRED", "El tipo de mantenimiento es obligatorio");
 
-        if (request.getTechnicianId() == null)
-            throw new BusinessException("TECHNICIAN_REQUIRED", "El técnico es obligatorio");
 
-        if (request.getDescription() == null || request.getDescription().length() < 20)
+        if (request.getIssueDescription() == null || request.getIssueDescription().length() < 20)
             throw new BusinessException("INVALID_DESCRIPTION", "Ingrese al menos 20 caracteres describiendo la intervención");
 
-        if (request.getDate() != null && request.getDate().isAfter(LocalDateTime.now()))
+        LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
+
+        if (request.getDate() != null && request.getDate().isAfter(now)) {
             throw new BusinessException("INVALID_DATE", "La fecha no puede ser futura");
+        }
     }
 
     private MaintenanceResponse mapToResponse(MaintenanceEntity e) {
@@ -85,11 +130,11 @@ public class MaintenanceService {
                 .idMaintenance(e.getIdMaintenance())
                 .equipmentId(e.getEquipmentId())
                 .maintenanceType(
-                e.getType() != null ? e.getType().getName() : "N/A"
-        )
+                        e.getType() != null ? e.getType().getName() : "N/A"
+                )
                 .date(e.getDate())
-                .description(e.getDescription())
-                .technicianName("Pendiente integración usuario")
+                .technicianId(e.getTechnicianId())
+                .issueDescription(e.getIssueDescription())
                 .status(e.getStatus().name())
                 .createdAt(e.getCreatedAt())
                 .build();

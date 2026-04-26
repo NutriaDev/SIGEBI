@@ -14,8 +14,8 @@ public class MaintenanceResponse {
     private Long equipmentId;
     private String maintenanceType;
     private LocalDateTime date;
-    private String description;
-    private String technicianName;
+    private Long technicianId;
+    private String issueDescription;
     private String status;
     private LocalDateTime createdAt;
 }

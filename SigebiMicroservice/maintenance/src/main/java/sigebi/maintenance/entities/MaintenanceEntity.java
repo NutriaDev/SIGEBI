@@ -33,10 +33,10 @@ public class MaintenanceEntity {
 
     @Size(min = 20)
     @Column(nullable = false, length = 500)
-    private String description;
+    private String issueDescription;
 
-    @Column(name = "responsible_user_id", nullable = false)
-    private Long responsibleUserId;
+    @Column(name = "technician_id", nullable = false)
+    private Long technicianId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
