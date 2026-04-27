@@ -104,4 +104,25 @@ public class MaintenanceController {
                         .build()
         );
     }
+
+    @GetMapping("/timeline")
+    @PreAuthorize("hasAuthority('maintenance.read')")
+    public ResponseEntity<ApiResponse> getTimeline(
+            @RequestParam Long equipmentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        var result = maintenanceScheduleService.getUnifiedMaintenances(equipmentId, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Timeline de mantenimientos")
+                        .message("Consulta realizada correctamente")
+                        .body(result)
+                        .build()
+        );
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import sigebi.maintenance.entities.MaintenanceEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface MaintenanceRepository extends JpaRepository<MaintenanceEntity, Long> {
 
@@ -16,4 +17,9 @@ public interface MaintenanceRepository extends JpaRepository<MaintenanceEntity, 
             LocalDateTime toDate,
             Pageable pageable
     );
+
+
+    List<MaintenanceEntity> findByEquipmentId(Long equipmentId);
+
+
 }

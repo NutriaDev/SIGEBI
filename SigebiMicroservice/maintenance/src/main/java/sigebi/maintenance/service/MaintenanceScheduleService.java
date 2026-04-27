@@ -2,18 +2,25 @@ package sigebi.maintenance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sigebi.maintenance.dto_request.MaintenanceScheduleRequest;
 import sigebi.maintenance.dto_response.MaintenanceScheduleResponse;
+import sigebi.maintenance.dto_response.MaintenanceUnifiedResponse;
+import sigebi.maintenance.entities.MaintenanceEntity;
 import sigebi.maintenance.entities.MaintenanceScheduleEntity;
 import sigebi.maintenance.entities.MaintenanceStatus;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.exception.BusinessException;
+import sigebi.maintenance.repository.MaintenanceRepository;
 import sigebi.maintenance.repository.MaintenanceScheduleRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +28,7 @@ public class MaintenanceScheduleService {
 
     private final MaintenanceScheduleRepository repository;
     private final MaintenanceTypeRepository typeRepository;
+    private final MaintenanceRepository maintenanceRepository;
 
     public MaintenanceScheduleResponse scheduleMaintenance(MaintenanceScheduleRequest request) {
 
@@ -76,6 +84,55 @@ public class MaintenanceScheduleService {
 
         if (!request.getScheduledDate().isAfter(LocalDateTime.now()))
             throw new BusinessException("INVALID_DATE", "La fecha debe ser futura para programaciones");
+    }
+
+    public Page<MaintenanceUnifiedResponse> getUnifiedMaintenances(
+            Long equipmentId,
+            Pageable pageable
+    ) {
+
+        List<MaintenanceUnifiedResponse> all = new ArrayList<>();
+
+        // 🔵 PROGRAMADOS
+        List<MaintenanceScheduleEntity> schedules =
+                repository.findByEquipmentIdOrderByScheduledDateAsc(equipmentId);
+
+        schedules.forEach(s -> all.add(
+                MaintenanceUnifiedResponse.builder()
+                        .id(s.getIdSchedule())
+                        .equipmentId(s.getEquipmentId())
+                        .type(s.getType().getName())
+                        .date(s.getScheduledDate()) // 👈 importante
+                        .status(s.getStatus().name())
+                        .source("SCHEDULE")
+                        .build()
+        ));
+
+        // 🟢 REALIZADOS
+        List<MaintenanceEntity> maintenances =
+               maintenanceRepository.findByEquipmentId(equipmentId);
+
+        maintenances.forEach(m -> all.add(
+                MaintenanceUnifiedResponse.builder()
+                        .id(m.getEquipmentId())
+                        .equipmentId(m.getEquipmentId())
+                        .type(m.getType().getName())
+                        .date(m.getDate())
+                        .status(m.getStatus().name())
+                        .source("MAINTENANCE")
+                        .build()
+        ));
+
+        // 🔥 ORDEN
+        all.sort(Comparator.comparing(MaintenanceUnifiedResponse::getDate));
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), all.size());
+
+        List<MaintenanceUnifiedResponse> pageContent =
+                all.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, all.size());
     }
 
     private MaintenanceScheduleResponse mapToResponse(MaintenanceScheduleEntity e) {
