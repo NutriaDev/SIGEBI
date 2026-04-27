@@ -21,6 +21,4 @@ public class MaintenanceScheduleRequest {
     @NotNull(message = "La fecha programada es obligatoria")
     private LocalDateTime scheduledDate;
 
-    @NotNull(message = "El técnico es obligatorio")
-    private Long technicianId;
 }

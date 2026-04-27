@@ -30,9 +30,6 @@ public class MaintenanceScheduleEntity {
     @Column(nullable = false)
     private LocalDateTime scheduledDate;
 
-    @Column(name = "responsible_user_id", nullable = false)
-    private Long responsibleUserId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MaintenanceStatus status;

@@ -38,7 +38,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         if (!jwtUtils.isValid(token)) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token inválido");
             return;
         }
 

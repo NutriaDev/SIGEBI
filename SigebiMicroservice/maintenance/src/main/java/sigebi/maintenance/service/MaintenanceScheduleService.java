@@ -48,7 +48,6 @@ public class MaintenanceScheduleService {
                 .equipmentId(request.getEquipmentId())
                 .type(type)
                 .scheduledDate(request.getScheduledDate())
-                .responsibleUserId(request.getTechnicianId())
                 .status(MaintenanceStatus.PENDIENTE)
                 .build();
 
@@ -72,9 +71,6 @@ public class MaintenanceScheduleService {
         if (request.getMaintenanceType() == null)
             throw new BusinessException("TYPE_REQUIRED", "El tipo de mantenimiento es obligatorio");
 
-        if (request.getTechnicianId() == null)
-            throw new BusinessException("TECHNICIAN_REQUIRED", "El técnico es obligatorio");
-
         if (request.getScheduledDate() == null)
             throw new BusinessException("DATE_REQUIRED", "La fecha programada es obligatoria");
 
@@ -89,7 +85,7 @@ public class MaintenanceScheduleService {
                 .maintenanceType(e.getType().getName())
                 .scheduledDate(e.getScheduledDate())
                 .status(e.getStatus().name())
-                .technicianName("Pendiente integración usuario")
+                .technicianName("Pendiente asignacion")
                 .build();
     }
 }
