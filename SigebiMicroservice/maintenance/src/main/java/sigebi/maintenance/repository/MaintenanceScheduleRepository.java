@@ -8,6 +8,7 @@ import sigebi.maintenance.entities.MaintenanceScheduleEntity;
 import sigebi.maintenance.entities.MaintenanceStatus;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public interface MaintenanceScheduleRepository extends JpaRepository<Maintenance
 
     Optional<MaintenanceScheduleEntity> findByEquipmentIdAndScheduledDateAndStatus(
             Long equipmentId,
-            LocalDateTime scheduledDate,
+            ZonedDateTime scheduledDate,
             MaintenanceStatus status
     );
 

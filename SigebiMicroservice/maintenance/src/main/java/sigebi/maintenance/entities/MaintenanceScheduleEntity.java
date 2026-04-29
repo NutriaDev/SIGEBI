@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Future;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import lombok.*;
 
 @Getter
@@ -28,7 +30,7 @@ public class MaintenanceScheduleEntity {
     private MaintenanceTypeEntity type;
 
     @Column(nullable = false)
-    private LocalDateTime scheduledDate;
+    private ZonedDateTime scheduledDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

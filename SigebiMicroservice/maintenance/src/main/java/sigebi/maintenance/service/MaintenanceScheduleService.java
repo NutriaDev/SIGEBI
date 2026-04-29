@@ -18,6 +18,9 @@ import sigebi.maintenance.repository.MaintenanceScheduleRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -82,8 +85,11 @@ public class MaintenanceScheduleService {
         if (request.getScheduledDate() == null)
             throw new BusinessException("DATE_REQUIRED", "La fecha programada es obligatoria");
 
-        if (!request.getScheduledDate().isAfter(LocalDateTime.now()))
-            throw new BusinessException("INVALID_DATE", "La fecha debe ser futura para programaciones");
+        // En la entidad y DTOs, cambia LocalDateTime → ZonedDateTime
+        ZoneId colombiaZone = ZoneId.of("America/Bogota");
+
+        if (!request.getScheduledDate().isAfter(ZonedDateTime.now(colombiaZone)))
+            throw new BusinessException("INVALID_DATE", "La fecha debe ser futura");
     }
 
     public Page<MaintenanceUnifiedResponse> getUnifiedMaintenances(
@@ -117,7 +123,7 @@ public class MaintenanceScheduleService {
                         .id(m.getEquipmentId())
                         .equipmentId(m.getEquipmentId())
                         .type(m.getType().getName())
-                        .date(m.getDate())
+                        .date(ZonedDateTime.from(m.getDate()))
                         .status(m.getStatus().name())
                         .source("MAINTENANCE")
                         .build()

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -19,6 +20,6 @@ public class MaintenanceScheduleRequest {
     private Long maintenanceType;
 
     @NotNull(message = "La fecha programada es obligatoria")
-    private LocalDateTime scheduledDate;
+    private ZonedDateTime scheduledDate;
 
 }
