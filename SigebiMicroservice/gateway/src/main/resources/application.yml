@@ -81,6 +81,12 @@ spring:
           predicates:
             - Path=/api/inventories/**,/api/movements/**
 
+        # 🛠 MAINTENANCE
+        - id: ms-maintenance
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/maintenance/**
+
       globalcors:
         corsConfigurations:
           '[/**]':

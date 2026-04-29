@@ -74,10 +74,14 @@ INSERT INTO auth_permission (id, name, description) VALUES
 
 -- MOVEMENTS
 (gen_random_uuid(), 'movement.create', 'Registrar movimientos'),
-(gen_random_uuid(), 'movement.read', 'Ver movimientos');
+(gen_random_uuid(), 'movement.read', 'Ver movimientos'),
 
-(gen_random_uuid(), 'equipment.update', 'Actualizar equipos')
+--MAINTENANCE
+(gen_random_uuid(), 'maintenance.create', 'Programar mantenimiento'),
+(gen_random_uuid(), 'maintenance.read',   'Ver mantenimientos'),
+(gen_random_uuid(), 'maintenance.update', 'Actualizar mantenimiento')
 ON CONFLICT (name) DO NOTHING;
+
 
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
@@ -136,7 +140,10 @@ JOIN auth_permission p ON p.name IN (
   'equipment.area.read',
   'inventory.create',
   'movement.create',
-  'movement.read'
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
 
 
 )
@@ -175,7 +182,10 @@ JOIN auth_permission p ON p.name IN (
   'equipment.area.read',
   'inventory.create',
   'movement.create',
-  'movement.read'
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
 
 )
 WHERE r.name = 'SUPERVISOR'
@@ -206,7 +216,11 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.create',
   'equipment.classification.update',
   'equipment.area.read',
-  'movement.read'
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
+
 
 )
 WHERE r.name = 'TECNICO'
