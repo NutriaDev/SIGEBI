@@ -1,1 +1,5 @@
-sigebi\inventory\InventoryApplicationTests.class
+inventory\service\InventoryServiceTest.class
+inventory\service\MovementQueryServiceTest.class
+inventory\InventoryApplicationTests.class
+inventory\service\InventoryQueryServiceTest.class
+inventory\service\MovementServiceTest.class

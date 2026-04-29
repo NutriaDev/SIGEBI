@@ -1,24 +1,40 @@
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\controllers\InventoryController.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\controllers\InventoryQueryController.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\controllers\MovementController.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\InventoryDetailRequest.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\InventoryRequest.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\MovementRequest.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\response\InventoryResponse.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\response\MovementResponse.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\dto\response\PagedResponse.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\entities\EquipmentEntity.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\entities\InventoryDetailEntity.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\entities\InventoryEntity.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\entities\LocationEntity.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\entities\MovementEntity.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\handlers\GlobalExceptionHandler.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\InventoryApplication.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\repositories\EquipmentRepository.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\repositories\InventoryRepository.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\repositories\LocationRepository.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\repositories\MovementRepository.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\services\InventoryQueryService.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\services\InventoryService.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\services\MovementService.java
-C:\Users\karen\Documents\GitHub\PORTAFOLIO N\HV\SIGEBI\SigebiMicroservice\inventory\src\main\java\sigebi\inventory\specifications\InventorySpecifications.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\client\EquipmentClient.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\config\FeignConfig.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\constants\MovementType.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\InventoryController.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\InventoryQueryController.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\MovementController.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\MovementQueryController.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_request\InventoryDetailRequest.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_request\InventoryRequest.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_request\MovementRequest.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_request\UpdateEquipmentLocationRequest.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_request\UpdateLocationRequest.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\ApiResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\EquipmentResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryDetailResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryWithDetailResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\MovementResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\PagedResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\InventoryDetailEntity.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\InventoryEntity.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\MovementEntity.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\BusinessException.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\EquipmentNotFoundException.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\GlobalExceptionHandler.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\UnauthorizedException.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\ValidationException.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\InventoryApplication.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\repository\InventoryRepository.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\repository\MovementRepository.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\security\JwtAuthorizationFilter.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\security\JwtUtils.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\security\SecurityConfig.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\service\InventoryQueryService.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\service\InventoryService.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\service\MovementQueryService.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\service\MovementService.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\specifications\InventorySpecifications.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\specifications\MovementSpecifications.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\util\RoleValidator.java
