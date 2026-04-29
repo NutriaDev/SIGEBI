@@ -67,7 +67,7 @@ public class MaintenanceScheduleService {
 
     public Page<MaintenanceScheduleResponse> getOverdueSchedules(Pageable pageable) {
         return repository.findByScheduledDateBeforeAndStatus(
-                        LocalDateTime.now(),
+                        ZonedDateTime.now(ZoneId.of("America/Bogota")),
                         MaintenanceStatus.PENDIENTE,
                         pageable
                 )

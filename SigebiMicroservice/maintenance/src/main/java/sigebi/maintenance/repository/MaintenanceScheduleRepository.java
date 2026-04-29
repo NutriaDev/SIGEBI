@@ -21,7 +21,7 @@ public interface MaintenanceScheduleRepository extends JpaRepository<Maintenance
     );
 
     Page<MaintenanceScheduleEntity> findByScheduledDateBeforeAndStatus(
-            LocalDateTime scheduledDate,
+            ZonedDateTime scheduledDate,
             MaintenanceStatus status,
             Pageable pageable
     );
