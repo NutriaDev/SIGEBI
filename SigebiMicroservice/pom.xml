@@ -23,6 +23,7 @@
         <module>maintenance</module>
         <module>cms</module>
         <module>inventory</module>
+        <module>reportsandaudit</module>
 
     </modules>
 
