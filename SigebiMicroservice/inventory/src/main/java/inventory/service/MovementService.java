@@ -89,9 +89,8 @@ public class MovementService {
         ReportEvent reportEvent = ReportEvent.builder()
                 .eventType("MOVEMENT")
                 .equipmentId(equipmentId)
-                .equipmentName("Equipo-" + equipmentId)
-                .location("Destino-" + req.destinationLocationId())
-                .status("COMPLETED")
+                .location("DEST-" + req.destinationLocationId())
+                .status("MOVED")
                 .date(LocalDate.now())
                 .build();
         reportEventProducer.send(reportEvent);

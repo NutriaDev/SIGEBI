@@ -15,7 +15,40 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(ex.getStatus()).body(
+                ErrorResponse.builder()
+                        .code(ex.getCode())
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(EmptyResultException.class)
+    public ResponseEntity<ErrorResponse> handleEmptyResult(EmptyResultException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(
+                ErrorResponse.builder()
+                        .code(ex.getCode())
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<ErrorResponse> handlePermissionDenied(PermissionDeniedException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(
+                ErrorResponse.builder()
+                        .code(ex.getCode())
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(ReportTooLargeException.class)
+    public ResponseEntity<ErrorResponse> handleReportTooLarge(ReportTooLargeException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(
                 ErrorResponse.builder()
                         .code(ex.getCode())
                         .message(ex.getMessage())

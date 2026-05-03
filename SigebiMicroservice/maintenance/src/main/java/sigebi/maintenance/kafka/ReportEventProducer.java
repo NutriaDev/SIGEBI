@@ -1,4 +1,4 @@
-package inventory.kafka;
+package sigebi.maintenance.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

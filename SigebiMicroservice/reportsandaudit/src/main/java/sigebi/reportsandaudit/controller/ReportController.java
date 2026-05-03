@@ -11,10 +11,11 @@ import sigebi.reportsandaudit.dto_request.ReportRequest;
 import sigebi.reportsandaudit.dto_response.ApiResponse;
 import sigebi.reportsandaudit.dto_response.ReportResponse;
 import sigebi.reportsandaudit.entities.*;
-import sigebi.reportsandaudit.service.ReportService;
-import sigebi.reportsandaudit.service.ReportViewService;
+import sigebi.reportsandaudit.exception.EmptyResultException;
+import sigebi.reportsandaudit.service.*;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -24,12 +25,44 @@ public class ReportController {
 
     private final ReportService reportService;
     private final ReportViewService reportViewService;
+    private final ReportExportService reportExportService;
+    private final ReportPermissionValidator reportPermissionValidator;
+    private final AuditService auditService;
 
     private Long getAuthenticatedUserId() {
         return (Long) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
+    }
+
+    private String getUserRole() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElse("");
+    }
+
+    private String getClientIp() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getDetails() != null
+                ? SecurityContextHolder.getContext().getAuthentication().getDetails().toString()
+                : "unknown";
+    }
+
+    private Collection<String> getAuthorities() {
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .map(a -> a.getAuthority())
+                .toList();
     }
 
     @PostMapping
@@ -415,6 +448,127 @@ public class ReportController {
                         .title("Reporte consolidado con filtros")
                         .message("Consulta realizada correctamente")
                         .body(result)
+                        .build()
+        );
+    }
+
+    @GetMapping("/export/{reportId}")
+    @PreAuthorize("hasAuthority('report.export')")
+    public ResponseEntity<byte[]> exportReport(
+            @PathVariable Long reportId,
+            @RequestParam(defaultValue = "CSV") ReportFormat format
+    ) {
+        Long userId = getAuthenticatedUserId();
+        var authorities = getAuthorities(); // 🔥 NUEVO
+
+        // 🔥 VALIDACIÓN CORRECTA (sin roles)
+        reportPermissionValidator.validateExportPermission(
+                reportId,
+                userId,
+                authorities
+        );
+
+        ReportResponse report = reportService.getReportById(reportId);
+        ReportType reportType = ReportType.valueOf(report.getType());
+
+        LocalDate from = LocalDate.now().minusDays(30);
+        LocalDate to = LocalDate.now();
+
+        ReportExportStrategy strategy = reportExportService.getStrategy(format);
+
+        byte[] fileContent = reportExportService.export(
+                format,
+                reportType,
+                from,
+                to,
+                null,
+                null
+        );
+
+        if (fileContent.length == 0) {
+            throw new EmptyResultException("No hay datos para exportar");
+        }
+
+        // 🔥 AUDITORÍA (correcta)
+        auditService.logDownload(
+                reportId,
+                report.getType(),
+                format.name(),
+                userId,
+                getClientIp()
+        );
+
+        String filename = "reporte_" + reportType + "_" + System.currentTimeMillis()
+                + "." + strategy.getFileExtension();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(strategy.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\"")
+                .body(fileContent);
+    }
+
+    @GetMapping("/export/direct")
+    @PreAuthorize("hasAuthority('report.export')")
+    public ResponseEntity<byte[]> exportDirectReport(
+            @RequestParam ReportType type,
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to,
+            @RequestParam(required = false) Long equipmentId,
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "CSV") ReportFormat format
+    ) {
+        Long userId = getAuthenticatedUserId();
+
+        ReportExportStrategy strategy = reportExportService.getStrategy(format);
+        byte[] fileContent = reportExportService.export(format, type, from, to, equipmentId, location);
+
+        if (fileContent.length == 0) {
+            throw new sigebi.reportsandaudit.exception.EmptyResultException("No hay datos para exportar con los filtros especificados");
+        }
+
+        auditService.logDownload(null, type.name(), format.name(), userId, getClientIp());
+
+        String filename = "reporte_" + type + "_" + System.currentTimeMillis() + "." + strategy.getFileExtension();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(strategy.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(fileContent);
+    }
+
+    @PostMapping("/export/{reportId}/audit-download")
+    @PreAuthorize("hasAuthority('report.export')")
+    public ResponseEntity<ApiResponse> logDownloadAudit(
+            @PathVariable Long reportId,
+            @RequestParam String format
+    ) {
+        Long userId = getAuthenticatedUserId();
+        var authorities = getAuthorities(); // 🔥 NUEVO
+
+        // 🔥 VALIDACIÓN CORRECTA
+        reportPermissionValidator.validateExportPermission(
+                reportId,
+                userId,
+                authorities
+        );
+
+        ReportResponse report = reportService.getReportById(reportId);
+
+        auditService.logDownload(
+                reportId,
+                report.getType(),
+                format,
+                userId,
+                getClientIp()
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status("success")
+                        .title("Descarga registrada")
+                        .message("Auditoria de descarga registrada correctamente")
+                        .body(null)
                         .build()
         );
     }

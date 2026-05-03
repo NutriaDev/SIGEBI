@@ -13,6 +13,8 @@ import inventory.dto_request.InventoryRequest;
 import inventory.entities.InventoryEntity;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
+import inventory.kafka.ReportEvent;
+import inventory.kafka.ReportEventProducer;
 import inventory.repository.InventoryRepository;
 import inventory.util.RoleValidator;
 
@@ -29,6 +31,7 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
+    private final ReportEventProducer reportEventProducer;
 
     @Transactional
     public String createPhysicalInventory(InventoryRequest req) {
@@ -94,6 +97,15 @@ public class InventoryService {
                         + inconsistencies);
 
         inventoryRepository.save(inv);
+
+        ReportEvent reportEvent = ReportEvent.builder()
+                .eventType("INVENTORY")
+                .equipmentId(req.details().get(0).equipmentId())
+                .location(req.location())
+                .status("INVENTORIED")
+                .date(LocalDate.now())
+                .build();
+        reportEventProducer.send(reportEvent);
 
         log.info("Inventario creado correctamente — locationId={}", req.locationId());
         return "Inventario realizado correctamente";

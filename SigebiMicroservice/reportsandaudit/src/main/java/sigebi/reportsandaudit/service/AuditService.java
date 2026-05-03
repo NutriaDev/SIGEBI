@@ -58,6 +58,34 @@ public class AuditService {
         return auditLogRepository.findByModule(module, pageable).map(this::mapToResponse);
     }
 
+    public void logDownload(Long reportId, String reportType, String format, Long userId, String ipAddress) {
+        AuditLogEntity entity = AuditLogEntity.builder()
+                .userId(userId)
+                .action("DOWNLOAD_REPORT")
+                .module("REPORTS")
+                .entityId(reportId)
+                .entityType("ReportEntity")
+                .details("Descarga de reporte tipo=" + reportType + " formato=" + format)
+                .timestamp(LocalDateTime.now())
+                .ipAddress(ipAddress)
+                .build();
+
+        auditLogRepository.save(entity);
+
+        AuditEvent event = AuditEvent.builder()
+                .userId(userId)
+                .action("DOWNLOAD_REPORT")
+                .module("REPORTS")
+                .entityId(reportId)
+                .entityType("ReportEntity")
+                .details("Descarga de reporte tipo=" + reportType + " formato=" + format)
+                .timestamp(entity.getTimestamp())
+                .ipAddress(ipAddress)
+                .build();
+
+        auditEventProducer.sendAuditEvent(event);
+    }
+
     public Page<AuditLogResponse> getLogsByAction(String action, Pageable pageable) {
         return auditLogRepository.findByAction(action, pageable).map(this::mapToResponse);
     }
