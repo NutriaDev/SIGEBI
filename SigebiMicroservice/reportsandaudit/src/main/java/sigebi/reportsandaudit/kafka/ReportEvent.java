@@ -11,11 +11,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class ReportEvent {
 
-    private String eventType; // MOVEMENT, MAINTENANCE, INVENTORY
-
-    private Long equipmentId;
-    private String location;
-    private String maintenanceType;
-
-    private LocalDate date;
+    private Long reportId;
+    private String type;
+    private String format;
+    private Long createdBy;
+    private String status;
 }

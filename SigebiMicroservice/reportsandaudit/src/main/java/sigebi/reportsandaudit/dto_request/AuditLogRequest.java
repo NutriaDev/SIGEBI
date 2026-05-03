@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
+@Data
 public class AuditLogRequest {
 
     @NotBlank(message = "La acción es obligatoria")
@@ -27,19 +27,4 @@ public class AuditLogRequest {
 
     @NotBlank(message = "La IP es obligatoria")
     private String ipAddress;
-
-    public String getAction() { return action; }
-    public void setAction(String action) { this.action = action; }
-    public String getModule() { return module; }
-    public void setModule(String module) { this.module = module; }
-    public Long getEntityId() { return entityId; }
-    public void setEntityId(Long entityId) { this.entityId = entityId; }
-    public String getEntityType() { return entityType; }
-    public void setEntityType(String entityType) { this.entityType = entityType; }
-    public String getDetails() { return details; }
-    public void setDetails(String details) { this.details = details; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
-    public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 }
