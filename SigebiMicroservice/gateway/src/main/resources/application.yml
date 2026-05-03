@@ -87,6 +87,12 @@ spring:
           predicates:
             - Path=/api/maintenance/**
 
+        # 📊 REPORTS & AUDIT
+        - id: ms-reports-and-audit
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/reports/**,/api/audit/**
+
       globalcors:
         corsConfigurations:
           '[/**]':

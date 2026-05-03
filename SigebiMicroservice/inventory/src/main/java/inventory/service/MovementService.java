@@ -10,14 +10,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import inventory.client.EquipmentClient;
 import inventory.dto_response.EquipmentResponse;
-import inventory.dto_request.UpdateLocationRequest;
+import inventory.dto_request.UpdateEquipmentLocationRequest;
 import inventory.dto_request.MovementRequest;
 import inventory.entities.MovementEntity;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
+import inventory.kafka.ReportEvent;
+import inventory.kafka.ReportEventProducer;
 import inventory.repository.MovementRepository;
 import inventory.util.RoleValidator;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @Slf4j
@@ -28,6 +31,7 @@ public class MovementService {
     private final MovementRepository movementRepository;
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
+    private final ReportEventProducer reportEventProducer;
 
     @SuppressWarnings("unchecked")
     private EquipmentResponse validateEquipment(String serial) {
@@ -81,6 +85,16 @@ public class MovementService {
                 .build();
 
         movementRepository.save(movement);
+
+        ReportEvent reportEvent = ReportEvent.builder()
+                .eventType("MOVEMENT")
+                .equipmentId(equipmentId)
+                .equipmentName("Equipo-" + equipmentId)
+                .location("Destino-" + req.destinationLocationId())
+                .status("COMPLETED")
+                .date(LocalDate.now())
+                .build();
+        reportEventProducer.send(reportEvent);
 
         // 🔥 4. ACTUALIZAR UBICACIÓN EN EQUIPMENT
         try {
