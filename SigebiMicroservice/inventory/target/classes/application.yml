@@ -28,11 +28,18 @@ spring:
     init:
       mode: never
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
   data:
     web:
       pageable:
         default-page-size: 10
         max-page-size: 100
+
+kafka:
+  topics:
+    report-events: sigebi-report-events
 
 eureka:
   instance:

@@ -14,6 +14,7 @@ import sigebi.reportsandaudit.kafka.AuditEvent;
 import sigebi.reportsandaudit.kafka.ReportEvent;
 import sigebi.reportsandaudit.repository.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -51,11 +52,13 @@ public class ReportService {
         auditEventProducer.sendAuditEvent(auditEvent);
 
         ReportEvent reportEvent = ReportEvent.builder()
-                .reportId(saved.getId())
-                .type(saved.getType().name())
-                .format(saved.getFormat().name())
-                .createdBy(saved.getCreatedBy())
+                .eventType("REPORT") // identificador del tipo
+                .equipmentId(saved.getId()) // reutilizamos el campo
+                .equipmentName("REPORT-" + saved.getId())
+                .location("SYSTEM")
+                .maintenanceType(saved.getType().name())
                 .status(saved.getStatus().name())
+                .date(java.time.LocalDate.now())
                 .build();
         reportEventProducer.sendReportEvent(reportEvent);
 
@@ -88,10 +91,13 @@ public class ReportService {
         ReportEntity saved = reportRepository.save(entity);
 
         ReportEvent reportEvent = ReportEvent.builder()
-                .reportId(saved.getId())
-                .type(saved.getType().name())
+                .eventType("REPORT") // identificador del tipo
+                .equipmentId(saved.getId()) // reutilizamos el campo
+                .equipmentName("REPORT-" + saved.getId())
+                .location("SYSTEM")
+                .maintenanceType(saved.getType().name())
                 .status(saved.getStatus().name())
-                .createdBy(saved.getCreatedBy())
+                .date(java.time.LocalDate.now())
                 .build();
         reportEventProducer.sendReportEvent(reportEvent);
 
@@ -125,4 +131,6 @@ public class ReportService {
                 .filters(e.getFilters())
                 .build();
     }
+
+
 }
