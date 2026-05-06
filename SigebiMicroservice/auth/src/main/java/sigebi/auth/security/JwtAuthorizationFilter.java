@@ -34,7 +34,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         return path.startsWith("/auth/login") ||
                 path.startsWith("/auth/refresh") ||
-                path.startsWith("/auth/logout");
+                path.startsWith("/auth/logout") ||
+                path.startsWith("/internal/auth");
+
     }
 
 

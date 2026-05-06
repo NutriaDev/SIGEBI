@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="equipment" />
+        <module name="inventory" />
         <module name="config" />
         <module name="eureka" />
         <module name="users" />
@@ -28,8 +29,18 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="cms" />
+      </profile>
+      <profile name="Annotation profile for maintenance" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="maintenance" />
       </profile>
       <profile name="Annotation profile for SigebiMicroservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -42,19 +53,19 @@
         <module name="gateway" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="JWT" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="JWT" options="-parameters" />
+      <module name="SigebiMicroservice" options="-parameters" />
       <module name="auth" options="-parameters" />
       <module name="cms" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="equipment" options="-parameters" />
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="inventory" options="-parameters" />
+      <module name="maintenance" options="-parameters" />
       <module name="users" options="-parameters" />
     </option>
   </component>

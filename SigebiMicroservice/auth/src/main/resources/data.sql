@@ -66,14 +66,30 @@ INSERT INTO auth_permission (id, name, description) VALUES
 -- EQUIPOS
 (gen_random_uuid(), 'equipment.create', 'Crear equipos'),
 (gen_random_uuid(), 'equipment.read', 'Ver equipos'),
-(gen_random_uuid(), 'equipment.update', 'Actualizar equipos');
+(gen_random_uuid(), 'equipment.update', 'Actualizar equipos'),
+
+-- INVENTORY
+(gen_random_uuid(), 'inventory.create', 'Crear inventarios'),
+(gen_random_uuid(), 'inventory.read', 'Ver inventarios'),
+
+-- MOVEMENTS
+(gen_random_uuid(), 'movement.create', 'Registrar movimientos'),
+(gen_random_uuid(), 'movement.read', 'Ver movimientos'),
+
+--MAINTENANCE
+(gen_random_uuid(), 'maintenance.create', 'Programar mantenimiento'),
+(gen_random_uuid(), 'maintenance.read',   'Ver mantenimientos'),
+(gen_random_uuid(), 'maintenance.update', 'Actualizar mantenimiento')
+ON CONFLICT (name) DO NOTHING;
+
 
 -- 3️⃣ INSERTAR ROLES
 INSERT INTO auth_role (id, name) VALUES
 (gen_random_uuid(), 'SUPERADMIN'),
 (gen_random_uuid(), 'ADMIN'),
 (gen_random_uuid(), 'SUPERVISOR'),
-(gen_random_uuid(), 'TECNICO');
+(gen_random_uuid(), 'TECNICO')
+ON CONFLICT (name) DO NOTHING;
 
 -- 4️⃣ ASIGNAR PERMISOS A ROLES
 
@@ -121,7 +137,14 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.update',
   'equipment.area.create',
   'equipment.area.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'inventory.create',
+  'movement.create',
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
+
 
 )
 WHERE r.name = 'ADMIN'
@@ -156,7 +179,13 @@ JOIN auth_permission p ON p.name IN (
   'equipment.location.update',
   'equipment.classification.create',
   'equipment.classification.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'inventory.create',
+  'movement.create',
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
 
 )
 WHERE r.name = 'SUPERVISOR'
@@ -186,7 +215,12 @@ JOIN auth_permission p ON p.name IN (
   'equipment.location.update',
   'equipment.classification.create',
   'equipment.classification.update',
-  'equipment.area.read'
+  'equipment.area.read',
+  'movement.read',
+  'maintenance.create',
+  'maintenance.read',
+  'maintenance.update'
+
 
 )
 WHERE r.name = 'TECNICO'

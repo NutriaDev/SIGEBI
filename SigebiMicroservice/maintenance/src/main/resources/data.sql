@@ -1,0 +1,4 @@
+INSERT INTO maintenance_types (name) VALUES
+('PREVENTIVO'),
+('CORRECTIVO'),
+('CALIBRACION');

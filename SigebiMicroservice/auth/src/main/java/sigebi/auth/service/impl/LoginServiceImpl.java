@@ -12,10 +12,7 @@ import sigebi.auth.client.UserInternalClient;
 import sigebi.auth.entities.RefreshTokenEntity;
 import sigebi.auth.entities.SessionEntity;
 import sigebi.auth.repository.RefreshTokenRepository;
-import sigebi.auth.service.JwtService;
-import sigebi.auth.service.LoginService;
-import sigebi.auth.service.PermissionService;
-import sigebi.auth.service.SessionService;
+import sigebi.auth.service.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -30,6 +27,7 @@ public class LoginServiceImpl implements LoginService {
     private final JwtService jwtService;
     private final PermissionService permissionService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailService emailService;
 
     public LoginResponse login(LoginRequest request) {
 
@@ -50,9 +48,6 @@ public class LoginServiceImpl implements LoginService {
             // 3️⃣ Resolver permisos por roles (AQUÍ ESTÁ LA MAGIA)
             List<String> permissions =
                     permissionService.getPermissionsByRoles(authData.roles());
-
-            System.out.println("ROLES DESDE USERS: " + authData.roles());
-            System.out.println("PERMISSIONS: " + permissions);
 
             //emitir JWT con roles y permisos
 
@@ -75,6 +70,14 @@ public class LoginServiceImpl implements LoginService {
                     .build();
             refreshTokenRepository.save(refreshToken);
 
+            emailService.sendLoginNotificationEmail(
+                    authData.email(),
+                    authData.name(),
+                    request.getIp(),
+                    request.getUserAgent(),
+                    Instant.now().toString()
+            );
+
 
 
             return LoginResponse.builder()
@@ -87,11 +90,11 @@ public class LoginServiceImpl implements LoginService {
         } catch (FeignException ex) {
 
             if (ex.status() == 401) {
-                throw new BadCredentialsException("Invalid credentials");
+                throw new BadCredentialsException("Credenciales invalidas");
             }
 
             if (ex.status() == 403) {
-                throw new RuntimeException("User disabled");
+                throw new RuntimeException("Usuario deshabilitado");
             }
 
             throw ex; // cualquier otro error real

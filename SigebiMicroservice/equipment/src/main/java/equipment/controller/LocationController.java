@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -58,6 +60,15 @@ public class LocationController {
                 "Active locations retrieved",
                 "Paginated active locations",
                 locationService.getActiveLocations(pageable)
+        );
+    }
+
+    @GetMapping("/active/all")
+    public ResponseEntity<Response> getAllActive() {
+        return ApiResponse.success(
+                "Ubicaciones activas",
+                "Listado completo de ubicaciones activas",
+                locationService.getAllActive(true)
         );
     }
 

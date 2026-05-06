@@ -28,6 +28,7 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/equipments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
