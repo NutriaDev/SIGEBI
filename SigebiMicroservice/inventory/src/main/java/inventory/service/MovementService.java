@@ -1,8 +1,12 @@
 package inventory.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import inventory.client.UserClient;
 import inventory.dto_request.UpdateEquipmentLocationRequest;
 import inventory.dto_response.ApiResponse;
+import inventory.dto_response.UserResponse;
+import inventory.kafka.MovementEvent;
+import inventory.kafka.MovementEventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,18 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import inventory.client.EquipmentClient;
 import inventory.dto_response.EquipmentResponse;
-import inventory.dto_request.UpdateEquipmentLocationRequest;
 import inventory.dto_request.MovementRequest;
 import inventory.entities.MovementEntity;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
-import inventory.kafka.ReportEvent;
-import inventory.kafka.ReportEventProducer;
 import inventory.repository.MovementRepository;
-import inventory.util.RoleValidator;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -31,7 +30,9 @@ public class MovementService {
     private final MovementRepository movementRepository;
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
-    private final ReportEventProducer reportEventProducer;
+    private final UserClient userClient;
+    private final MovementEventProducer movementEventProducer;
+
 
     @SuppressWarnings("unchecked")
     private EquipmentResponse validateEquipment(String serial) {
@@ -86,14 +87,22 @@ public class MovementService {
 
         movementRepository.save(movement);
 
-        ReportEvent reportEvent = ReportEvent.builder()
-                .eventType("MOVEMENT")
+        String responsibleName = "Usuario-" + userId; // fallback
+        try {
+            UserResponse user = userClient.getUserById(userId);
+            if (user != null) responsibleName = user.getName();
+        } catch (Exception e) {
+            log.warn("No se pudo obtener nombre del responsable: {}", e.getMessage());
+        }
+
+        MovementEvent movementEvent = MovementEvent.builder()
                 .equipmentId(equipmentId)
-                .location("DEST-" + req.destinationLocationId())
-                .status("MOVED")
+                .originLocationId(req.originLocationId())
+                .destinationLocationId(req.destinationLocationId())
                 .date(LocalDate.now())
+                .responsibleUserName(responsibleName) // ← necesitas resolver esto
                 .build();
-        reportEventProducer.send(reportEvent);
+        movementEventProducer.send(movementEvent);
 
         // 🔥 4. ACTUALIZAR UBICACIÓN EN EQUIPMENT
         try {

@@ -47,8 +47,8 @@ spring:
       properties:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: "sigebi.reportsandaudit.kafka,sigebi.maintenance.kafka"
-        spring.json.type.mapping: "sigebi.maintenance.kafka.ReportEvent:sigebi.reportsandaudit.kafka.ReportEvent"
+        spring.json.trusted.packages: "sigebi.reportsandaudit.kafka,sigebi.maintenance.kafka,inventory.kafka"
+        spring.json.type.mapping: "sigebi.maintenance.kafka.ReportEvent:sigebi.reportsandaudit.kafka.ReportEvent,inventory.kafka.MovementEvent:sigebi.reportsandaudit.kafka.MovementEvent,inventory.kafka.InventoryEvent:sigebi.reportsandaudit.kafka.InventoryEvent"
 
 eureka:
   instance:

@@ -42,7 +42,8 @@ spring:
 
 kafka:
   topics:
-    report-events: sigebi-report-events
+    movement-events: sigebi-movement-events
+    inventory-events: sigebi-inventory-events
 
 eureka:
   instance:
@@ -59,3 +60,6 @@ feign:
 # Feign — URL del Equipment MS
 equipment-service:
   url: http://localhost:8091
+
+user-service:
+  url: http://localhost:8090

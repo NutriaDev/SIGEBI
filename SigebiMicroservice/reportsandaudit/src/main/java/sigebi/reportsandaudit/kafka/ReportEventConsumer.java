@@ -20,7 +20,6 @@ public class ReportEventConsumer {
     private final ConsolidatedReportViewRepository consolidatedRepository;
     private final MaintenanceReportViewRepository maintenanceRepository;
 
-    // ❌ Eliminar ObjectMapper - ya no se necesita
 
     @KafkaListener(
             topics = "${kafka.topics.report-events}",

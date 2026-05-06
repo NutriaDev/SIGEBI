@@ -11,16 +11,12 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportEvent {
-
-    private String eventType;
-
-    private Long equipmentId;
-    private String equipmentName;
-    private String location;
-
-    private String maintenanceType;
-    private String status;
-
+public class InventoryEvent {
+    private Long locationId;
+    private String locationName;
     private LocalDate date;
+    private Integer totalEquipments;
+    private Integer activeEquipments;
+    private Integer inactiveEquipments;
 }
+
