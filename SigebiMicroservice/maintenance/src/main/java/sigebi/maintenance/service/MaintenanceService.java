@@ -51,6 +51,8 @@ public class MaintenanceService {
                         "El tipo de mantenimiento no existe"
                 ));
 
+
+
         try {
             EquipmentApiResponse equipmentResponse = equipmentClient.getEquipmentById(request.getEquipmentId());
             if (equipmentResponse == null || !"success".equalsIgnoreCase(equipmentResponse.getStatus())) {
@@ -64,18 +66,16 @@ public class MaintenanceService {
 
         Long userId = getAuthenticatedUserId();
 
+        UserAuthDataResponse technician = null;
         try {
-            UserAuthDataResponse technician = technicianClient.getTechnicianById(userId);
+            technician = technicianClient.getTechnicianById(userId);
             if (technician == null || technician.getUserId() == null) {
                 throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
             }
         } catch (FeignException.NotFound e) {
             throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
         } catch (FeignException e) {
-            throw new BusinessException(
-                    "USER_SERVICE_ERROR",
-                    "Error users: " + e.contentUTF8()
-            );
+            throw new BusinessException("USER_SERVICE_ERROR", "Error users: " + e.contentUTF8());
         }
 
 
@@ -97,6 +97,7 @@ public class MaintenanceService {
                 .status("DONE")
                 .location("MAINTENANCE_AREA")
                 .date(LocalDate.now())
+                .technicianName(technician.getName())
                 .build();
         reportEventProducer.send(reportEvent);
 

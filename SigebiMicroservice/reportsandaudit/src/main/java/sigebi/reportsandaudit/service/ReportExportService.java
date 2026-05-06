@@ -74,7 +74,7 @@ public class ReportExportService {
                 ? movementReportViewRepository.findByEquipmentId(equipmentId, PageRequest.of(0, MAX_EXPORT_RECORDS))
                 : movementReportViewRepository.findByDateBetween(from, to, PageRequest.of(0, MAX_EXPORT_RECORDS));
 
-        List<String> headers = List.of("ID", "EquipoID", "UbicacionOrigenID", "UbicacionDestinoID", "Fecha", "ResponsableID");
+        List<String> headers = List.of("ID", "EquipoID", "UbicacionOrigen", "UbicacionDestino", "Fecha", "Responsable"); // ← "ResponsableID" → "Responsable"
         List<List<String>> rows = new ArrayList<>();
 
         page.getContent().forEach(e -> rows.add(List.of(
@@ -83,7 +83,7 @@ public class ReportExportService {
                 String.valueOf(e.getOriginLocationId()),
                 String.valueOf(e.getDestinationLocationId()),
                 String.valueOf(e.getDate()),
-                String.valueOf(e.getResponsibleUserId())
+                String.valueOf(e.getResponsibleUserName())
         )));
 
         return new ReportData(headers, rows);
@@ -94,7 +94,7 @@ public class ReportExportService {
                 ? maintenanceReportViewRepository.findByEquipmentId(equipmentId, PageRequest.of(0, MAX_EXPORT_RECORDS))
                 : maintenanceReportViewRepository.findByDateBetween(from, to, PageRequest.of(0, MAX_EXPORT_RECORDS));
 
-        List<String> headers = List.of("ID", "EquipoID", "Tipo", "Estado", "Fecha", "TecnicoID");
+        List<String> headers = List.of("ID", "EquipoID", "Tipo", "Estado", "Fecha", "Tecnico"); // ← "TecnicoID" → "Tecnico"
         List<List<String>> rows = new ArrayList<>();
 
         page.getContent().forEach(e -> rows.add(List.of(
@@ -103,7 +103,7 @@ public class ReportExportService {
                 escape(e.getType()),
                 escape(e.getStatus()),
                 String.valueOf(e.getDate()),
-                String.valueOf(e.getTechnicianId())
+                String.valueOf(e.getTechnicianName())
         )));
 
         return new ReportData(headers, rows);

@@ -23,4 +23,5 @@ public class ReportEvent {
     private String status;
 
     private LocalDate date;
+    private String technicianName;
 }

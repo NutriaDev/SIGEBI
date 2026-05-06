@@ -34,6 +34,22 @@ spring:
         default-page-size: 10
         max-page-size: 100
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: sigebi-report-group
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "sigebi.reportsandaudit.kafka,sigebi.maintenance.kafka"
+        spring.json.type.mapping: "sigebi.maintenance.kafka.ReportEvent:sigebi.reportsandaudit.kafka.ReportEvent"
+
 eureka:
   instance:
     hostname: localhost
@@ -41,26 +57,16 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
-# 🔥 CONFIGURACIÓN FEIGN
 feign:
   httpclient:
     enabled: true
 
 kafka:
-  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-  consumer:
-    group-id: sigebi-audit-group
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    properties:
-      spring.json.trusted.packages: sigebi.reportsandaudit.kafka.*
-      spring.json.value.default.type: java.lang.Object
   topics:
     audit-events: sigebi-audit-events
     report-events: sigebi-report-events
+    movement-events: sigebi-movement-events    # ← nuevo
+    inventory-events: sigebi-inventory-events
 
 equipment-service:
   url: http://localhost:8091

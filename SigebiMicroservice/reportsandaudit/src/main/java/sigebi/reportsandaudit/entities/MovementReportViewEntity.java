@@ -31,5 +31,5 @@ public class MovementReportViewEntity {
     private LocalDate date;
 
     @Column(nullable = false)
-    private Long responsibleUserId;
+    private String responsibleUserName;
 }

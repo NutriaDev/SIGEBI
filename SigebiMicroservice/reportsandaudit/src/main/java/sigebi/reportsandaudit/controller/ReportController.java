@@ -36,17 +36,6 @@ public class ReportController {
                 .getPrincipal();
     }
 
-    private String getUserRole() {
-        return SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getAuthorities()
-                .stream()
-                .findFirst()
-                .map(Object::toString)
-                .orElse("");
-    }
-
     private String getClientIp() {
         return SecurityContextHolder
                 .getContext()
