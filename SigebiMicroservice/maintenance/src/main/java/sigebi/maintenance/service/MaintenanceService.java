@@ -13,12 +13,15 @@ import sigebi.maintenance.entities.MaintenanceEntity;
 import sigebi.maintenance.entities.MaintenanceStatus;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.exception.BusinessException;
+import sigebi.maintenance.kafka.ReportEvent;
+import sigebi.maintenance.kafka.ReportEventProducer;
 import sigebi.maintenance.repository.MaintenanceRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.*;
 import feign.FeignException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -29,6 +32,7 @@ public class MaintenanceService {
     private final MaintenanceTypeRepository typeRepository;
     private final EquipmentClient equipmentClient;
     private final TechnicianClient technicianClient;
+    private final ReportEventProducer reportEventProducer;
 
     private Long getAuthenticatedUserId() {
         return (Long) SecurityContextHolder
@@ -47,6 +51,8 @@ public class MaintenanceService {
                         "El tipo de mantenimiento no existe"
                 ));
 
+
+
         try {
             EquipmentApiResponse equipmentResponse = equipmentClient.getEquipmentById(request.getEquipmentId());
             if (equipmentResponse == null || !"success".equalsIgnoreCase(equipmentResponse.getStatus())) {
@@ -60,18 +66,16 @@ public class MaintenanceService {
 
         Long userId = getAuthenticatedUserId();
 
+        UserAuthDataResponse technician = null;
         try {
-            UserAuthDataResponse technician = technicianClient.getTechnicianById(userId);
+            technician = technicianClient.getTechnicianById(userId);
             if (technician == null || technician.getUserId() == null) {
                 throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
             }
         } catch (FeignException.NotFound e) {
             throw new BusinessException("TECHNICIAN_NOT_FOUND", "El técnico no existe");
         } catch (FeignException e) {
-            throw new BusinessException(
-                    "USER_SERVICE_ERROR",
-                    "Error users: " + e.contentUTF8()
-            );
+            throw new BusinessException("USER_SERVICE_ERROR", "Error users: " + e.contentUTF8());
         }
 
 
@@ -84,7 +88,20 @@ public class MaintenanceService {
                 .status(MaintenanceStatus.REGISTRADO)
                 .build();
 
-        return mapToResponse(repository.save(entity));
+        MaintenanceEntity saved = repository.save(entity);
+
+        ReportEvent reportEvent = ReportEvent.builder()
+                .eventType("MAINTENANCE")
+                .equipmentId(request.getEquipmentId())
+                .maintenanceType(type.getName())
+                .status("DONE")
+                .location("MAINTENANCE_AREA")
+                .date(LocalDate.now())
+                .technicianName(technician.getName())
+                .build();
+        reportEventProducer.send(reportEvent);
+
+        return mapToResponse(saved);
     }
 
 

@@ -3,6 +3,8 @@ package inventory.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inventory.dto_response.ApiResponse;
 import inventory.entities.InventoryDetailEntity;
+import inventory.kafka.InventoryEvent;
+import inventory.kafka.InventoryEventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final EquipmentClient equipmentClient;
     private final ObjectMapper objectMapper;
+    private final InventoryEventProducer inventoryEventProducer;
 
     @Transactional
     public String createPhysicalInventory(InventoryRequest req) {
@@ -94,6 +97,23 @@ public class InventoryService {
                         + inconsistencies);
 
         inventoryRepository.save(inv);
+
+        int total = detailEntities.size();
+        int active = (int) detailEntities.stream()
+                .filter(d -> "ACTIVO".equalsIgnoreCase(d.getState()))
+                .count();
+        int inactive = total - active;
+
+        InventoryEvent inventoryEvent = InventoryEvent.builder()
+                .locationId(req.locationId())
+                .locationName(req.location())        // ← ya lo tienes en req
+                .date(LocalDate.now())
+                .totalEquipments(total)              // ← total de detalles
+                .activeEquipments(active)            // ← filtrado por estado
+                .inactiveEquipments(inactive)        // ← el resto
+                .build();
+
+        inventoryEventProducer.send(inventoryEvent);
 
         log.info("Inventario creado correctamente — locationId={}", req.locationId());
         return "Inventario realizado correctamente";

@@ -26,4 +26,6 @@ public class MaintenanceRequest {
     @NotBlank(message = "La descripción es obligatoria")
     @Size(min = 20, message = "La descripción debe tener al menos 20 caracteres")
     private String issueDescription;
+
+
 }
