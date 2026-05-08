@@ -42,7 +42,8 @@ class InventoryQueryServiceTest {
     void setup() {
         inventory = InventoryEntity.builder()
                 .idInventory(1L)
-                .location("Lab")
+                .locationName("Lab")
+                .responsibleName("Test User")
                 .locationId(1L)
                 .date(LocalDate.now())
                 .observations("Obs")

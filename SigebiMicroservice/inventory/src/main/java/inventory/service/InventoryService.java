@@ -1,12 +1,17 @@
 package inventory.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import inventory.client.LocationClient;
+import inventory.client.UserClient;
 import inventory.dto_response.ApiResponse;
+import inventory.dto_response.LocationResponse;
+import inventory.dto_response.UserResponse;
 import inventory.entities.InventoryDetailEntity;
 import inventory.kafka.InventoryEvent;
 import inventory.kafka.InventoryEventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import inventory.client.EquipmentClient;
@@ -16,8 +21,6 @@ import inventory.entities.InventoryEntity;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
 import inventory.repository.InventoryRepository;
-import inventory.util.RoleValidator;
-
 
 import java.time.LocalDate;
 import java.util.*;
@@ -30,19 +33,22 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final EquipmentClient equipmentClient;
+    private final UserClient userClient;
+    private final LocationClient locationClient;
     private final ObjectMapper objectMapper;
     private final InventoryEventProducer inventoryEventProducer;
 
     @Transactional
     public String createPhysicalInventory(InventoryRequest req) {
-        log.info("Creando inventario físico — locationId={}, createdBy={}",
-                req.locationId(), req.createdBy());
+        Long userId = getCurrentUserId();
+        String userName = resolveUserName(userId);
+        String locationName = resolveLocationName(req.locationId());
 
-        RoleValidator.validate(req.userRole());
+        log.info("Creando inventario físico — locationId={}, userId={}, userName={}",
+                req.locationId(), userId, userName);
 
         if (req.details() == null || req.details().isEmpty()) {
-            throw new BusinessException(
-                    "El inventario debe tener al menos un equipo");
+            throw new BusinessException("El inventario debe tener al menos un equipo");
         }
 
         List<Long> physicalIds = req.details().stream()
@@ -56,11 +62,12 @@ public class InventoryService {
                 ));
 
         InventoryEntity inv = InventoryEntity.builder()
-                .location(req.location())
+                .locationName(locationName)
                 .locationId(req.locationId())
                 .date(req.date() != null ? req.date() : LocalDate.now())
                 .observations(req.observations())
-                .createdBy(req.createdBy())
+                .createdBy(userId)
+                .responsibleName(userName)
                 .active(true)
                 .build();
 
@@ -81,10 +88,8 @@ public class InventoryService {
                 .collect(Collectors.toSet());
 
         Set<Long> physicalSet = new HashSet<>(physicalIds);
-
         Set<Long> missingInPhysical = new HashSet<>(registeredIds);
         missingInPhysical.removeAll(physicalSet);
-
         Set<Long> extraInPhysical = new HashSet<>(physicalSet);
         extraInPhysical.removeAll(registeredIds);
 
@@ -106,11 +111,12 @@ public class InventoryService {
 
         InventoryEvent inventoryEvent = InventoryEvent.builder()
                 .locationId(req.locationId())
-                .locationName(req.location())        // ← ya lo tienes en req
+                .locationName(locationName)
+                .responsibleName(userName)
                 .date(LocalDate.now())
-                .totalEquipments(total)              // ← total de detalles
-                .activeEquipments(active)            // ← filtrado por estado
-                .inactiveEquipments(inactive)        // ← el resto
+                .totalEquipments(total)
+                .activeEquipments(active)
+                .inactiveEquipments(inactive)
                 .build();
 
         inventoryEventProducer.send(inventoryEvent);
@@ -119,28 +125,52 @@ public class InventoryService {
         return "Inventario realizado correctamente";
     }
 
-    // 🔥 MÉTODO CLAVE
+    private Long getCurrentUserId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BusinessException("Usuario no autenticado");
+        }
+        return (Long) authentication.getPrincipal();
+    }
+
+    private String resolveUserName(Long userId) {
+        try {
+            UserResponse user = userClient.getUserById(userId);
+            if (user == null || user.getName() == null) {
+                throw new BusinessException("No se pudo obtener información del usuario");
+            }
+            return user.getName();
+        } catch (Exception e) {
+            log.error("Error obteniendo nombre de usuario userId={}", userId, e);
+            throw new BusinessException("Error al resolver datos del usuario");
+        }
+    }
+
+    private String resolveLocationName(Long locationId) {
+        try {
+            ApiResponse response = locationClient.getLocationById(locationId);
+            if (response == null || response.getBody() == null) {
+                throw new BusinessException("No se pudo obtener información de la ubicación");
+            }
+            LocationResponse location = objectMapper.convertValue(response.getBody(), LocationResponse.class);
+            return location.getName();
+        } catch (Exception e) {
+            log.error("Error obteniendo nombre de ubicación locationId={}", locationId, e);
+            throw new BusinessException("Error al resolver datos de la ubicación");
+        }
+    }
+
     private EquipmentResponse validateEquipment(Long equipmentId) {
-
         ApiResponse response;
-
         try {
             response = equipmentClient.getEquipmentById(equipmentId);
         } catch (Exception e) {
             log.error("ERROR REAL:", e);
             throw new EquipmentNotFoundException("El equipo no existe");
         }
-
         if (response == null || response.getBody() == null) {
             throw new EquipmentNotFoundException("El equipo no existe");
         }
-
-
-        EquipmentResponse equipment = objectMapper.convertValue(
-                response.getBody(),
-                EquipmentResponse.class
-        );
-
-        return equipment;
+        return objectMapper.convertValue(response.getBody(), EquipmentResponse.class);
     }
 }

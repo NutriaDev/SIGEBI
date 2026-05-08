@@ -28,6 +28,7 @@ public class InventoryEventConsumer {
             repository.save(InventoryReportViewEntity.builder()
                     .locationId(event.getLocationId())
                     .locationName(event.getLocationName())
+                    .responsibleName(event.getResponsibleName())
                     .date(event.getDate() != null ? event.getDate() : LocalDate.now())
                     .totalEquipments(event.getTotalEquipments())
                     .activeEquipments(event.getActiveEquipments())

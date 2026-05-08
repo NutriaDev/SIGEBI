@@ -24,6 +24,9 @@ public class InventoryReportViewEntity {
     @Column(nullable = false)
     private String locationName;
 
+    @Column(nullable = false, length = 255)
+    private String responsibleName;
+
     @Column(nullable = false)
     private LocalDate date;
 

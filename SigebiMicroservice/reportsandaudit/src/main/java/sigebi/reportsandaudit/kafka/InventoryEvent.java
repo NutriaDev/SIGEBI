@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class InventoryEvent {
     private Long locationId;
     private String locationName;
+    private String responsibleName;
     private LocalDate date;
     private Integer totalEquipments;
     private Integer activeEquipments;
