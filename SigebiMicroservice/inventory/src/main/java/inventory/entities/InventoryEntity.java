@@ -34,8 +34,8 @@ public class InventoryEntity {
     @Column(name = "observations", length = 1000)
     private String observations;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @Column(name = "created_by", length = 255)
+    private String createdBy;
 
     @Column(name = "responsible_name", length = 255)
     private String responsibleName;

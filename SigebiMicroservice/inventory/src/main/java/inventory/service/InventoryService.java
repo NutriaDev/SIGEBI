@@ -66,7 +66,7 @@ public class InventoryService {
                 .locationId(req.locationId())
                 .date(req.date() != null ? req.date() : LocalDate.now())
                 .observations(req.observations())
-                .createdBy(userId)
+                .createdBy(String.valueOf(userId))
                 .responsibleName(userName)
                 .active(true)
                 .build();
