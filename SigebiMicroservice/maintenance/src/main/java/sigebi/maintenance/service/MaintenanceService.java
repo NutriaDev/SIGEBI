@@ -94,7 +94,7 @@ public class MaintenanceService {
                 .eventType("MAINTENANCE")
                 .equipmentId(request.getEquipmentId())
                 .maintenanceType(type.getName())
-                .status("DONE")
+                .status(saved.getStatus().name())
                 .location("MAINTENANCE_AREA")
                 .date(LocalDate.now())
                 .technicianName(technician.getName())
