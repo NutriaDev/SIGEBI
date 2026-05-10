@@ -67,9 +67,17 @@ kafka:
     report-events: sigebi-report-events
     movement-events: sigebi-movement-events    # ← nuevo
     inventory-events: sigebi-inventory-events
+    service-report-events: sigebi-service-report-events
 
 equipment-service:
   url: http://localhost:8091
 
 user-service:
   url: http://localhost:8090
+
+maintenance-service:
+  url: http://localhost:8084
+
+reports:
+  maintenance:
+    pdf-directory: ./reports/maintenance

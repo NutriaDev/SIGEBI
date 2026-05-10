@@ -15,12 +15,15 @@ public class KafkaTopicConfig {
     @Value("${kafka.topics.report-events:sigebi-report-events}")
     private String reportEventsTopic;
 
+    @Value("${kafka.topics.service-report-events:sigebi-service-report-events}")
+    private String serviceReportEventsTopic;
+
     @Bean
     public NewTopic auditEventsTopic() {
         return TopicBuilder.name(auditEventsTopic)
                 .partitions(3)
-                .replicas(1) // 🔥 local
-                .config("retention.ms", "604800000") // 7 días
+                .replicas(1)
+                .config("retention.ms", "604800000")
                 .config("cleanup.policy", "delete")
                 .build();
     }
@@ -29,8 +32,18 @@ public class KafkaTopicConfig {
     public NewTopic reportEventsTopic() {
         return TopicBuilder.name(reportEventsTopic)
                 .partitions(3)
-                .replicas(1) // 🔥 local
-                .config("retention.ms", "86400000") // 1 día
+                .replicas(1)
+                .config("retention.ms", "86400000")
+                .config("cleanup.policy", "delete")
+                .build();
+    }
+
+    @Bean
+    public NewTopic serviceReportEventsTopic() {
+        return TopicBuilder.name(serviceReportEventsTopic)
+                .partitions(3)
+                .replicas(1)
+                .config("retention.ms", "86400000")
                 .config("cleanup.policy", "delete")
                 .build();
     }

@@ -1,0 +1,161 @@
+package sigebi.reportsandaudit.service;
+
+import feign.FeignException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import sigebi.reportsandaudit.client.MaintenanceClient;
+import sigebi.reportsandaudit.client.MaintenanceDetail;
+import sigebi.reportsandaudit.dto_request.MaintenanceServiceReportRequest;
+import sigebi.reportsandaudit.dto_response.MaintenanceServiceReportResponse;
+import sigebi.reportsandaudit.entities.MaintenanceServiceReportEntity;
+import sigebi.reportsandaudit.exception.BusinessException;
+import sigebi.reportsandaudit.kafka.AuditEvent;
+import sigebi.reportsandaudit.kafka.AuditEventProducer;
+import sigebi.reportsandaudit.kafka.MaintenanceServiceReportCreatedEvent;
+import sigebi.reportsandaudit.kafka.ServiceReportEventProducer;
+import sigebi.reportsandaudit.repository.MaintenanceServiceReportRepository;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+@Service
+@RequiredArgsConstructor
+public class MaintenanceServiceReportService {
+
+    private final MaintenanceServiceReportRepository repository;
+    private final MaintenanceClient maintenanceClient;
+    private final ServiceReportPdfGenerator pdfGenerator;
+    private final ServiceReportEventProducer eventProducer;
+    private final AuditEventProducer auditEventProducer;
+
+    @Value("${reports.maintenance.pdf-directory:./reports/maintenance}")
+    private String pdfDirectory;
+
+    public MaintenanceServiceReportResponse createServiceReport(MaintenanceServiceReportRequest request, String ipAddress) {
+        MaintenanceDetail maintenance = validateMaintenanceExists(request.getMaintenanceId());
+
+        Long userId = getAuthenticatedUserId();
+
+        MaintenanceServiceReportEntity entity = MaintenanceServiceReportEntity.builder()
+                .maintenanceId(request.getMaintenanceId())
+                .diagnosis(request.getDiagnosis())
+                .activitiesPerformed(request.getActivitiesPerformed())
+                .observations(request.getObservations())
+                .sparePartsUsed(request.getSparePartsUsed())
+                .pdfGeneratedAt(LocalDateTime.now())
+                .createdBy(userId)
+                .build();
+
+        MaintenanceServiceReportEntity saved = repository.save(entity);
+
+        byte[] pdfBytes = pdfGenerator.generate(
+                request.getMaintenanceId(),
+                request.getDiagnosis(),
+                request.getActivitiesPerformed(),
+                request.getObservations(),
+                request.getSparePartsUsed(),
+                maintenance.getTechnicianId(),
+                LocalDateTime.now()
+        );
+
+        String pdfPath = savePdfFile(pdfBytes, request.getMaintenanceId());
+
+        saved.setPdfPath(pdfPath);
+        MaintenanceServiceReportEntity finalEntity = repository.save(saved);
+
+        publishKafkaEvent(finalEntity);
+        registerAuditEvent(finalEntity, userId, ipAddress);
+
+        return mapToResponse(finalEntity);
+    }
+
+    private MaintenanceDetail validateMaintenanceExists(Long maintenanceId) {
+        try {
+            var response = maintenanceClient.getMaintenanceById(maintenanceId);
+            if (response == null || !"success".equalsIgnoreCase(response.getStatus()) || response.getBody() == null) {
+                throw new BusinessException("MAINTENANCE_NOT_FOUND", "El mantenimiento con ID " + maintenanceId + " no existe");
+            }
+            return response.getBody();
+        } catch (FeignException.NotFound e) {
+            throw new BusinessException("MAINTENANCE_NOT_FOUND", "El mantenimiento con ID " + maintenanceId + " no existe");
+        } catch (FeignException e) {
+            throw new BusinessException("MAINTENANCE_SERVICE_ERROR", "Error al conectar con el servicio de mantenimiento");
+        }
+    }
+
+    private String savePdfFile(byte[] pdfBytes, Long maintenanceId) {
+        try {
+            File dir = new File(pdfDirectory);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String fileName = "report_" + maintenanceId + "_" + timestamp + ".pdf";
+            File pdfFile = new File(dir, fileName);
+
+            try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+                fos.write(pdfBytes);
+            }
+
+            return "/reports/maintenance/" + fileName;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar el archivo PDF", e);
+        }
+    }
+
+    private void publishKafkaEvent(MaintenanceServiceReportEntity entity) {
+        MaintenanceServiceReportCreatedEvent event = MaintenanceServiceReportCreatedEvent.builder()
+                .maintenanceId(entity.getMaintenanceId())
+                .reportId(entity.getId())
+                .pdfPath(entity.getPdfPath())
+                .createdBy(entity.getCreatedBy())
+                .createdAt(entity.getCreatedAt())
+                .build();
+
+        eventProducer.sendServiceReportEvent(event);
+    }
+
+    private void registerAuditEvent(MaintenanceServiceReportEntity entity, Long userId, String ipAddress) {
+        AuditEvent auditEvent = AuditEvent.builder()
+                .userId(userId)
+                .action("CREATE_MAINTENANCE_SERVICE_REPORT")
+                .module("MAINTENANCE_SERVICE_REPORT")
+                .entityId(entity.getId())
+                .entityType("MaintenanceServiceReportEntity")
+                .details("Reporte técnico generado para mantenimiento ID=" + entity.getMaintenanceId() + ", PDF=" + entity.getPdfPath())
+                .timestamp(LocalDateTime.now())
+                .ipAddress(ipAddress)
+                .build();
+
+        auditEventProducer.sendAuditEvent(auditEvent);
+    }
+
+    private Long getAuthenticatedUserId() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+    private MaintenanceServiceReportResponse mapToResponse(MaintenanceServiceReportEntity entity) {
+        return MaintenanceServiceReportResponse.builder()
+                .id(entity.getId())
+                .maintenanceId(entity.getMaintenanceId())
+                .diagnosis(entity.getDiagnosis())
+                .activitiesPerformed(entity.getActivitiesPerformed())
+                .observations(entity.getObservations())
+                .sparePartsUsed(entity.getSparePartsUsed())
+                .pdfPath(entity.getPdfPath())
+                .digitalSignatureUrl(entity.getDigitalSignatureUrl())
+                .pdfGeneratedAt(entity.getPdfGeneratedAt())
+                .signedAt(entity.getSignedAt())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .build();
+    }
+}
