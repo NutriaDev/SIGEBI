@@ -56,6 +56,19 @@ public class MaintenanceController {
         );
     }
 
+    // 🔹 GET /maintenance/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getMaintenanceById(@PathVariable Long id) {
+        MaintenanceResponse response = maintenanceService.getMaintenanceById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status("success")
+                        .body(response)
+                        .build()
+        );
+    }
+
     // 🔹 GET /maintenance
     @GetMapping
     @PreAuthorize("hasAuthority('maintenance.read')")

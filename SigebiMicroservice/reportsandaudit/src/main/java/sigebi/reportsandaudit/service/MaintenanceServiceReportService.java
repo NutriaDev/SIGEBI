@@ -35,23 +35,16 @@ public class MaintenanceServiceReportService {
     @Value("${reports.maintenance.pdf-directory:./reports/maintenance}")
     private String pdfDirectory;
 
-    public MaintenanceServiceReportResponse createServiceReport(MaintenanceServiceReportRequest request, String ipAddress) {
+    public MaintenanceServiceReportResponse createServiceReport(
+            MaintenanceServiceReportRequest request, String ipAddress) {
+
+        // 1. Validar que el mantenimiento existe
         MaintenanceDetail maintenance = validateMaintenanceExists(request.getMaintenanceId());
 
         Long userId = getAuthenticatedUserId();
+        LocalDateTime now = LocalDateTime.now();
 
-        MaintenanceServiceReportEntity entity = MaintenanceServiceReportEntity.builder()
-                .maintenanceId(request.getMaintenanceId())
-                .diagnosis(request.getDiagnosis())
-                .activitiesPerformed(request.getActivitiesPerformed())
-                .observations(request.getObservations())
-                .sparePartsUsed(request.getSparePartsUsed())
-                .pdfGeneratedAt(LocalDateTime.now())
-                .createdBy(userId)
-                .build();
-
-        MaintenanceServiceReportEntity saved = repository.save(entity);
-
+        // 2. Generar el PDF ANTES de persistir (evita guardar con pdf_path = null)
         byte[] pdfBytes = pdfGenerator.generate(
                 request.getMaintenanceId(),
                 request.getDiagnosis(),
@@ -59,31 +52,47 @@ public class MaintenanceServiceReportService {
                 request.getObservations(),
                 request.getSparePartsUsed(),
                 maintenance.getTechnicianId(),
-                LocalDateTime.now()
+                now
         );
 
+        // 3. Guardar el archivo en disco
         String pdfPath = savePdfFile(pdfBytes, request.getMaintenanceId());
 
-        saved.setPdfPath(pdfPath);
-        MaintenanceServiceReportEntity finalEntity = repository.save(saved);
+        // 4. Construir la entidad con todos los campos completos y hacer UN SOLO save
+        MaintenanceServiceReportEntity entity = MaintenanceServiceReportEntity.builder()
+                .maintenanceId(request.getMaintenanceId())
+                .diagnosis(request.getDiagnosis())
+                .activitiesPerformed(request.getActivitiesPerformed())
+                .observations(request.getObservations())
+                .sparePartsUsed(request.getSparePartsUsed())
+                .pdfPath(pdfPath)
+                .pdfGeneratedAt(now)
+                .createdBy(userId)
+                .build();
 
-        publishKafkaEvent(finalEntity);
-        registerAuditEvent(finalEntity, userId, ipAddress);
+        MaintenanceServiceReportEntity saved = repository.save(entity);
 
-        return mapToResponse(finalEntity);
+        // 5. Publicar eventos Kafka
+        publishKafkaEvent(saved);
+        registerAuditEvent(saved, userId, ipAddress);
+
+        return mapToResponse(saved);
     }
 
     private MaintenanceDetail validateMaintenanceExists(Long maintenanceId) {
         try {
             var response = maintenanceClient.getMaintenanceById(maintenanceId);
             if (response == null || !"success".equalsIgnoreCase(response.getStatus()) || response.getBody() == null) {
-                throw new BusinessException("MAINTENANCE_NOT_FOUND", "El mantenimiento con ID " + maintenanceId + " no existe");
+                throw new BusinessException("MAINTENANCE_NOT_FOUND",
+                        "El mantenimiento con ID " + maintenanceId + " no existe");
             }
             return response.getBody();
         } catch (FeignException.NotFound e) {
-            throw new BusinessException("MAINTENANCE_NOT_FOUND", "El mantenimiento con ID " + maintenanceId + " no existe");
+            throw new BusinessException("MAINTENANCE_NOT_FOUND",
+                    "El mantenimiento con ID " + maintenanceId + " no existe");
         } catch (FeignException e) {
-            throw new BusinessException("MAINTENANCE_SERVICE_ERROR", "Error al conectar con el servicio de mantenimiento");
+            throw new BusinessException("MAINTENANCE_SERVICE_ERROR",
+                    "Error al conectar con el servicio de mantenimiento");
         }
     }
 
@@ -127,7 +136,8 @@ public class MaintenanceServiceReportService {
                 .module("MAINTENANCE_SERVICE_REPORT")
                 .entityId(entity.getId())
                 .entityType("MaintenanceServiceReportEntity")
-                .details("Reporte técnico generado para mantenimiento ID=" + entity.getMaintenanceId() + ", PDF=" + entity.getPdfPath())
+                .details("Reporte técnico generado para mantenimiento ID=" + entity.getMaintenanceId()
+                        + ", PDF=" + entity.getPdfPath())
                 .timestamp(LocalDateTime.now())
                 .ipAddress(ipAddress)
                 .build();

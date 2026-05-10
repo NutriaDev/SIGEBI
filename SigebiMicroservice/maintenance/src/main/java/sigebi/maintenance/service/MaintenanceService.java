@@ -105,6 +105,15 @@ public class MaintenanceService {
     }
 
 
+    public MaintenanceResponse getMaintenanceById(Long id) {
+        MaintenanceEntity entity = repository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "MAINTENANCE_NOT_FOUND",
+                        "El mantenimiento con ID " + id + " no existe"
+                ));
+        return mapToResponse(entity);
+    }
+
     public Page<MaintenanceResponse> getMaintenanceHistory(
             Long equipmentId,
             String maintenanceType,

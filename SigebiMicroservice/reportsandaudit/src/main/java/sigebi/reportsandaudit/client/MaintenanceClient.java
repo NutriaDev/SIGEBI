@@ -11,6 +11,6 @@ import sigebi.reportsandaudit.config.FeignConfig;
         configuration = FeignConfig.class)
 public interface MaintenanceClient {
 
-    @GetMapping("/api/maintenances/{id}")
+    @GetMapping("/api/maintenance/{id}")
     MaintenanceServiceResponse getMaintenanceById(@PathVariable("id") Long id);
 }
