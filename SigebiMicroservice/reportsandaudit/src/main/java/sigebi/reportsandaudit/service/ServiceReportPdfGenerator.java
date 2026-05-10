@@ -21,7 +21,7 @@ public class ServiceReportPdfGenerator {
     private static final Color BLACK       = Color.BLACK;
 
     // ── Fuentes ──────────────────────────────────────────────────────────────
-    private static final Font TITLE_FONT        = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, WHITE);
+    private static final Font TITLE_FONT        = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BRAND_BLUE);
     private static final Font SECTION_FONT      = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9,  WHITE);
     private static final Font LABEL_FONT        = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8,  BLACK);
     private static final Font VALUE_FONT        = FontFactory.getFont(FontFactory.HELVETICA,      9,  BLACK);
@@ -83,17 +83,11 @@ public class ServiceReportPdfGenerator {
         String techStr  = technicianId != null ? String.valueOf(technicianId) : "N/A";
         String maintStr = maintenanceId != null ? String.valueOf(maintenanceId) : "N/A";
 
-        // Fila de título completo (azul oscuro)
-        PdfPTable titleTable = new PdfPTable(1);
-        titleTable.setWidthPercentage(100);
-        titleTable.setSpacingAfter(0);
-        PdfPCell titleCell = new PdfPCell(new Phrase("REPORTE TÉCNICO DE SERVICIO", TITLE_FONT));
-        titleCell.setBackgroundColor(BRAND_BLUE);
-        titleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        titleCell.setPadding(8);
-        titleCell.setBorderColor(BRAND_BLUE);
-        titleTable.addCell(titleCell);
-        doc.add(titleTable);
+        // Título fuera del cuadro, en azul
+        Paragraph title = new Paragraph("REPORTE TÉCNICO DE SERVICIO", TITLE_FONT);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(8);
+        doc.add(title);
 
         // Fila de metadatos: FECHA | SEDE | EQUIPO (ID Mant.) | SERIE (Técnico)
         PdfPTable metaTable = new PdfPTable(new float[]{1, 1, 1, 1});
