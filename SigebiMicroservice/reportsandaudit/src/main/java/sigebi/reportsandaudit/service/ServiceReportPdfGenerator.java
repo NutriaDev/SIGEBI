@@ -36,6 +36,7 @@ public class ServiceReportPdfGenerator {
             String observations,
             String sparePartsUsed,
             Long technicianId,
+            Long equipmentId,
             LocalDateTime reportDate,
             String reporterName
     ) {
@@ -45,7 +46,7 @@ public class ServiceReportPdfGenerator {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            addDocumentHeader(document, maintenanceId, technicianId, reportDate);
+            addDocumentHeader(document, equipmentId, reportDate);
             addWhoReports(document, reporterName);
             addSectionBlock(document, "DIAGNOSTICO",           diagnosis,           TALL_ROW_HEIGHT);
             addSectionBlock(document, "ACTIVIDADES REALIZADAS", activitiesPerformed, TALL_ROW_HEIGHT);
@@ -61,11 +62,10 @@ public class ServiceReportPdfGenerator {
         }
     }
 
-    private void addDocumentHeader(Document doc, Long maintenanceId, Long technicianId, LocalDateTime date)
+    private void addDocumentHeader(Document doc, Long equipmentId, LocalDateTime date)
             throws DocumentException {
         String dateStr  = date != null ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
-        String techStr  = technicianId != null ? String.valueOf(technicianId) : "N/A";
-        String maintStr = maintenanceId != null ? String.valueOf(maintenanceId) : "N/A";
+        String equipStr = equipmentId != null ? String.valueOf(equipmentId) : "N/A";
 
         Paragraph title = new Paragraph("REPORTE TECNICO DE SERVICIO", TITLE_FONT);
         title.setAlignment(Element.ALIGN_CENTER);
@@ -77,8 +77,8 @@ public class ServiceReportPdfGenerator {
         metaTable.setSpacingAfter(0);
         addMetaCell(metaTable, "FECHA:",  dateStr);
         addMetaCell(metaTable, "SEDE:",   "");
-        addMetaCell(metaTable, "EQUIPO:", "Mant. #" + maintStr);
-        addMetaCell(metaTable, "SERIE:",  "Tec. #"  + techStr);
+        addMetaCell(metaTable, "EQUIPO:", equipStr);
+        addMetaCell(metaTable, "SERIE:",  "");
         doc.add(metaTable);
     }
 

@@ -54,6 +54,7 @@ public class MaintenanceServiceReportService {
                 request.getObservations(),
                 request.getSparePartsUsed(),
                 maintenance.getTechnicianId(),
+                maintenance.getEquipmentId(),
                 now,
                 reporterName
         );
