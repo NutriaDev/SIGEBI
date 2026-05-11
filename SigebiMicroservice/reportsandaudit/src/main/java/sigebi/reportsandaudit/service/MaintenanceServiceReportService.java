@@ -4,6 +4,7 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;import org.springframework.stereotype.Service;
+import sigebi.reportsandaudit.client.EquipmentClient;
 import sigebi.reportsandaudit.client.MaintenanceClient;
 import sigebi.reportsandaudit.client.MaintenanceDetail;
 import sigebi.reportsandaudit.client.UserClient;
@@ -28,6 +29,7 @@ public class MaintenanceServiceReportService {
 
     private final MaintenanceServiceReportRepository repository;
     private final MaintenanceClient maintenanceClient;
+    private final EquipmentClient equipmentClient;
     private final UserClient userClient;
     private final ServiceReportPdfGenerator pdfGenerator;
     private final ServiceReportEventProducer eventProducer;
@@ -44,6 +46,7 @@ public class MaintenanceServiceReportService {
 
         Long userId = getAuthenticatedUserId();
         String reporterName = getUserFullName(userId);
+        String serie = getEquipmentSerie(maintenance.getEquipmentId());
         LocalDateTime now = LocalDateTime.now();
 
         // 2. Generar el PDF ANTES de persistir (evita guardar con pdf_path = null)
@@ -55,6 +58,7 @@ public class MaintenanceServiceReportService {
                 request.getSparePartsUsed(),
                 maintenance.getTechnicianId(),
                 maintenance.getEquipmentId(),
+                serie,
                 now,
                 reporterName
         );
@@ -69,6 +73,7 @@ public class MaintenanceServiceReportService {
                 .activitiesPerformed(request.getActivitiesPerformed())
                 .observations(request.getObservations())
                 .sparePartsUsed(request.getSparePartsUsed())
+                .serialNumber(serie)
                 .pdfPath(pdfPath)
                 .pdfGeneratedAt(now)
                 .createdBy(userId)
@@ -162,6 +167,18 @@ public class MaintenanceServiceReportService {
             return user != null ? user.getFullName() : "N/A";
         } catch (Exception e) {
             return "N/A";
+        }
+    }
+
+    private String getEquipmentSerie(Long equipmentId) {
+        try {
+            var response = equipmentClient.getEquipmentById(equipmentId);
+            if (response != null && response.getBody() != null) {
+                return response.getBody().getSerie();
+            }
+            return "";
+        } catch (Exception e) {
+            return "";
         }
     }
 

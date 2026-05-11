@@ -1,8 +1,10 @@
 package sigebi.reportsandaudit.dto_response;
 
 import lombok.*;
+import sigebi.reportsandaudit.dto_request.SparePartItem;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +18,7 @@ public class MaintenanceServiceReportResponse {
     private String diagnosis;
     private String activitiesPerformed;
     private String observations;
-    private String sparePartsUsed;
+    private List<SparePartItem> sparePartsUsed;
     private String pdfPath;
     private String digitalSignatureUrl;
     private LocalDateTime pdfGeneratedAt;

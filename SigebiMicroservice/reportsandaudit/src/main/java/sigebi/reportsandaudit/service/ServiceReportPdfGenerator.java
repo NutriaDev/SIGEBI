@@ -5,11 +5,13 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.stereotype.Component;
+import sigebi.reportsandaudit.dto_request.SparePartItem;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Component
 public class ServiceReportPdfGenerator {
@@ -34,9 +36,10 @@ public class ServiceReportPdfGenerator {
             String diagnosis,
             String activitiesPerformed,
             String observations,
-            String sparePartsUsed,
+            List<SparePartItem> sparePartsUsed,
             Long technicianId,
             Long equipmentId,
+            String serie,
             LocalDateTime reportDate,
             String reporterName
     ) {
@@ -46,7 +49,7 @@ public class ServiceReportPdfGenerator {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            addDocumentHeader(document, maintenanceId, equipmentId, reportDate);
+            addDocumentHeader(document, maintenanceId, equipmentId, serie, reportDate);
             addWhoReports(document, reporterName);
             addSectionBlock(document, "DIAGNOSTICO",           diagnosis,           TALL_ROW_HEIGHT);
             addSectionBlock(document, "ACTIVIDADES REALIZADAS", activitiesPerformed, TALL_ROW_HEIGHT);
@@ -62,18 +65,18 @@ public class ServiceReportPdfGenerator {
         }
     }
 
-    private void addDocumentHeader(Document doc, Long maintenanceId, Long equipmentId, LocalDateTime date)
+    private void addDocumentHeader(Document doc, Long maintenanceId, Long equipmentId, String serie, LocalDateTime date)
             throws DocumentException {
         String dateStr  = date != null ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
         String maintStr = maintenanceId != null ? String.valueOf(maintenanceId) : "N/A";
         String equipStr = equipmentId   != null ? String.valueOf(equipmentId)   : "N/A";
+        String serieStr = (serie != null && !serie.isBlank()) ? serie : "";
 
         Paragraph title = new Paragraph("REPORTE TECNICO DE SERVICIO", TITLE_FONT);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(8);
         doc.add(title);
 
-        // 5 columnas: FECHA | SEDE | MANTENIMIENTO | EQUIPO | SERIE
         PdfPTable metaTable = new PdfPTable(new float[]{1.2f, 1f, 1.3f, 1f, 1f});
         metaTable.setWidthPercentage(100);
         metaTable.setSpacingAfter(0);
@@ -81,7 +84,7 @@ public class ServiceReportPdfGenerator {
         addMetaCell(metaTable, "SEDE:",          "");
         addMetaCell(metaTable, "MANTENIMIENTO:", maintStr);
         addMetaCell(metaTable, "EQUIPO:",        equipStr);
-        addMetaCell(metaTable, "SERIE:",         "");
+        addMetaCell(metaTable, "SERIE:",         serieStr);
         doc.add(metaTable);
     }
 
@@ -148,7 +151,7 @@ public class ServiceReportPdfGenerator {
         doc.add(table);
     }
 
-    private void addSparePartsTable(Document doc, String sparePartsUsed) throws DocumentException {
+    private void addSparePartsTable(Document doc, List<SparePartItem> sparePartsUsed) throws DocumentException {
         PdfPTable table = new PdfPTable(new float[]{1, 1.5f, 4});
         table.setWidthPercentage(100);
         table.setSpacingBefore(0);
@@ -167,17 +170,16 @@ public class ServiceReportPdfGenerator {
         addColumnHeader(table, "REF");
         addColumnHeader(table, "DESCRIPCION");
 
-        String[] parts = (sparePartsUsed != null && !sparePartsUsed.isBlank())
-                ? sparePartsUsed.split(",") : new String[0];
+        List<SparePartItem> items = sparePartsUsed != null ? sparePartsUsed : List.of();
 
         int filledRows = 0;
-        for (String part : parts) {
-            addSpareRow(table, part.trim());
+        for (SparePartItem item : items) {
+            addSpareRow(table, item);
             filledRows++;
         }
         int totalRows = Math.max(5, filledRows + 2);
         for (int i = filledRows; i < totalRows; i++) {
-            addSpareRow(table, "");
+            addSpareRow(table, null);
         }
         doc.add(table);
     }
@@ -192,21 +194,24 @@ public class ServiceReportPdfGenerator {
         table.addCell(cell);
     }
 
-    private void addSpareRow(PdfPTable table, String description) {
-        for (int i = 0; i < 2; i++) {
-            PdfPCell c = new PdfPCell(new Phrase("", VALUE_FONT));
-            c.setMinimumHeight(CONTENT_ROW_HEIGHT);
-            c.setBorderColor(BLACK);
-            c.setBorderWidth(0.5f);
-            c.setPadding(3);
-            table.addCell(c);
-        }
-        PdfPCell descCell = new PdfPCell(new Phrase(description, VALUE_FONT));
-        descCell.setMinimumHeight(CONTENT_ROW_HEIGHT);
-        descCell.setBorderColor(BLACK);
-        descCell.setBorderWidth(0.5f);
-        descCell.setPadding(3);
-        table.addCell(descCell);
+    private void addSpareRow(PdfPTable table, SparePartItem item) {
+        String qty   = item != null && item.getQuantity() != null ? String.valueOf(item.getQuantity()) : "";
+        String ref   = item != null && item.getReference() != null ? item.getReference() : "";
+        String desc  = item != null && item.getDescription() != null ? item.getDescription() : "";
+
+        addSpareCell(table, qty, Element.ALIGN_CENTER);
+        addSpareCell(table, ref, Element.ALIGN_CENTER);
+        addSpareCell(table, desc, Element.ALIGN_LEFT);
+    }
+
+    private void addSpareCell(PdfPTable table, String text, int alignment) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, VALUE_FONT));
+        cell.setMinimumHeight(CONTENT_ROW_HEIGHT);
+        cell.setBorderColor(BLACK);
+        cell.setBorderWidth(0.5f);
+        cell.setPadding(3);
+        cell.setHorizontalAlignment(alignment);
+        table.addCell(cell);
     }
 
     private void addSignatureSection(Document doc) throws DocumentException {

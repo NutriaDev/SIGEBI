@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,5 +24,5 @@ public class MaintenanceServiceReportRequest {
 
     private String observations;
 
-    private String sparePartsUsed;
+    private List<SparePartItem> sparePartsUsed;
 }

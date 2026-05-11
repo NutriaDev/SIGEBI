@@ -3,8 +3,10 @@ package sigebi.reportsandaudit.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import sigebi.reportsandaudit.dto_request.SparePartItem;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "maintenance_service_reports")
@@ -19,6 +21,9 @@ public class MaintenanceServiceReportEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100)
+    private String serialNumber;   // serie del equipo al momento del reporte
+
     @Column(nullable = false)
     private Long maintenanceId;
 
@@ -31,8 +36,9 @@ public class MaintenanceServiceReportEntity {
     @Column(length = 1000)
     private String observations;
 
-    @Column(length = 1000)
-    private String sparePartsUsed;
+    @Convert(converter = SparePartsListConverter.class)
+    @Column(length = 2000)
+    private List<SparePartItem> sparePartsUsed;
 
     @Column(nullable = false)
     private String pdfPath;
