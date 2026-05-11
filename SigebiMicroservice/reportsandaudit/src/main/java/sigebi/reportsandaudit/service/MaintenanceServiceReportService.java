@@ -3,10 +3,10 @@ package sigebi.reportsandaudit.service;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;import org.springframework.stereotype.Service;
 import sigebi.reportsandaudit.client.MaintenanceClient;
 import sigebi.reportsandaudit.client.MaintenanceDetail;
+import sigebi.reportsandaudit.client.UserClient;
 import sigebi.reportsandaudit.dto_request.MaintenanceServiceReportRequest;
 import sigebi.reportsandaudit.dto_response.MaintenanceServiceReportResponse;
 import sigebi.reportsandaudit.entities.MaintenanceServiceReportEntity;
@@ -28,6 +28,7 @@ public class MaintenanceServiceReportService {
 
     private final MaintenanceServiceReportRepository repository;
     private final MaintenanceClient maintenanceClient;
+    private final UserClient userClient;
     private final ServiceReportPdfGenerator pdfGenerator;
     private final ServiceReportEventProducer eventProducer;
     private final AuditEventProducer auditEventProducer;
@@ -42,6 +43,7 @@ public class MaintenanceServiceReportService {
         MaintenanceDetail maintenance = validateMaintenanceExists(request.getMaintenanceId());
 
         Long userId = getAuthenticatedUserId();
+        String reporterName = getUserFullName(userId);
         LocalDateTime now = LocalDateTime.now();
 
         // 2. Generar el PDF ANTES de persistir (evita guardar con pdf_path = null)
@@ -52,7 +54,8 @@ public class MaintenanceServiceReportService {
                 request.getObservations(),
                 request.getSparePartsUsed(),
                 maintenance.getTechnicianId(),
-                now
+                now,
+                reporterName
         );
 
         // 3. Guardar el archivo en disco
@@ -150,6 +153,15 @@ public class MaintenanceServiceReportService {
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
+    }
+
+    private String getUserFullName(Long userId) {
+        try {
+            var user = userClient.getUserById(userId);
+            return user != null ? user.getFullName() : "N/A";
+        } catch (Exception e) {
+            return "N/A";
+        }
     }
 
     private MaintenanceServiceReportResponse mapToResponse(MaintenanceServiceReportEntity entity) {
