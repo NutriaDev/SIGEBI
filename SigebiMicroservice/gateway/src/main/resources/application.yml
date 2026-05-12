@@ -93,6 +93,12 @@ spring:
           predicates:
             - Path=/api/reports/**,/api/audit/**,/api/service-reports/**
 
+        # 📊 REPORT PDF
+        - id: reports-pdf
+          uri: http://localhost:8087
+          predicates:
+            - Path=/reports/maintenance/**
+
       globalcors:
         corsConfigurations:
           '[/**]':
