@@ -35,7 +35,7 @@ public class PdfExportStrategy implements ReportExportStrategy {
 
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
-                cell.setBackgroundColor(new Color(0, 51, 102));
+                cell.setBackgroundColor(new Color(38, 61, 66));
                 cell.setPadding(5);
                 table.addCell(cell);
             }

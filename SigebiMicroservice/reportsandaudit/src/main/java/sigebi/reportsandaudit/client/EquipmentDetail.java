@@ -15,4 +15,5 @@ public class EquipmentDetail {
     private String name;
     private String brand;
     private String model;
+    private String locationName;
 }

@@ -41,7 +41,9 @@ public class ServiceReportPdfGenerator {
             Long equipmentId,
             String serie,
             LocalDateTime reportDate,
-            String reporterName
+            String reporterName,
+            String maintenanceType,
+            String locationName
     ) {
         try {
             Document document = new Document(PageSize.A4, 36, 36, 36, 36);
@@ -49,7 +51,7 @@ public class ServiceReportPdfGenerator {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            addDocumentHeader(document, maintenanceId, equipmentId, serie, reportDate);
+            addDocumentHeader(document, maintenanceId, equipmentId, serie, reportDate, maintenanceType, locationName);
             addWhoReports(document, reporterName);
             addSectionBlock(document, "DIAGNOSTICO",           diagnosis,           TALL_ROW_HEIGHT);
             addSectionBlock(document, "ACTIVIDADES REALIZADAS", activitiesPerformed, TALL_ROW_HEIGHT);
@@ -65,27 +67,35 @@ public class ServiceReportPdfGenerator {
         }
     }
 
-    private void addDocumentHeader(Document doc, Long maintenanceId, Long equipmentId, String serie, LocalDateTime date)
+    private void addDocumentHeader(Document doc, Long maintenanceId, Long equipmentId, String serie, LocalDateTime date, String maintenanceType, String locationName)
             throws DocumentException {
         String dateStr  = date != null ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
         String maintStr = maintenanceId != null ? String.valueOf(maintenanceId) : "N/A";
         String equipStr = equipmentId   != null ? String.valueOf(equipmentId)   : "N/A";
         String serieStr = (serie != null && !serie.isBlank()) ? serie : "";
+        String typeStr  = (maintenanceType != null && !maintenanceType.isBlank()) ? maintenanceType : "N/A";
+        String locStr   = (locationName != null && !locationName.isBlank()) ? locationName : "N/A";
 
         Paragraph title = new Paragraph("REPORTE TECNICO DE SERVICIO", TITLE_FONT);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(8);
         doc.add(title);
 
-        PdfPTable metaTable = new PdfPTable(new float[]{1.2f, 1f, 1.3f, 1f, 1f});
+        PdfPTable metaTable = new PdfPTable(new float[]{1.2f, 1f, 1f, 1.3f, 1f});
         metaTable.setWidthPercentage(100);
         metaTable.setSpacingAfter(0);
-        addMetaCell(metaTable, "FECHA:",         dateStr);
-        addMetaCell(metaTable, "SEDE:",          "");
-        addMetaCell(metaTable, "MANTENIMIENTO:", maintStr);
-        addMetaCell(metaTable, "EQUIPO:",        equipStr);
-        addMetaCell(metaTable, "SERIE:",         serieStr);
+        addMetaCell(metaTable, "FECHA:",              dateStr);
+        addMetaCell(metaTable, "TIPO MANTENIMIENTO:", typeStr);
+        addMetaCell(metaTable, "UBICACION:",          locStr);
+        addMetaCell(metaTable, "MANTENIMIENTO:",      maintStr);
+        addMetaCell(metaTable, "EQUIPO:",             equipStr);
         doc.add(metaTable);
+
+        PdfPTable serieTable = new PdfPTable(new float[]{1.2f, 5f});
+        serieTable.setWidthPercentage(100);
+        serieTable.setSpacingAfter(0);
+        addMetaCell(serieTable, "SERIE:", serieStr);
+        doc.add(serieTable);
     }
 
     private void addMetaCell(PdfPTable table, String label, String value) {

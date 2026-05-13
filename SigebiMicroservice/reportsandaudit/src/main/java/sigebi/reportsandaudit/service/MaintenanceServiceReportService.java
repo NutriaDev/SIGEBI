@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;import org.springframework.stereotype.Service;
 import sigebi.reportsandaudit.client.EquipmentClient;
+import sigebi.reportsandaudit.client.EquipmentDetail;
 import sigebi.reportsandaudit.client.MaintenanceClient;
 import sigebi.reportsandaudit.client.MaintenanceDetail;
 import sigebi.reportsandaudit.client.UserClient;
@@ -46,7 +47,9 @@ public class MaintenanceServiceReportService {
 
         Long userId = getAuthenticatedUserId();
         String reporterName = getUserFullName(userId);
-        String serie = getEquipmentSerie(maintenance.getEquipmentId());
+        EquipmentDetail equipment = getEquipment(maintenance.getEquipmentId());
+        String serie = equipment != null ? equipment.getSerie() : "";
+        String locationName = equipment != null ? equipment.getLocationName() : "";
         LocalDateTime now = LocalDateTime.now();
 
         // 2. Generar el PDF ANTES de persistir (evita guardar con pdf_path = null)
@@ -60,7 +63,9 @@ public class MaintenanceServiceReportService {
                 maintenance.getEquipmentId(),
                 serie,
                 now,
-                reporterName
+                reporterName,
+                maintenance.getMaintenanceType(),
+                locationName
         );
 
         // 3. Guardar el archivo en disco
@@ -170,15 +175,15 @@ public class MaintenanceServiceReportService {
         }
     }
 
-    private String getEquipmentSerie(Long equipmentId) {
+    private EquipmentDetail getEquipment(Long equipmentId) {
         try {
             var response = equipmentClient.getEquipmentById(equipmentId);
             if (response != null && response.getBody() != null) {
-                return response.getBody().getSerie();
+                return response.getBody();
             }
-            return "";
+            return null;
         } catch (Exception e) {
-            return "";
+            return null;
         }
     }
 
