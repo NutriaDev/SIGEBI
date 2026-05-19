@@ -8,6 +8,8 @@ import equipment.dto_response.EquipmentResponse;
 import equipment.entities.*;
 import equipment.exception.DuplicateResourceException;
 import equipment.exception.ResourceNotFoundException;
+import equipment.kafka.EquipmentEvent;
+import equipment.kafka.EquipmentEventProducer;
 import equipment.repository.*;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class EquipmentService {
     private final ProviderRepository providerRepository;
     private final StatesRepository statesRepository;
     private final LocationRepository locationRepository;
+    private final EquipmentEventProducer equipmentEventProducer;
 
     // ================= CREATE =================
 
@@ -91,6 +96,8 @@ public class EquipmentService {
                 .build();
 
         EquipmentEntity savedEquipment = equipmentRepository.save(equipment);
+
+        sendEquipmentEvent("CREATED", savedEquipment, request.getResponsibleUserId());
 
         return mapToResponse(savedEquipment);
     }
@@ -226,6 +233,8 @@ public class EquipmentService {
 
         log.info("Equipo actualizado exitosamente con ID: {}", updatedEquipment.getEquipmentId());
 
+        sendEquipmentEvent("UPDATED", updatedEquipment, request.getUpdatedBy());
+
         return mapToResponse(updatedEquipment);
     }
 
@@ -243,6 +252,8 @@ public class EquipmentService {
         equipment.setActive(false);
 
         equipmentRepository.save(equipment);
+
+        sendEquipmentEvent("DEACTIVATED", equipment, null);
     }
 
     // ================= ACTIVATE =================
@@ -257,6 +268,33 @@ public class EquipmentService {
 
         equipment.setActive(true);
         equipmentRepository.save(equipment);
+
+        sendEquipmentEvent("ACTIVATED", equipment, null);
+    }
+
+    // ================= EVENTS =================
+
+    private void sendEquipmentEvent(String eventType, EquipmentEntity equipment, Long userId) {
+        try {
+            EquipmentEvent event = EquipmentEvent.builder()
+                    .eventType(eventType)
+                    .equipmentId(equipment.getEquipmentId())
+                    .name(equipment.getName())
+                    .serial(equipment.getSerie())
+                    .locationId(equipment.getLocation() != null ? equipment.getLocation().getLocationId() : null)
+                    .locationName(equipment.getLocation() != null ? equipment.getLocation().getName() : null)
+                    .stateName(equipment.getState() != null ? equipment.getState().getName() : null)
+                    .classificationName(equipment.getClassification() != null ? equipment.getClassification().getName() : null)
+                    .brand(equipment.getBrand())
+                    .model(equipment.getModel())
+                    .riskLevel(equipment.getRiskLevel())
+                    .updatedBy(userId)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            equipmentEventProducer.send(event);
+        } catch (Exception e) {
+            log.error("Error al enviar evento de equipo: eventType={}, equipmentId={}", eventType, equipment.getEquipmentId(), e);
+        }
     }
 
     // ================= VALIDATIONS =================

@@ -31,6 +31,16 @@ spring:
       pageable:
         default-page-size: 10
         max-page-size: 10
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+kafka:
+  topics:
+    equipment-events: sigebi-equipment-events
+
 eureka:
   instance:
     hostname: localhost

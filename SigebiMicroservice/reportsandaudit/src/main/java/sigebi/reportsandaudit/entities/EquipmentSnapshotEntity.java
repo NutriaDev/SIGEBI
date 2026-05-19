@@ -15,7 +15,6 @@ import java.time.LocalDate;
 public class EquipmentSnapshotEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long equipmentId;
 
     @Column(nullable = false)
@@ -27,11 +26,19 @@ public class EquipmentSnapshotEntity {
     @Column(nullable = false)
     private Long locationId;
 
+    private String locationName;
+
     @Column(nullable = false)
     private String state;
 
     @Column(nullable = false)
     private String classification;
+
+    private String brand;
+
+    private String model;
+
+    private String riskLevel;
 
     private LocalDate lastMaintenanceDate;
 }
