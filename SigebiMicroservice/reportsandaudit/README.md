@@ -30,9 +30,54 @@ Además, gestiona:
 
 ---
 
+## Patrones de diseño
+
+### EDA — Event-Driven Architecture
+
+El módulo está diseñado bajo una **arquitectura orientada a eventos (EDA)**. Ningún microservicio fuente se comunica con `ms-reportsandaudit` de forma síncrona para escribir datos; en su lugar, todos **publican eventos a Kafka** cuando ocurre un cambio, y este módulo **consume esos eventos de forma asíncrona** para actualizar sus tablas locales.
+
+Esto desacopla completamente a los productores de los consumidores:
+- Los microservicios fuente (equipment, inventory, maintenance) emiten eventos sin conocer quién los escucha
+- `ms-reportsandaudit` procesa los eventos cuando puede, sin bloquear a los productores
+- Si el módulo de reportes cae, los eventos se acumulan en Kafka y se procesan al recuperarse (gracias a `auto-offset-reset: earliest`)
+
+**Productores de eventos** (emiten desde este módulo):
+- `AuditEventProducer` → `sigebi-audit-events`
+- `ReportEventProducer` → `sigebi-report-events`
+- `ServiceReportEventProducer` → `sigebi-service-report-events`
+
+**Consumidores de eventos** (escuchan en este módulo):
+- `EquipmentEventConsumer` → `sigebi-equipment-events`
+- `InventoryEventConsumer` → `sigebi-inventory-events`
+- `MovementEventConsumer` → `sigebi-movement-events`
+- `ReportEventConsumer` → `sigebi-report-events`
+- `AuditEventConsumer` → `sigebi-audit-events` y `sigebi-report-events`
+
+### Strategy — Exportación de reportes
+
+La exportación de reportes implementa el patrón **Strategy** para soportar múltiples formatos sin modificar la lógica de negocio.
+
+`ReportExportService` orquesta la exportación sin conocer el formato concreto:
+
+```
+ReportExportService.export(format, type, filters)
+  → Obtiene la estrategia según el formato:
+       "PDF"  → PdfExportStrategy
+       "EXCEL" → ExcelExportStrategy
+       "CSV"  → CsvExportStrategy
+  → Cada estrategia implementa la interfaz ReportExportStrategy:
+       byte[] export(List<String> headers, List<List<String>> rows)
+       String getContentType()
+       String getFileExtension()
+```
+
+Esto permite agregar un nuevo formato (ej. HTML, XML) simplemente creando un nuevo `@Component("FORMATO")` que implemente `ReportExportStrategy`, sin tocar `ReportExportService` ni los controladores. Las estrategias se inyectan mediante un `Map<String, ReportExportStrategy>` poblado automáticamente por Spring.
+
+---
+
 ## Arquitectura de datos
 
-El módulo **no es dueño de los datos fuente**. Recibe eventos vía Kafka y mantiene tablas locales desnormalizadas para consulta eficiente:
+El módulo **no es dueño de los datos fuente**. Bajo el paradigma **EDA**, recibe eventos vía Kafka y mantiene tablas locales desnormalizadas para consulta eficiente:
 
 ```
 equipment-ms ──► Kafka: sigebi-equipment-events ──► equipment_snapshot + equipment_historial
