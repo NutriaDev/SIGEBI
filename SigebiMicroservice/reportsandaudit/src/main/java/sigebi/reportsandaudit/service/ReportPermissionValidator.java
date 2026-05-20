@@ -39,7 +39,7 @@ public class ReportPermissionValidator {
         }
 
         // 🔥 2. Permiso avanzado (puede exportar de otros)
-        if (authorities.contains("report.export.all")) {
+        if (authorities.contains("report.export")) {
             return;
         }
 
