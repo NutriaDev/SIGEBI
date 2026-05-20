@@ -34,9 +34,11 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'users.delete.supervisor', 'Eliminar SUPERVISOR'),
 (gen_random_uuid(), 'users.delete.tecnico', 'Eliminar TECNICO'),
 
--- REPORTES
-(gen_random_uuid(), 'reports.read', 'Ver reportes'),
-(gen_random_uuid(), 'reports.write', 'Crear/editar reportes'),
+-- REPORTES GRANULARES
+(gen_random_uuid(), 'report.create', 'Crear reportes'),
+(gen_random_uuid(), 'report.read', 'Ver reportes'),
+(gen_random_uuid(), 'report.update', 'Actualizar reportes'),
+(gen_random_uuid(), 'report.export', 'Exportar reportes'),
 
 -- AREA EQUIPOS
 (gen_random_uuid(), 'equipment.area.create', 'Crear Areas de los equipos'),
@@ -119,7 +121,10 @@ JOIN auth_permission p ON p.name IN (
   'users.update.tecnico',
   'users.delete.supervisor',
   'users.delete.tecnico',
-  'reports.read',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
   'equipment.classification.read',
   'equipment.state.read',
   'equipment.location.read',
@@ -164,6 +169,10 @@ JOIN auth_permission p ON p.name IN (
   'users.read.tecnico',
   'users.update.supervisor',
   'users.update.tecnico',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
   'reports.read',
   'reports.write',
   'equipment.classification.read',
@@ -202,6 +211,10 @@ JOIN auth_permission p ON p.name IN (
   'users.read.admin',
   'users.read.supervisor',
   'users.read.tecnico',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
   'reports.read',
   'reports.write',
   'equipment.classification.read',

@@ -28,11 +28,22 @@ spring:
     init:
       mode: never
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   data:
     web:
       pageable:
         default-page-size: 10
         max-page-size: 100
+
+kafka:
+  topics:
+    movement-events: sigebi-movement-events
+    inventory-events: sigebi-inventory-events
 
 eureka:
   instance:
@@ -49,3 +60,6 @@ feign:
 # Feign — URL del Equipment MS
 equipment-service:
   url: http://localhost:8091
+
+user-service:
+  url: http://localhost:8090

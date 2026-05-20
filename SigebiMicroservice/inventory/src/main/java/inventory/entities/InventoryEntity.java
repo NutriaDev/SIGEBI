@@ -22,8 +22,8 @@ public class InventoryEntity {
     @Column(name = "inventory_id")
     private Long idInventory;
 
-    @Column(name = "location", nullable = false, length = 255)
-    private String location;
+    @Column(name = "location_name", length = 255)
+    private String locationName;
 
     @Column(name = "location_id", nullable = false)
     private Long locationId;
@@ -34,8 +34,11 @@ public class InventoryEntity {
     @Column(name = "observations", length = 1000)
     private String observations;
 
-    @Column(name = "created_by", nullable = false, length = 255)
+    @Column(name = "created_by", length = 255)
     private String createdBy;
+
+    @Column(name = "responsible_name", length = 255)
+    private String responsibleName;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

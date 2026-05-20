@@ -73,7 +73,8 @@ public class InventoryQueryService {
 
         return new InventoryWithDetailResponse(
                 inv.getIdInventory(),
-                inv.getLocation(),
+                inv.getLocationName(),
+                inv.getResponsibleName(),
                 inv.getDate(),
                 inv.getObservations(),
                 inv.getCreatedAt(),
@@ -84,7 +85,8 @@ public class InventoryQueryService {
     private InventoryResponse mapToResponse(InventoryEntity inv) {
         return new InventoryResponse(
                 inv.getIdInventory(),
-                inv.getLocation(),
+                inv.getLocationName(),
+                inv.getResponsibleName(),
                 inv.getDate(),
                 inv.getObservations(),
                 inv.getCreatedAt()
