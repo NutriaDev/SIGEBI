@@ -354,66 +354,6 @@ public class ReportController {
         );
     }
 
-    @GetMapping("/consolidated/date-range")
-    @PreAuthorize("hasAuthority('report.read')")
-    public ResponseEntity<ApiResponse> getConsolidatedReportByDate(
-            @RequestParam LocalDate from,
-            @RequestParam LocalDate to,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        var result = reportViewService.getConsolidatedReportByDate(from, to, pageable);
-
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .title("Reporte consolidado por fecha")
-                        .message("Consulta realizada correctamente")
-                        .body(result)
-                        .build()
-        );
-    }
-
-    @GetMapping("/consolidated/equipment/{equipmentId}")
-    @PreAuthorize("hasAuthority('report.read')")
-    public ResponseEntity<ApiResponse> getConsolidatedReportByEquipment(
-            @PathVariable Long equipmentId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        var result = reportViewService.getConsolidatedReportByEquipmentId(equipmentId, pageable);
-
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .title("Reporte consolidado por equipo")
-                        .message("Consulta realizada correctamente")
-                        .body(result)
-                        .build()
-        );
-    }
-
-    @GetMapping("/consolidated/location/{location}")
-    @PreAuthorize("hasAuthority('report.read')")
-    public ResponseEntity<ApiResponse> getConsolidatedReportByLocation(
-            @PathVariable String location,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        var result = reportViewService.getConsolidatedReportByLocation(location, pageable);
-
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .title("Reporte consolidado por ubicación")
-                        .message("Consulta realizada correctamente")
-                        .body(result)
-                        .build()
-        );
-    }
 
     @GetMapping("/consolidated/filters")
     @PreAuthorize("hasAuthority('report.read')")

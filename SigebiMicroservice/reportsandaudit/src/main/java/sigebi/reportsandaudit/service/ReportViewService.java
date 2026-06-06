@@ -82,29 +82,9 @@ public class ReportViewService {
         if (result.isEmpty()) {
             throw new EmptyResultException("No hay snapshots para la ubicacion especificada");
         }
-        return result;
-    }
+        return result;    }
 
-    public Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> getConsolidatedReportByDate(LocalDate from, LocalDate to, Pageable pageable) {
-        validatePageSize(pageable);
-        Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> result = consolidatedReportViewRepository.findByDateBetween(from, to, pageable);
-        validateNotEmpty(result, "reporte consolidado por fecha");
-        return result;
-    }
 
-    public Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> getConsolidatedReportByEquipmentId(Long equipmentId, Pageable pageable) {
-        validatePageSize(pageable);
-        Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> result = consolidatedReportViewRepository.findByEquipmentId(equipmentId, pageable);
-        validateNotEmpty(result, "reporte consolidado por equipo");
-        return result;
-    }
-
-    public Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> getConsolidatedReportByLocation(String location, Pageable pageable) {
-        validatePageSize(pageable);
-        Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> result = consolidatedReportViewRepository.findByLocation(location, pageable);
-        validateNotEmpty(result, "reporte consolidado por ubicacion");
-        return result;
-    }
 
     public Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> getConsolidatedReportWithFilters(
             Long equipmentId,
