@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class ReportEvent {
 
     // Tipo de evento
-    private String eventType; // MOVEMENT, MAINTENANCE, INVENTORY, REPORT
+    private String eventType;
 
     // Equipo
     private Long equipmentId;
@@ -22,20 +22,19 @@ public class ReportEvent {
     private String inventoryCode;
 
     // Ubicaciones
-    private String physicalLocation; // UCI Adultos, Laboratorio, Radiología...
-    private String processLocation;  // MAINTENANCE_AREA, SYSTEM, INVENTORY...
+    private String physicalLocation;
+    private String processLocation;
 
     // Mantenimiento
+    private Long maintenanceId;
+    private Long serviceReportId;
     private String maintenanceType;
     private String status;
     private String technicianName;
 
-    // Fechas
+    // Fecha
     private LocalDate date;
 
-    // Datos del reporte técnico
-    private String technicalDiagnosis;
-    private String servicePerformed;
-    private String failureCause;
+    // Observaciones
     private String observations;
 }

@@ -3,6 +3,8 @@ package sigebi.reportsandaudit.service;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.context.SecurityContextHolder;import org.springframework.stereotype.Service;
 import sigebi.reportsandaudit.client.EquipmentClient;
 import sigebi.reportsandaudit.client.EquipmentDetail;
@@ -13,14 +15,14 @@ import sigebi.reportsandaudit.dto_request.MaintenanceServiceReportRequest;
 import sigebi.reportsandaudit.dto_response.MaintenanceServiceReportResponse;
 import sigebi.reportsandaudit.entities.MaintenanceServiceReportEntity;
 import sigebi.reportsandaudit.exception.BusinessException;
-import sigebi.reportsandaudit.kafka.AuditEvent;
-import sigebi.reportsandaudit.kafka.AuditEventProducer;
-import sigebi.reportsandaudit.kafka.MaintenanceServiceReportCreatedEvent;
-import sigebi.reportsandaudit.kafka.ServiceReportEventProducer;
+import sigebi.reportsandaudit.kafka.*;
 import sigebi.reportsandaudit.repository.MaintenanceServiceReportRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -35,6 +37,8 @@ public class MaintenanceServiceReportService {
     private final ServiceReportPdfGenerator pdfGenerator;
     private final ServiceReportEventProducer eventProducer;
     private final AuditEventProducer auditEventProducer;
+    private final ReportEventProducer reportEventProducer;
+
 
     @Value("${reports.maintenance.pdf-directory:./reports/maintenance}")
     private String pdfDirectory;
@@ -86,6 +90,15 @@ public class MaintenanceServiceReportService {
 
         MaintenanceServiceReportEntity saved = repository.save(entity);
 
+        ReportEvent reportEvent = ReportEvent.builder()
+                .eventType("SERVICE_REPORT")
+                .maintenanceId(saved.getMaintenanceId())
+                .serviceReportId(saved.getId())
+                .date(LocalDate.now())
+                .build();
+
+        reportEventProducer.sendReportEvent(reportEvent);
+
         // 5. Publicar eventos Kafka
         publishKafkaEvent(saved);
         registerAuditEvent(saved, userId, ipAddress);
@@ -126,6 +139,7 @@ public class MaintenanceServiceReportService {
             }
 
             return "/reports/maintenance/" + fileName;
+
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar el archivo PDF", e);
         }
@@ -184,6 +198,41 @@ public class MaintenanceServiceReportService {
             return null;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public Resource getPdf(Long reportId) {
+
+        MaintenanceServiceReportEntity report =
+                repository.findById(reportId)
+                        .orElseThrow(() ->
+                                new BusinessException(
+                                        "REPORT_NOT_FOUND",
+                                        "Reporte no encontrado"
+                                ));
+
+        try {
+
+            String fileName = Paths.get(report.getPdfPath())
+                    .getFileName()
+                    .toString();
+
+            Path path = Paths.get(pdfDirectory, fileName);
+
+            if (!path.toFile().exists()) {
+                throw new BusinessException(
+                        "PDF_NOT_FOUND",
+                        "No se encontró el archivo físico"
+                );
+            }
+
+            return new UrlResource(path.toUri());
+
+        } catch (Exception e) {
+            throw new BusinessException(
+                    "PDF_NOT_FOUND",
+                    e.getMessage()
+            );
         }
     }
 

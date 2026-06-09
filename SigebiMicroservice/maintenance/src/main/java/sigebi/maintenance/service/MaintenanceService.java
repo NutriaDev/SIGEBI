@@ -100,20 +100,31 @@ public class MaintenanceService {
         ReportEvent reportEvent = ReportEvent.builder()
                 .eventType("MAINTENANCE")
 
+                // Equipo
                 .equipmentId(request.getEquipmentId())
                 .equipmentName(equipmentResponse.getBody().getName())
                 .brand(equipmentResponse.getBody().getBrand())
                 .model(equipmentResponse.getBody().getModel())
                 .serial(equipmentResponse.getBody().getSerie())
 
+                // Ubicación
                 .physicalLocation(physicalLocation)
                 .processLocation("MAINTENANCE")
 
+                // Mantenimiento
+                .maintenanceId(saved.getIdMaintenance())      // 🔥 NUEVO
+                .serviceReportId(null)            // 🔥 Aún no existe PDF
+
                 .maintenanceType(type.getName())
                 .status(saved.getStatus().name())
-                .date(LocalDate.now())
                 .technicianName(technician.getName())
+
+                // Datos generales
+                .date(LocalDate.now())
+                .observations(request.getIssueDescription())
+
                 .build();
+
         reportEventProducer.send(reportEvent);
 
         return mapToResponse(saved);

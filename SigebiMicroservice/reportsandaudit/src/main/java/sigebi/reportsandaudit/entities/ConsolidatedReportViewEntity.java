@@ -39,4 +39,9 @@ public class ConsolidatedReportViewEntity {
     // Observaciones
     @Column(length = 1000)
     private String observations;
+    @Column(name = "maintenance_id")
+    private Long maintenanceId;
+
+    @Column(name = "service_report_id")
+    private Long serviceReportId;
 }

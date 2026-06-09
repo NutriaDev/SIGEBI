@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ReportEvent {
 
-    // Tipo de evento
     private String eventType;
 
     // Equipo
@@ -29,6 +28,9 @@ public class ReportEvent {
     private String processLocation;
 
     // Mantenimiento
+    private Long maintenanceId;
+    private Long serviceReportId;
+
     private String maintenanceType;
     private String status;
     private String technicianName;
@@ -36,9 +38,6 @@ public class ReportEvent {
     // Fecha
     private LocalDate date;
 
-    // Datos técnicos
-    private String technicalDiagnosis;
-    private String servicePerformed;
-    private String failureCause;
+    // Observaciones
     private String observations;
 }

@@ -25,8 +25,38 @@ public class ReportEventConsumer {
             topics = "${kafka.topics.report-events}",
             groupId = "sigebi-report-group"
     )
-    public void consume(ReportEvent event) { // ← String → ReportEvent
+    public void consume(ReportEvent event) {
+
         try {
+
+            // =====================================
+            // ACTUALIZAR REPORTE TÉCNICO
+            // =====================================
+            if ("SERVICE_REPORT".equals(event.getEventType())) {
+
+                consolidatedRepository
+                        .findByMaintenanceId(event.getMaintenanceId())
+                        .ifPresent(row -> {
+
+                            row.setServiceReportId(
+                                    event.getServiceReportId()
+                            );
+
+                            consolidatedRepository.save(row);
+                        });
+
+                log.info(
+                        "SERVICE_REPORT actualizado maintenanceId={}, serviceReportId={}",
+                        event.getMaintenanceId(),
+                        event.getServiceReportId()
+                );
+
+                return;
+            }
+
+            // =====================================
+            // CREAR REGISTRO DE MANTENIMIENTO
+            // =====================================
             consolidatedRepository.save(
                     ConsolidatedReportViewEntity.builder()
                             .equipmentId(event.getEquipmentId())
@@ -44,29 +74,42 @@ public class ReportEventConsumer {
 
                             // Mantenimiento
                             .maintenanceType(event.getMaintenanceType())
-                            .technicalDiagnosis(event.getTechnicalDiagnosis())
-                            .servicePerformed(event.getServicePerformed())
-                            .failureCause(event.getFailureCause())
+                            .maintenanceId(event.getMaintenanceId())
+
+                            // Inicialmente sin PDF
+                            .serviceReportId(null)
 
                             // Observaciones
                             .observations(event.getObservations())
 
-                            .date(event.getDate() != null
-                                    ? event.getDate()
-                                    : LocalDate.now())
+                            .date(
+                                    event.getDate() != null
+                                            ? event.getDate()
+                                            : LocalDate.now()
+                            )
                             .build()
             );
-            maintenanceRepository.save(MaintenanceReportViewEntity.builder()
-                    .equipmentId(event.getEquipmentId())
-                    .type(event.getMaintenanceType())
-                    .status(event.getStatus())
-                    .date(event.getDate() != null ? event.getDate() : LocalDate.now())
-                    .technicianName(event.getTechnicianName())
-                    .build());
 
-            log.info("ReportEvent procesado: {}", event);
+            maintenanceRepository.save(
+                    MaintenanceReportViewEntity.builder()
+                            .equipmentId(event.getEquipmentId())
+                            .type(event.getMaintenanceType())
+                            .status(event.getStatus())
+                            .date(
+                                    event.getDate() != null
+                                            ? event.getDate()
+                                            : LocalDate.now()
+                            )
+                            .technicianName(event.getTechnicianName())
+                            .build()
+            );
+
+            log.info("MAINTENANCE procesado: {}", event);
+
         } catch (Exception e) {
+
             log.error("Error procesando ReportEvent", e);
+
         }
     }
 }

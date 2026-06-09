@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface ConsolidatedReportViewRepository
@@ -34,4 +35,6 @@ public interface ConsolidatedReportViewRepository
             @Param("toDate") LocalDate toDate,
             Pageable pageable
     );
+
+    Optional<ConsolidatedReportViewEntity> findByMaintenanceId(Long maintenanceId);
 }

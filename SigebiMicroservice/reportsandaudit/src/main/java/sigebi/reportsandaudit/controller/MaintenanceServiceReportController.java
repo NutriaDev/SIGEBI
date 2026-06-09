@@ -1,9 +1,13 @@
 package sigebi.reportsandaudit.controller;
 
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +48,22 @@ public class MaintenanceServiceReportController {
                         .body(body)
                         .build()
         );
+    }
+
+    @GetMapping("/{id}/pdf")
+    @PreAuthorize("hasAuthority('report.read')")
+    public ResponseEntity<Resource> downloadPdf(
+            @PathVariable Long id
+    ) {
+
+        Resource pdf = (Resource) service.getPdf(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"service-report-" + id + ".pdf\""
+                )
+                .body(pdf);
     }
 }
