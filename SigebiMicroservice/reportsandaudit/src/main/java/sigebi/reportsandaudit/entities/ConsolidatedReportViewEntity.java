@@ -35,9 +35,6 @@ public class ConsolidatedReportViewEntity {
 
     // Mantenimiento
     private String maintenanceType;
-    private String technicalDiagnosis;
-    private String servicePerformed;
-    private String failureCause;
 
     // Observaciones
     @Column(length = 1000)

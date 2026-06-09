@@ -360,6 +360,7 @@ public class ReportController {
     public ResponseEntity<ApiResponse> getConsolidatedReportWithFilters(
             @RequestParam(required = false) Long equipmentId,
             @RequestParam(required = false) String physicalLocation,
+            @RequestParam(required = false) String processLocation,
             @RequestParam(required = false) String maintenanceType,
             @RequestParam(required = false) LocalDate fromDate,
             @RequestParam(required = false) LocalDate toDate,
@@ -368,7 +369,7 @@ public class ReportController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         var result = reportViewService.getConsolidatedReportWithFilters(
-                equipmentId, physicalLocation, maintenanceType, fromDate, toDate, pageable
+                equipmentId, physicalLocation,  processLocation, maintenanceType, fromDate, toDate, pageable
         );
 
         return ResponseEntity.ok(
