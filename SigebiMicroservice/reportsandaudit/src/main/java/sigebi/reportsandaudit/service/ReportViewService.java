@@ -88,14 +88,14 @@ public class ReportViewService {
 
     public Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> getConsolidatedReportWithFilters(
             Long equipmentId,
-            String location,
+            String physicalLocation,
             String maintenanceType,
             LocalDate fromDate,
             LocalDate toDate,
             Pageable pageable
     ) {
         validatePageSize(pageable);
-        Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> result = consolidatedReportViewRepository.findWithFilters(equipmentId, location, maintenanceType, fromDate, toDate, pageable);
+        Page<sigebi.reportsandaudit.entities.ConsolidatedReportViewEntity> result = consolidatedReportViewRepository.findWithFilters(equipmentId, physicalLocation, maintenanceType, fromDate, toDate, pageable);
         validateNotEmpty(result, "reporte consolidado con filtros");
         return result;
     }

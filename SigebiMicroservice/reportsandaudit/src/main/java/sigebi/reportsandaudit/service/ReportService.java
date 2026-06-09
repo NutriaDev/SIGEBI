@@ -55,7 +55,7 @@ public class ReportService {
                 .eventType("REPORT") // identificador del tipo
                 .equipmentId(saved.getId()) // reutilizamos el campo
                 .equipmentName("REPORT-" + saved.getId())
-                .location("SYSTEM")
+                .processLocation("SYSTEM")
                 .maintenanceType(saved.getType().name())
                 .status(saved.getStatus().name())
                 .date(java.time.LocalDate.now())
@@ -94,7 +94,7 @@ public class ReportService {
                 .eventType("REPORT") // identificador del tipo
                 .equipmentId(saved.getId()) // reutilizamos el campo
                 .equipmentName("REPORT-" + saved.getId())
-                .location("SYSTEM")
+                .processLocation("SYSTEM")
                 .maintenanceType(saved.getType().name())
                 .status(saved.getStatus().name())
                 .date(java.time.LocalDate.now())

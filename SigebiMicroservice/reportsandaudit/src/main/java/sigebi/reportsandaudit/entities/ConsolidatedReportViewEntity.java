@@ -18,15 +18,14 @@ public class ConsolidatedReportViewEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 📅 Información general
+    // Información general
     private LocalDate date;
 
-    // 🏥 Clínica / ubicación
-    private String clinic;
-    private String location;
-    private String serviceArea;
+    // Ubicaciones
+    private String physicalLocation;   // UCI Adultos, Radiología, Laboratorio...
+    private String processLocation;    // MAINTENANCE_AREA, SYSTEM...
 
-    // 🏥 Equipo
+    // Equipo
     private Long equipmentId;
     private String equipmentName;
     private String brand;
@@ -34,14 +33,13 @@ public class ConsolidatedReportViewEntity {
     private String serial;
     private String inventoryCode;
 
-    // 🔧 Mantenimiento
+    // Mantenimiento
     private String maintenanceType;
     private String technicalDiagnosis;
     private String servicePerformed;
     private String failureCause;
 
-    // 📝 Observaciones
+    // Observaciones
     @Column(length = 1000)
     private String observations;
-
 }

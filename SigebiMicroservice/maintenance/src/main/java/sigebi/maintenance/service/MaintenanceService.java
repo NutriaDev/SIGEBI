@@ -52,12 +52,19 @@ public class MaintenanceService {
                 ));
 
 
+        EquipmentApiResponse equipmentResponse = null;
 
+        String physicalLocation = null;
         try {
-            EquipmentApiResponse equipmentResponse = equipmentClient.getEquipmentById(request.getEquipmentId());
-            if (equipmentResponse == null || !"success".equalsIgnoreCase(equipmentResponse.getStatus())) {
+            equipmentResponse = equipmentClient.getEquipmentById(request.getEquipmentId());
+
+            if (equipmentResponse == null
+                    || !"success".equalsIgnoreCase(equipmentResponse.getStatus())) {
                 throw new BusinessException("EQUIPMENT_NOT_FOUND", "El equipo no existe");
             }
+
+            physicalLocation =
+                    equipmentResponse.getBody().getLocationName();
         } catch (FeignException.NotFound e) {
             throw new BusinessException("EQUIPMENT_NOT_FOUND", "El equipo no existe");
         } catch (FeignException e) {
@@ -92,10 +99,18 @@ public class MaintenanceService {
 
         ReportEvent reportEvent = ReportEvent.builder()
                 .eventType("MAINTENANCE")
+
                 .equipmentId(request.getEquipmentId())
+                .equipmentName(equipmentResponse.getBody().getName())
+                .brand(equipmentResponse.getBody().getBrand())
+                .model(equipmentResponse.getBody().getModel())
+                .serial(equipmentResponse.getBody().getSerie())
+
+                .physicalLocation(physicalLocation)
+                .processLocation("MAINTENANCE")
+
                 .maintenanceType(type.getName())
                 .status(saved.getStatus().name())
-                .location("MAINTENANCE_AREA")
                 .date(LocalDate.now())
                 .technicianName(technician.getName())
                 .build();

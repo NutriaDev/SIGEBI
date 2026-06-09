@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EquipmentApiResponse {
+
     private String status;
     private String title;
     private String message;
-    private Object body;
+
+    private EquipmentDetailResponse body;
 }

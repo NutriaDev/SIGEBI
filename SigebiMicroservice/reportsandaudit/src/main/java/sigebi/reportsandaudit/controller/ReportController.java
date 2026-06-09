@@ -359,7 +359,7 @@ public class ReportController {
     @PreAuthorize("hasAuthority('report.read')")
     public ResponseEntity<ApiResponse> getConsolidatedReportWithFilters(
             @RequestParam(required = false) Long equipmentId,
-            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String physicalLocation,
             @RequestParam(required = false) String maintenanceType,
             @RequestParam(required = false) LocalDate fromDate,
             @RequestParam(required = false) LocalDate toDate,
@@ -368,7 +368,7 @@ public class ReportController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         var result = reportViewService.getConsolidatedReportWithFilters(
-                equipmentId, location, maintenanceType, fromDate, toDate, pageable
+                equipmentId, physicalLocation, maintenanceType, fromDate, toDate, pageable
         );
 
         return ResponseEntity.ok(
@@ -437,7 +437,7 @@ public class ReportController {
                 .body(fileContent);
     }
 
-    @GetMapping("/export/direct")
+    @GetMapping("/export-direct")
     @PreAuthorize("hasAuthority('report.export')")
     public ResponseEntity<byte[]> exportDirectReport(
             @RequestParam ReportType type,

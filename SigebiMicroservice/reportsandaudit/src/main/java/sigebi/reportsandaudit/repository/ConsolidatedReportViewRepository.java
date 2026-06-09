@@ -13,35 +13,19 @@ import java.time.LocalDate;
 public interface ConsolidatedReportViewRepository
         extends JpaRepository<ConsolidatedReportViewEntity, Long> {
 
-    // 🔹 Filtros básicos
-    Page<ConsolidatedReportViewEntity> findByDateBetween(
-            LocalDate from,
-            LocalDate to,
-            Pageable pageable
-    );
-
-    Page<ConsolidatedReportViewEntity> findByEquipmentId(
-            Long equipmentId,
-            Pageable pageable
-    );
-
-    Page<ConsolidatedReportViewEntity> findByLocation(
-            String location,
-            Pageable pageable
-    );
 
     // 🔥 FILTRO DINÁMICO (EL MÁS IMPORTANTE)
     @Query("""
         SELECT c FROM ConsolidatedReportViewEntity c
         WHERE (:equipmentId IS NULL OR c.equipmentId = :equipmentId)
-        AND (:location IS NULL OR c.location = :location)
+        AND (:physicalLocation IS NULL OR c.physicalLocation = :physicalLocation)
         AND (:maintenanceType IS NULL OR c.maintenanceType = :maintenanceType)
         AND (:fromDate IS NULL OR c.date >= :fromDate)
         AND (:toDate IS NULL OR c.date <= :toDate)
     """)
     Page<ConsolidatedReportViewEntity> findWithFilters(
             Long equipmentId,
-            String location,
+            String physicalLocation,
             String maintenanceType,
             LocalDate fromDate,
             LocalDate toDate,

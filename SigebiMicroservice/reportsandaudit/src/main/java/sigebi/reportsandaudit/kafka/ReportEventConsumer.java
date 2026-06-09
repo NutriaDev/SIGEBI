@@ -27,13 +27,35 @@ public class ReportEventConsumer {
     )
     public void consume(ReportEvent event) { // ← String → ReportEvent
         try {
-            consolidatedRepository.save(ConsolidatedReportViewEntity.builder()
-                    .equipmentId(event.getEquipmentId())
-                    .location(event.getLocation())
-                    .maintenanceType(event.getMaintenanceType())
-                    .date(event.getDate() != null ? event.getDate() : LocalDate.now())
-                    .build());
+            consolidatedRepository.save(
+                    ConsolidatedReportViewEntity.builder()
+                            .equipmentId(event.getEquipmentId())
 
+                            // Equipo
+                            .equipmentName(event.getEquipmentName())
+                            .brand(event.getBrand())
+                            .model(event.getModel())
+                            .serial(event.getSerial())
+                            .inventoryCode(event.getInventoryCode())
+
+                            // Ubicaciones
+                            .physicalLocation(event.getPhysicalLocation())
+                            .processLocation(event.getProcessLocation())
+
+                            // Mantenimiento
+                            .maintenanceType(event.getMaintenanceType())
+                            .technicalDiagnosis(event.getTechnicalDiagnosis())
+                            .servicePerformed(event.getServicePerformed())
+                            .failureCause(event.getFailureCause())
+
+                            // Observaciones
+                            .observations(event.getObservations())
+
+                            .date(event.getDate() != null
+                                    ? event.getDate()
+                                    : LocalDate.now())
+                            .build()
+            );
             maintenanceRepository.save(MaintenanceReportViewEntity.builder()
                     .equipmentId(event.getEquipmentId())
                     .type(event.getMaintenanceType())
