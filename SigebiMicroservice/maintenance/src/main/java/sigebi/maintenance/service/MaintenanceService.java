@@ -116,7 +116,7 @@ public class MaintenanceService {
                 .serviceReportId(null)            // 🔥 Aún no existe PDF
 
                 .maintenanceType(type.getName())
-                .status(saved.getStatus().name())
+                .maintenanceStatus(saved.getStatus().name())
                 .technicianName(technician.getName())
 
                 // Datos generales

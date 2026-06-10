@@ -35,6 +35,7 @@ public class ConsolidatedReportViewEntity {
 
     // Mantenimiento
     private String maintenanceType;
+    private String maintenanceStatus;
 
     // Observaciones
     @Column(length = 1000)

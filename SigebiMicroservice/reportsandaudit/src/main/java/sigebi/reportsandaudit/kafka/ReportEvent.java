@@ -29,7 +29,7 @@ public class ReportEvent {
     private Long maintenanceId;
     private Long serviceReportId;
     private String maintenanceType;
-    private String status;
+    private String maintenanceStatus;
     private String technicianName;
 
     // Fecha

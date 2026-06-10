@@ -57,7 +57,7 @@ public class ReportService {
                 .equipmentName("REPORT-" + saved.getId())
                 .processLocation("SYSTEM")
                 .maintenanceType(saved.getType().name())
-                .status(saved.getStatus().name())
+                .maintenanceStatus(saved.getStatus().name())
                 .date(java.time.LocalDate.now())
                 .build();
         reportEventProducer.sendReportEvent(reportEvent);
@@ -96,7 +96,7 @@ public class ReportService {
                 .equipmentName("REPORT-" + saved.getId())
                 .processLocation("SYSTEM")
                 .maintenanceType(saved.getType().name())
-                .status(saved.getStatus().name())
+                .maintenanceStatus(saved.getStatus().name())
                 .date(java.time.LocalDate.now())
                 .build();
         reportEventProducer.sendReportEvent(reportEvent);
@@ -127,7 +127,7 @@ public class ReportService {
                 .format(e.getFormat().name())
                 .createdBy(e.getCreatedBy())
                 .createdAt(e.getCreatedAt())
-                .status(e.getStatus().name())
+                .maintenanceStatus(e.getStatus().name())
                 .filters(e.getFilters())
                 .build();
     }

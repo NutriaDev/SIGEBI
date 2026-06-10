@@ -362,6 +362,7 @@ public class ReportController {
             @RequestParam(required = false) String physicalLocation,
             @RequestParam(required = false) String processLocation,
             @RequestParam(required = false) String maintenanceType,
+            @RequestParam(required = false) String maintenanceStatus,
             @RequestParam(required = false) LocalDate fromDate,
             @RequestParam(required = false) LocalDate toDate,
             @RequestParam(defaultValue = "0") int page,
@@ -369,7 +370,7 @@ public class ReportController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         var result = reportViewService.getConsolidatedReportWithFilters(
-                equipmentId, physicalLocation,  processLocation, maintenanceType, fromDate, toDate, pageable
+                equipmentId, physicalLocation,  processLocation, maintenanceType,maintenanceStatus, fromDate, toDate, pageable
         );
 
         return ResponseEntity.ok(

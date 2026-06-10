@@ -32,7 +32,7 @@ public class ReportEvent {
     private Long serviceReportId;
 
     private String maintenanceType;
-    private String status;
+    private String maintenanceStatus;
     private String technicianName;
 
     // Fecha

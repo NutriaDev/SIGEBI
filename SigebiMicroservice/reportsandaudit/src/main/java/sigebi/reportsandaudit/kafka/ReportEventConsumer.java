@@ -74,6 +74,7 @@ public class ReportEventConsumer {
 
                             // Mantenimiento
                             .maintenanceType(event.getMaintenanceType())
+                            .maintenanceStatus(event.getMaintenanceStatus())
                             .maintenanceId(event.getMaintenanceId())
 
                             // Inicialmente sin PDF
@@ -89,12 +90,13 @@ public class ReportEventConsumer {
                             )
                             .build()
             );
+            log.info("STATUS EVENTO = {}", event.getMaintenanceStatus());
 
             maintenanceRepository.save(
                     MaintenanceReportViewEntity.builder()
                             .equipmentId(event.getEquipmentId())
                             .type(event.getMaintenanceType())
-                            .status(event.getStatus())
+                            .status(event.getMaintenanceStatus())
                             .date(
                                     event.getDate() != null
                                             ? event.getDate()

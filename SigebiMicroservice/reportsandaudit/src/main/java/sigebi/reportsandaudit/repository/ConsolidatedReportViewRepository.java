@@ -23,6 +23,7 @@ public interface ConsolidatedReportViewRepository
     AND (:physicalLocation IS NULL OR c.physical_location = :physicalLocation)
     AND (:processLocation IS NULL OR c.process_location = :processLocation)
     AND (:maintenanceType IS NULL OR c.maintenance_type = :maintenanceType)
+    AND (:maintenanceStatus IS NULL OR c.maintenance_status = :maintenanceStatus)
     AND (CAST(:fromDate AS date) IS NULL OR c.date >= CAST(:fromDate AS date))
     AND (CAST(:toDate AS date) IS NULL OR c.date <= CAST(:toDate AS date))
 """, nativeQuery = true)
@@ -31,6 +32,7 @@ public interface ConsolidatedReportViewRepository
             @Param("physicalLocation") String physicalLocation,
             @Param("processLocation") String processLocation,
             @Param("maintenanceType") String maintenanceType,
+            @Param("maintenanceStatus") String maintenanceStatus,
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate,
             Pageable pageable

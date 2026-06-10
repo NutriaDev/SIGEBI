@@ -14,6 +14,6 @@ public class ReportResponse {
     private String format;
     private Long createdBy;
     private LocalDateTime createdAt;
-    private String status;
+    private String maintenanceStatus;
     private String filters;
 }
