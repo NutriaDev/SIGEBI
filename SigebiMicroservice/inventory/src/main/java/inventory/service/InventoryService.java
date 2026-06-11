@@ -93,7 +93,7 @@ public class InventoryService {
         Set<Long> extraInPhysical = new HashSet<>(physicalSet);
         extraInPhysical.removeAll(registeredIds);
 
-        String inconsistencies = "\nINCONSISTENCIAS:" +
+        String inconsistencies =
                 "\nFaltantes físicamente: " + missingInPhysical +
                 "\nSobrantes físicamente: " + extraInPhysical;
 
