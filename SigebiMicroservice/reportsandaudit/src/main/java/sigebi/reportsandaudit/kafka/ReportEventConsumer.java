@@ -10,6 +10,8 @@ import sigebi.reportsandaudit.entities.MaintenanceReportViewEntity;
 import sigebi.reportsandaudit.repository.ConsolidatedReportViewRepository;
 
 import java.time.LocalDate;
+
+import sigebi.reportsandaudit.repository.EquipmentSnapshotRepository;
 import sigebi.reportsandaudit.repository.MaintenanceReportViewRepository;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class ReportEventConsumer {
 
     private final ConsolidatedReportViewRepository consolidatedRepository;
     private final MaintenanceReportViewRepository maintenanceRepository;
+    private final EquipmentSnapshotRepository snapshotRepository;
 
 
     @KafkaListener(
@@ -105,6 +108,26 @@ public class ReportEventConsumer {
                             .technicianName(event.getTechnicianName())
                             .build()
             );
+
+            snapshotRepository
+                    .findByEquipmentId(event.getEquipmentId())
+                    .ifPresent(snapshot -> {
+
+                        LocalDate maintenanceDate =
+                                event.getDate() != null
+                                        ? event.getDate()
+                                        : LocalDate.now();
+
+                        snapshot.setLastMaintenanceDate(maintenanceDate);
+
+                        snapshotRepository.save(snapshot);
+
+                        log.info(
+                                "Snapshot actualizado. equipmentId={}, lastMaintenanceDate={}",
+                                event.getEquipmentId(),
+                                maintenanceDate
+                        );
+                    });
 
             log.info("MAINTENANCE procesado: {}", event);
 

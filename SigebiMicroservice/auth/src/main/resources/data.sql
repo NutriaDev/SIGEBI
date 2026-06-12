@@ -230,6 +230,7 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.update',
   'equipment.area.read',
   'movement.read',
+  'movement.create',
   'maintenance.create',
   'maintenance.read',
   'maintenance.update'
