@@ -63,18 +63,26 @@ public class MovementService {
     @Transactional
     public void registerMovement(MovementRequest req) {
 
+
         // 🔥 1. BUSCAR EQUIPO POR SERIAL
         EquipmentResponse equipment = validateEquipment(req.serial());
 
+
+
         Long equipmentId = equipment.getEquipmentId();
         Long currentLocation = equipment.getLocationId();
+
 
         // 🔥 2. VALIDAR UBICACIÓN ORIGEN
         if (!req.originLocationId().equals(currentLocation)) {
             throw new BusinessException("El equipo no pertenece a la ubicación origen");
         }
 
+
+
         Long userId = getCurrentUserId();
+
+
 
         // 🔥 3. GUARDAR MOVIMIENTO
         MovementEntity movement = MovementEntity.builder()
@@ -86,6 +94,7 @@ public class MovementService {
                 .build();
 
         movementRepository.save(movement);
+
 
         String responsibleName = "Usuario-" + userId; // fallback
         try {
@@ -104,12 +113,17 @@ public class MovementService {
                 .build();
         movementEventProducer.send(movementEvent);
 
+
+
+
+
         // 🔥 4. ACTUALIZAR UBICACIÓN EN EQUIPMENT
         try {
             equipmentClient.updateLocation(
                     equipmentId,
                     new UpdateEquipmentLocationRequest(req.destinationLocationId())
             );
+
         } catch (Exception e) {
             log.error("Error actualizando ubicación", e);
             throw new BusinessException("No se pudo actualizar la ubicación del equipo");

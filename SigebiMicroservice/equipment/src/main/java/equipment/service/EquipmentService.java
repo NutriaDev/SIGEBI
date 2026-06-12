@@ -368,7 +368,14 @@ public class EquipmentService {
 
         equipment.setLocation(location);
 
-        equipmentRepository.save(equipment);
+        EquipmentEntity updatedEquipment =
+                equipmentRepository.save(equipment);
+
+        sendEquipmentEvent(
+                "LOCATION_UPDATED",
+                updatedEquipment,
+                null
+        );
     }
 
     // ================= MAPPER =================

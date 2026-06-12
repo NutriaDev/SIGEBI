@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import sigebi.reportsandaudit.entities.MovementReportViewEntity;
+import sigebi.reportsandaudit.repository.EquipmentSnapshotRepository;
 import sigebi.reportsandaudit.repository.MovementReportViewRepository;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MovementEventConsumer {
 
+    private final EquipmentSnapshotRepository snapshotRepository;
     private final MovementReportViewRepository repository;
     private final ObjectMapper objectMapper;
 
