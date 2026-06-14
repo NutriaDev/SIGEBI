@@ -41,7 +41,7 @@ public class MovementService {
 
         try {
             response = equipmentClient.findBySerial(serial);
-            log.info("Llamando equipment con serie: {}", serial);
+
         } catch (Exception e) {
             log.error("Error consultando equipo {}", serial, e);
             throw new EquipmentNotFoundException("Equipo no encontrado");
@@ -51,13 +51,22 @@ public class MovementService {
             throw new EquipmentNotFoundException("Equipo no encontrado");
         }
 
-        // 🔥 AQUÍ ESTÁ EL FIX REAL
-        EquipmentResponse equipment = objectMapper.convertValue(
-                response.getBody(),
-                EquipmentResponse.class
-        );
+        try {
 
-        return equipment;
+            EquipmentResponse equipment =
+                    objectMapper.convertValue(
+                            response.getBody(),
+                            EquipmentResponse.class
+                    );
+
+            return equipment;
+
+        } catch (Exception e) {
+
+            log.error("ERROR CONVIRTIENDO RESPONSE", e);
+
+            throw e;
+        }
     }
 
     @Transactional
@@ -66,7 +75,6 @@ public class MovementService {
 
         // 🔥 1. BUSCAR EQUIPO POR SERIAL
         EquipmentResponse equipment = validateEquipment(req.serial());
-
 
 
         Long equipmentId = equipment.getEquipmentId();
@@ -78,11 +86,7 @@ public class MovementService {
             throw new BusinessException("El equipo no pertenece a la ubicación origen");
         }
 
-
-
         Long userId = getCurrentUserId();
-
-
 
         // 🔥 3. GUARDAR MOVIMIENTO
         MovementEntity movement = MovementEntity.builder()
@@ -112,10 +116,6 @@ public class MovementService {
                 .responsibleUserName(responsibleName) // ← necesitas resolver esto
                 .build();
         movementEventProducer.send(movementEvent);
-
-
-
-
 
         // 🔥 4. ACTUALIZAR UBICACIÓN EN EQUIPMENT
         try {
