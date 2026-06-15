@@ -440,11 +440,8 @@ ms-maintenance ─Kafka──► maintenance_report  ──┘
 ### Auditoría — `/api/audit`
 
 | Método | Ruta | Permiso | Descripción |
-|---|---|---|---|
+|---|---|---|---|---|
 | `POST` | `/api/audit/log` | `audit.create` | Registrar acción de auditoría |
-| `GET` | `/api/audit/user/{userId}` | `audit.read` | Logs por usuario |
-| `GET` | `/api/audit/module/{module}` | `audit.read` | Logs por módulo |
-| `GET` | `/api/audit/action/{action}` | `audit.read` | Logs por acción |
 | `POST` | `/api/audit/filters` | `audit.read` | Logs con filtros dinámicos |
 
 ### Reportes — `/api/reports`
