@@ -2,11 +2,14 @@ package inventory.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inventory.client.EquipmentClient;
+import inventory.client.UserClient;
 import inventory.dto_request.MovementRequest;
 import inventory.dto_response.ApiResponse;
 import inventory.dto_response.EquipmentResponse;
+import inventory.dto_response.UserResponse;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
+import inventory.kafka.MovementEventProducer;
 import inventory.repository.MovementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,12 @@ class MovementServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private UserClient userClient;
+
+    @Mock
+    private MovementEventProducer movementEventProducer;
+
     @InjectMocks
     private MovementService service;
 
@@ -62,6 +71,9 @@ class MovementServiceTest {
     void shouldRegisterMovementSuccessfully() {
         MovementRequest req = new MovementRequest("EQ-123", 1L, 2L, "TRANSFER");
 
+        UserResponse userResp = new UserResponse();
+        userResp.setName("Test User");
+        when(userClient.getUserById(99L)).thenReturn(userResp);
         when(equipmentClient.findBySerial("EQ-123")).thenReturn(apiResponse);
         when(objectMapper.convertValue(any(), eq(EquipmentResponse.class)))
                 .thenReturn(equipment);
@@ -125,6 +137,9 @@ class MovementServiceTest {
     void shouldThrowWhenUpdateLocationFails() {
         MovementRequest req = new MovementRequest("EQ-123", 1L, 2L, "TRANSFER");
 
+        UserResponse userResp = new UserResponse();
+        userResp.setName("Test User");
+        when(userClient.getUserById(99L)).thenReturn(userResp);
         when(equipmentClient.findBySerial("EQ-123")).thenReturn(apiResponse);
         when(objectMapper.convertValue(any(), eq(EquipmentResponse.class)))
                 .thenReturn(equipment);
@@ -156,5 +171,32 @@ class MovementServiceTest {
 
         assertThrows(EquipmentNotFoundException.class,
                 () -> service.findEquipmentBySerial("EQ-999"));
+    }
+
+    @Test
+    void shouldRegisterMovementWhenUserIsNull() {
+        MovementRequest req = new MovementRequest("EQ-123", 1L, 2L, "TRANSFER");
+
+        when(userClient.getUserById(99L)).thenReturn(null);
+        when(equipmentClient.findBySerial("EQ-123")).thenReturn(apiResponse);
+        when(objectMapper.convertValue(any(), eq(EquipmentResponse.class)))
+                .thenReturn(equipment);
+
+        service.registerMovement(req);
+
+        verify(movementRepository).save(any());
+        verify(equipmentClient).updateLocation(eq(1L), any());
+    }
+
+    @Test
+    void shouldThrowWhenEquipmentConversionFails() {
+        MovementRequest req = new MovementRequest("EQ-123", 1L, 2L, "TRANSFER");
+
+        when(equipmentClient.findBySerial("EQ-123")).thenReturn(apiResponse);
+        when(objectMapper.convertValue(any(), eq(EquipmentResponse.class)))
+                .thenThrow(new RuntimeException("Conversion error"));
+
+        assertThrows(RuntimeException.class,
+                () -> service.registerMovement(req));
     }
 }

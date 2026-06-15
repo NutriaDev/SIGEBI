@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,9 +89,9 @@ class InventoryServiceTest {
         locationApiResponse = new ApiResponse();
         locationApiResponse.setBody(Map.of("name", "Lab"));
 
-        when(userClient.getUserById(1L)).thenReturn(userResp);
-        when(locationClient.getLocationById(1L)).thenReturn(locationApiResponse);
-        when(objectMapper.convertValue(any(), eq(LocationResponse.class)))
+        lenient().when(userClient.getUserById(1L)).thenReturn(userResp);
+        lenient().when(locationClient.getLocationById(1L)).thenReturn(locationApiResponse);
+        lenient().when(objectMapper.convertValue(any(), eq(LocationResponse.class)))
                 .thenReturn(createLocationResponse());
     }
 
@@ -185,6 +186,32 @@ class InventoryServiceTest {
         when(equipmentClient.getEquipmentById(1L)).thenReturn(emptyResponse);
 
         assertThrows(EquipmentNotFoundException.class,
+                () -> service.createPhysicalInventory(req));
+    }
+
+    @Test
+    void shouldThrowWhenLocationResponseIsNull() {
+        InventoryRequest req = new InventoryRequest(
+                1L, null, "Obs",
+                List.of(new InventoryDetailRequest(1L, "OK", "obs"))
+        );
+
+        when(locationClient.getLocationById(1L)).thenReturn(null);
+
+        assertThrows(BusinessException.class,
+                () -> service.createPhysicalInventory(req));
+    }
+
+    @Test
+    void shouldThrowWhenUserClientFails() {
+        InventoryRequest req = new InventoryRequest(
+                1L, null, "Obs",
+                List.of(new InventoryDetailRequest(1L, "OK", "obs"))
+        );
+
+        when(userClient.getUserById(1L)).thenThrow(new RuntimeException());
+
+        assertThrows(BusinessException.class,
                 () -> service.createPhysicalInventory(req));
     }
 

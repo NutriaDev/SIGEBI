@@ -18,12 +18,14 @@ import sigebi.maintenance.client.EquipmentClient;
 import sigebi.maintenance.client.TechnicianClient;
 import sigebi.maintenance.dto_request.MaintenanceRequest;
 import sigebi.maintenance.dto_response.EquipmentApiResponse;
+import sigebi.maintenance.dto_response.EquipmentDetailResponse;
 import sigebi.maintenance.dto_response.MaintenanceResponse;
 import sigebi.maintenance.dto_response.UserAuthDataResponse;
 import sigebi.maintenance.entities.MaintenanceEntity;
 import sigebi.maintenance.entities.MaintenanceStatus;
 import sigebi.maintenance.entities.MaintenanceTypeEntity;
 import sigebi.maintenance.exception.BusinessException;
+import sigebi.maintenance.kafka.ReportEventProducer;
 import sigebi.maintenance.repository.MaintenanceRepository;
 import sigebi.maintenance.repository.MaintenanceTypeRepository;
 import static org.mockito.Mockito.lenient;
@@ -48,6 +50,9 @@ class MaintenanceServiceTest {
 
     @Mock
     private TechnicianClient technicianClient;
+
+    @Mock
+    private ReportEventProducer reportEventProducer;
 
     @InjectMocks
     private MaintenanceService service;
@@ -74,9 +79,18 @@ class MaintenanceServiceTest {
                 .issueDescription("Descripcion valida con mas de 20 caracteres")
                 .build();
 
+        EquipmentDetailResponse detail = new EquipmentDetailResponse();
+        detail.setEquipmentId(1L);
+        detail.setName("Equipo Test");
+        detail.setBrand("Marca");
+        detail.setModel("Modelo");
+        detail.setSerie("SN-001");
+        detail.setLocationId(1L);
+        detail.setLocationName("Ubicacion Test");
+
         successEquipmentResponse = EquipmentApiResponse.builder()
                 .status("success")
-                .body(new Object())
+                .body(detail)
                 .build();
 
         validTechnician = UserAuthDataResponse.builder()
@@ -370,5 +384,28 @@ class MaintenanceServiceTest {
         assertEquals(1, result.getTotalElements());
         verify(repository).findByEquipmentIdAndType_NameContainingIgnoreCaseAndDateBetweenOrderByDateDesc(
                 1L, "", null, null, Pageable.unpaged());
+    }
+
+    @Test
+    void shouldGetMaintenanceById() {
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(savedEntity));
+
+        MaintenanceResponse response = service.getMaintenanceById(1L);
+
+        assertNotNull(response);
+        assertEquals(1L, response.getIdMaintenance());
+        assertEquals("Preventivo", response.getMaintenanceType());
+        verify(repository).findById(1L);
+    }
+
+    @Test
+    void shouldThrowWhenMaintenanceNotFound() {
+        when(repository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> service.getMaintenanceById(99L));
+
+        assertEquals("MAINTENANCE_NOT_FOUND", ex.getCode());
+        verify(repository).findById(99L);
     }
 }

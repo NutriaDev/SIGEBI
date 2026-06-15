@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 .idea/
 *.iml
+
+# target
+target/
