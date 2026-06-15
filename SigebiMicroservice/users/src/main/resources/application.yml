@@ -14,16 +14,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
     defer-datasource-initialization: true  # ✅ data.sql después del schema
 
-  sql:
-    init:
-      mode: always           # ✅ Ejecuta data.sql SIEMPRE
+
 eureka:
   instance:
     hostname: localhost

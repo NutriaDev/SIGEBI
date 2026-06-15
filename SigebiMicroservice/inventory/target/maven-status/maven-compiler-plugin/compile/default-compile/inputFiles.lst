@@ -1,5 +1,8 @@
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\client\EquipmentClient.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\client\LocationClient.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\client\UserClient.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\config\FeignConfig.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\config\KafkaProducerConfig.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\constants\MovementType.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\InventoryController.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\controller\InventoryQueryController.java
@@ -15,8 +18,10 @@ D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inven
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryDetailResponse.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryResponse.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\InventoryWithDetailResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\LocationResponse.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\MovementResponse.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\PagedResponse.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\dto_response\UserResponse.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\InventoryDetailEntity.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\InventoryEntity.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\entities\MovementEntity.java
@@ -26,6 +31,10 @@ D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inven
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\UnauthorizedException.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\exception\ValidationException.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\InventoryApplication.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\kafka\InventoryEvent.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\kafka\InventoryEventProducer.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\kafka\MovementEvent.java
+D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\kafka\MovementEventProducer.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\repository\InventoryRepository.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\repository\MovementRepository.java
 D:\Proyectos\SIGEBI-Back\SIGEBI\SigebiMicroservice\inventory\src\main\java\inventory\security\JwtAuthorizationFilter.java

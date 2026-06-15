@@ -28,11 +28,21 @@ spring:
     init:
       mode: always
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   data:
     web:
       pageable:
         default-page-size: 10
         max-page-size: 100
+
+kafka:
+  topics:
+    report-events: sigebi-report-events
 
 eureka:
   instance:

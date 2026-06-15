@@ -47,6 +47,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <!-- KAFKA -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
         <!-- DATABASE -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -146,7 +152,7 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>maintenance/service/**</include>
+                                <include>sigebi/maintenance/service/**</include>
                             </includes>
                             <rules>
                                 <rule>

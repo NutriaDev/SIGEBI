@@ -16,4 +16,5 @@ public class MaintenanceScheduleResponse {
     private ZonedDateTime scheduledDate;
     private String status;
     private String technicianName;
+    private Long daysOverdue;
 }

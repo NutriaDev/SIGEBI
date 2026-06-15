@@ -6,7 +6,8 @@ import java.util.List;
 
 public record InventoryWithDetailResponse(
         Long inventoryId,
-        String location,
+        String locationName,
+        String responsibleName,
         LocalDate date,
         String observations,
         LocalDateTime createdAt,

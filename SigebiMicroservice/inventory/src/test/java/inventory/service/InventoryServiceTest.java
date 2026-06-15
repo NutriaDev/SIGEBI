@@ -2,12 +2,17 @@ package inventory.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inventory.client.EquipmentClient;
+import inventory.client.LocationClient;
+import inventory.client.UserClient;
 import inventory.dto_request.InventoryDetailRequest;
 import inventory.dto_request.InventoryRequest;
 import inventory.dto_response.ApiResponse;
 import inventory.dto_response.EquipmentResponse;
+import inventory.dto_response.LocationResponse;
+import inventory.dto_response.UserResponse;
 import inventory.exception.BusinessException;
 import inventory.exception.EquipmentNotFoundException;
+import inventory.kafka.InventoryEventProducer;
 import inventory.repository.InventoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +20,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,16 +42,37 @@ class InventoryServiceTest {
     private EquipmentClient equipmentClient;
 
     @Mock
+    private UserClient userClient;
+
+    @Mock
+    private LocationClient locationClient;
+
+    @Mock
     private ObjectMapper objectMapper;
+
+    @Mock
+    private InventoryEventProducer inventoryEventProducer;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
 
     @InjectMocks
     private InventoryService service;
 
     private ApiResponse apiResponse;
+    private ApiResponse locationApiResponse;
     private EquipmentResponse equipment;
 
     @BeforeEach
     void setup() {
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(1L);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        SecurityContextHolder.setContext(securityContext);
+
         equipment = new EquipmentResponse();
         equipment.setEquipmentId(1L);
         equipment.setLocationId(1L);
@@ -52,17 +82,31 @@ class InventoryServiceTest {
                 "equipmentId", 1,
                 "locationId", 1
         ));
+
+        UserResponse userResp = new UserResponse();
+        userResp.setName("Test User");
+
+        locationApiResponse = new ApiResponse();
+        locationApiResponse.setBody(Map.of("name", "Lab"));
+
+        lenient().when(userClient.getUserById(1L)).thenReturn(userResp);
+        lenient().when(locationClient.getLocationById(1L)).thenReturn(locationApiResponse);
+        lenient().when(objectMapper.convertValue(any(), eq(LocationResponse.class)))
+                .thenReturn(createLocationResponse());
+    }
+
+    private LocationResponse createLocationResponse() {
+        var l = new LocationResponse();
+        l.setName("Lab");
+        return l;
     }
 
     @Test
     void shouldCreateInventorySuccessfully() {
         InventoryRequest req = new InventoryRequest(
                 1L,
-                "Lab",
                 LocalDate.now(),
                 "Obs",
-                "1",
-                "ADMIN",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
@@ -76,11 +120,10 @@ class InventoryServiceTest {
         verify(inventoryRepository).save(any());
     }
 
-    // 🔴 RAMA NUEVA: date == null → debe usar LocalDate.now() internamente
     @Test
     void shouldCreateInventoryWithNullDate() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", null, "Obs", "1", "ADMIN",
+                1L, null, "Obs",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
@@ -96,7 +139,7 @@ class InventoryServiceTest {
     @Test
     void shouldThrowWhenNoDetails() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", null, "Obs", "1", "ADMIN", List.of()
+                1L, null, "Obs", List.of()
         );
 
         assertThrows(BusinessException.class,
@@ -106,7 +149,7 @@ class InventoryServiceTest {
     @Test
     void shouldThrowWhenEquipmentClientThrowsException() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", null, "Obs", "1", "ADMIN",
+                1L, null, "Obs",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
@@ -117,11 +160,10 @@ class InventoryServiceTest {
                 () -> service.createPhysicalInventory(req));
     }
 
-    // 🔴 RAMA NUEVA: response es null → EquipmentNotFoundException
     @Test
     void shouldThrowWhenResponseIsNull() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", null, "Obs", "1", "ADMIN",
+                1L, null, "Obs",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
@@ -131,11 +173,10 @@ class InventoryServiceTest {
                 () -> service.createPhysicalInventory(req));
     }
 
-    // 🔴 RAMA NUEVA: response.getBody() es null → EquipmentNotFoundException
     @Test
     void shouldThrowWhenResponseBodyIsNull() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", null, "Obs", "1", "ADMIN",
+                1L, null, "Obs",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
@@ -148,17 +189,42 @@ class InventoryServiceTest {
                 () -> service.createPhysicalInventory(req));
     }
 
-    // 🔴 RAMA NUEVA: equipo con locationId distinto al inventario (extraInPhysical no vacío)
+    @Test
+    void shouldThrowWhenLocationResponseIsNull() {
+        InventoryRequest req = new InventoryRequest(
+                1L, null, "Obs",
+                List.of(new InventoryDetailRequest(1L, "OK", "obs"))
+        );
+
+        when(locationClient.getLocationById(1L)).thenReturn(null);
+
+        assertThrows(BusinessException.class,
+                () -> service.createPhysicalInventory(req));
+    }
+
+    @Test
+    void shouldThrowWhenUserClientFails() {
+        InventoryRequest req = new InventoryRequest(
+                1L, null, "Obs",
+                List.of(new InventoryDetailRequest(1L, "OK", "obs"))
+        );
+
+        when(userClient.getUserById(1L)).thenThrow(new RuntimeException());
+
+        assertThrows(BusinessException.class,
+                () -> service.createPhysicalInventory(req));
+    }
+
     @Test
     void shouldCreateInventoryWithEquipmentInDifferentLocation() {
         InventoryRequest req = new InventoryRequest(
-                1L, "Lab", LocalDate.now(), "Obs", "1", "ADMIN",
+                1L, LocalDate.now(), "Obs",
                 List.of(new InventoryDetailRequest(1L, "OK", "obs"))
         );
 
         EquipmentResponse equipmentOtherLocation = new EquipmentResponse();
         equipmentOtherLocation.setEquipmentId(1L);
-        equipmentOtherLocation.setLocationId(99L); // locationId diferente al del inventario
+        equipmentOtherLocation.setLocationId(99L);
 
         when(equipmentClient.getEquipmentById(1L)).thenReturn(apiResponse);
         when(objectMapper.convertValue(any(), eq(EquipmentResponse.class)))
