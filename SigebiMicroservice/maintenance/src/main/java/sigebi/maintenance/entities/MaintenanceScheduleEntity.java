@@ -36,6 +36,10 @@ public class MaintenanceScheduleEntity {
     @Column(nullable = false)
     private MaintenanceStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "maintenance_id")
+    private MaintenanceEntity maintenance;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

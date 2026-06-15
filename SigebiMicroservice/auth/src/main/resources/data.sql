@@ -34,9 +34,11 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'users.delete.supervisor', 'Eliminar SUPERVISOR'),
 (gen_random_uuid(), 'users.delete.tecnico', 'Eliminar TECNICO'),
 
--- REPORTES
-(gen_random_uuid(), 'reports.read', 'Ver reportes'),
-(gen_random_uuid(), 'reports.write', 'Crear/editar reportes'),
+-- REPORTES GRANULARES
+(gen_random_uuid(), 'report.create', 'Crear reportes'),
+(gen_random_uuid(), 'report.read', 'Ver reportes'),
+(gen_random_uuid(), 'report.update', 'Actualizar reportes'),
+(gen_random_uuid(), 'report.export', 'Exportar reportes'),
 
 -- AREA EQUIPOS
 (gen_random_uuid(), 'equipment.area.create', 'Crear Areas de los equipos'),
@@ -80,6 +82,12 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'maintenance.create', 'Programar mantenimiento'),
 (gen_random_uuid(), 'maintenance.read',   'Ver mantenimientos'),
 (gen_random_uuid(), 'maintenance.update', 'Actualizar mantenimiento')
+
+-- AUDITORIA
+(gen_random_uuid(), 'audit.create', 'Crear registros de auditoría'),
+(gen_random_uuid(), 'audit.read', 'Consultar auditorías'),
+(gen_random_uuid(), 'audit.update', 'Actualizar auditorías')
+
 ON CONFLICT (name) DO NOTHING;
 
 
@@ -119,7 +127,10 @@ JOIN auth_permission p ON p.name IN (
   'users.update.tecnico',
   'users.delete.supervisor',
   'users.delete.tecnico',
-  'reports.read',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
   'equipment.classification.read',
   'equipment.state.read',
   'equipment.location.read',
@@ -164,8 +175,12 @@ JOIN auth_permission p ON p.name IN (
   'users.read.tecnico',
   'users.update.supervisor',
   'users.update.tecnico',
-  'reports.read',
-  'reports.write',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
+  'report.read',
+  'report.write',
   'equipment.classification.read',
   'equipment.state.read',
   'equipment.location.read',
@@ -202,8 +217,12 @@ JOIN auth_permission p ON p.name IN (
   'users.read.admin',
   'users.read.supervisor',
   'users.read.tecnico',
-  'reports.read',
-  'reports.write',
+  'report.create',
+  'report.read',
+  'report.update',
+  'report.export',
+  'report.read',
+  'report.write',
   'equipment.classification.read',
   'equipment.state.read',
   'equipment.location.read',
@@ -217,6 +236,7 @@ JOIN auth_permission p ON p.name IN (
   'equipment.classification.update',
   'equipment.area.read',
   'movement.read',
+  'movement.create',
   'maintenance.create',
   'maintenance.read',
   'maintenance.update'
