@@ -12,6 +12,7 @@ import sigebi.reportsandaudit.entities.AuditLogEntity;
 import sigebi.reportsandaudit.kafka.AuditEvent;
 import sigebi.reportsandaudit.kafka.AuditEventProducer;
 import sigebi.reportsandaudit.repository.AuditLogRepository;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 
@@ -91,16 +92,50 @@ public class AuditService {
     }
 
     public Page<AuditLogResponse> getLogsWithFilters(AuditFilterRequest request) {
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
-        return auditLogRepository.findWithFilters(
-                request.getUserId(),
-                request.getModule(),
-                request.getAction(),
-                request.getFromDate(),
-                request.getToDate(),
-                pageable
-        ).map(this::mapToResponse);
+        Pageable pageable = PageRequest.of(
+                request.getPage(),
+                request.getSize()
+        );
+
+        Specification<AuditLogEntity> spec = Specification.where(null);
+
+        if (request.getUserId() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("userId"), request.getUserId()));
+        }
+
+        if (request.getModule() != null &&
+                !request.getModule().isBlank()) {
+
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("module"), request.getModule()));
+        }
+
+        if (request.getAction() != null &&
+                !request.getAction().isBlank()) {
+
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("action"), request.getAction()));
+        }
+
+        if (request.getFromDate() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(
+                            root.get("timestamp"),
+                            request.getFromDate()));
+        }
+
+        if (request.getToDate() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(
+                            root.get("timestamp"),
+                            request.getToDate()));
+        }
+
+        return auditLogRepository
+                .findAll(spec, pageable)
+                .map(this::mapToResponse);
     }
 
     private AuditLogResponse mapToResponse(AuditLogEntity e) {

@@ -82,6 +82,12 @@ INSERT INTO auth_permission (id, name, description) VALUES
 (gen_random_uuid(), 'maintenance.create', 'Programar mantenimiento'),
 (gen_random_uuid(), 'maintenance.read',   'Ver mantenimientos'),
 (gen_random_uuid(), 'maintenance.update', 'Actualizar mantenimiento')
+
+-- AUDITORIA
+(gen_random_uuid(), 'audit.create', 'Crear registros de auditoría'),
+(gen_random_uuid(), 'audit.read', 'Consultar auditorías'),
+(gen_random_uuid(), 'audit.update', 'Actualizar auditorías')
+
 ON CONFLICT (name) DO NOTHING;
 
 
