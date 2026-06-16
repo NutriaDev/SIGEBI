@@ -1,0 +1,130 @@
+server:
+  port: ${PORT_GATEWAY}
+
+spring:
+  application:
+    name: ms-gateway
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+  cloud:
+    config:
+      enabled: false
+
+    gateway:
+      default-filters:
+        - PreserveHostHeader
+
+      routes:
+        - id: auth-login
+          uri: lb://ms-auth
+          predicates:
+            - Path=/auth/login
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 5
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: auth-forgot
+          uri: lb://ms-auth
+          predicates:
+            - Path=/auth/forgot-password
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 3
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: auth-reset
+          uri: lb://ms-auth
+          predicates:
+            - Path=/auth/reset-password
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 5
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: ms-auth
+          uri: lb://ms-auth
+          predicates:
+            - Path=/auth/**
+
+        - id: ms-users
+          uri: lb://ms-users
+          predicates:
+            - Path=/api/users/**,/internal/auth/**
+
+        - id: ms-equipment
+          uri: lb://ms-equipments
+          predicates:
+            - Path=/api/equipments/**,/api/classifications/**,/api/equipments-area/**,/api/providers/**,/api/states/**,/api/locations/**
+
+        - id: ms-cms
+          uri: lb://ms-cms
+          predicates:
+            - Path=/api/media/**
+
+        - id: ms-inventory
+          uri: lb://ms-inventory
+          predicates:
+            - Path=/api/inventories/**,/api/movements/**
+
+        - id: ms-maintenance
+          uri: lb://ms-maintenance
+          predicates:
+            - Path=/api/maintenance/**
+
+        - id: ms-reports-and-audit
+          uri: lb://ms-reportsandaudit
+          predicates:
+            - Path=/api/reports/**,/api/audit/**,/api/service-reports/**
+
+        - id: reports-pdf
+          uri: lb://ms-reportsandaudit
+          predicates:
+            - Path=/reports/maintenance/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - ${FRONTEND_URL}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL}
+    registry-fetch-interval-seconds: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: never

@@ -1,5 +1,5 @@
 server:
-  port: 8761
+  port: ${PORT_EUREKA}
 
 spring:
   application:
@@ -18,3 +18,13 @@ eureka:
 
   server:
     enable-self-preservation: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: never
