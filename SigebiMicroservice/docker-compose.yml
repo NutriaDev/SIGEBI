@@ -2,59 +2,135 @@ version: '3.8'
 
 services:
 
-  eureka:
-    build: ./eureka
-    container_name: eureka
-    ports:
-      - "8761:8761"
-
   postgres:
     image: postgres:15
     container_name: postgres
+    restart: always
     environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  eureka:
+    image: ms-eureka:latest
+    container_name: eureka
+    restart: always
+    ports:
+      - "8761:8761"
+
   ms-auth:
-    build: ./auth
+    image: ms-auth:latest
     container_name: ms-auth
+    restart: always
     depends_on:
       - postgres
+      - redis
       - eureka
     ports:
-      - "8081:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_URL=${EUREKA_URL}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME_AUTH}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
+      - "9090:9090"
+    env_file:
+      - .env
 
   ms-users:
-    build: ./users
+    image: ms-users:latest
     container_name: ms-users
+    restart: always
     depends_on:
       - postgres
       - eureka
     ports:
       - "8082:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_URL=${EUREKA_URL}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME_USER}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - .env
+
+  ms-cms:
+    image: ms-cms:latest
+    container_name: ms-cms
+    restart: always
+    depends_on:
+      - postgres
+      - eureka
+    ports:
+      - "8083:8080"
+    env_file:
+      - .env
+
+  ms-equipments:
+    image: ms-equipments:latest
+    container_name: ms-equipments
+    restart: always
+    depends_on:
+      - postgres
+      - eureka
+    ports:
+      - "8084:8080"
+    env_file:
+      - .env
+
+  ms-maintenance:
+    image: ms-maintenance:latest
+    container_name: ms-maintenance
+    restart: always
+    depends_on:
+      - postgres
+      - eureka
+    ports:
+      - "8085:8080"
+    env_file:
+      - .env
+
+  ms-inventory:
+    image: ms-inventory:latest
+    container_name: ms-inventory
+    restart: always
+    depends_on:
+      - postgres
+      - eureka
+    ports:
+      - "8086:8080"
+    env_file:
+      - .env
+
+  ms-reportsandaudit:
+    image: ms-reportsandaudit:latest
+    container_name: ms-reportsandaudit
+    restart: always
+    depends_on:
+      - postgres
+      - eureka
+    ports:
+      - "8087:8080"
+    env_file:
+      - .env
+
+  ms-gateway:
+    image: ms-gateway:latest
+    container_name: ms-gateway
+    restart: always
+    depends_on:
+      - eureka
+      - ms-auth
+      - ms-users
+      - ms-cms
+      - ms-equipments
+      - ms-maintenance
+      - ms-inventory
+      - ms-reportsandaudit
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
 
 volumes:
   postgres_data:
