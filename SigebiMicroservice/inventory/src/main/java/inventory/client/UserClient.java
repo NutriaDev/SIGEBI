@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
-        name = "ms-users-inventory",
+        name = "ms-users",
         url = "${user-service.url}",
         configuration = FeignConfig.class)
 public interface UserClient {

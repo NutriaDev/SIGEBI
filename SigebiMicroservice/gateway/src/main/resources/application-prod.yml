@@ -5,9 +5,10 @@ spring:
   application:
     name: ms-gateway
 
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   cloud:
     config:

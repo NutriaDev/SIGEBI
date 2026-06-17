@@ -7,7 +7,6 @@ import sigebi.cms.security.FeignConfig;
 
 @FeignClient(
         name = "ms-equipments",
-        url = "${equipment.service.url}",
         configuration = FeignConfig.class
 )
 public interface EquipmentClient {

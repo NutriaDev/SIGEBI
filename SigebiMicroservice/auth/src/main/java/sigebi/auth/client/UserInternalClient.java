@@ -7,7 +7,7 @@ import sigebi.auth.DTO.request.UpdatePasswordFeignRequest;
 import sigebi.auth.DTO.response.UserAuthDataResponse;
 import sigebi.auth.DTO.response.UserBasicResponse;
 
-@FeignClient(name = "ms-users", url = "http://localhost:8090")
+@FeignClient(name = "ms-users")
 public interface UserInternalClient {
 
     @PostMapping("/internal/auth/validate")

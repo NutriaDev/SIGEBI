@@ -6,7 +6,6 @@ import sigebi.maintenance.dto_response.EquipmentApiResponse;
 
 @FeignClient(
         name = "ms-equipment",
-        url = "${equipment-service.url}",
         configuration = sigebi.maintenance.config.FeignConfig.class)
 public interface EquipmentClient {
 

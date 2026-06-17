@@ -6,7 +6,10 @@ import inventory.dto_response.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "equipment-service", url = "${equipment-service.url}", configuration = FeignConfig.class)
+@FeignClient(
+        name = "ms-equipments",
+        configuration = FeignConfig.class
+)
 public interface EquipmentClient {
 
     @GetMapping("/api/equipments/{id}")
