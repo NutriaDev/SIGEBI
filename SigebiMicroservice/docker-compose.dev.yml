@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+  eureka-dev:
+    build: ./eureka
+    container_name: eureka-dev
+    ports:
+      - "9761:8761"
+
+  postgres-dev:
+    image: postgres:15
+    container_name: postgres-dev
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  ms-auth-dev:
+    build: ./auth
+    container_name: ms-auth-dev
+    depends_on:
+      - postgres-dev
+      - eureka-dev
+    ports:
+      - "9081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_URL=http://eureka-dev:8761/eureka
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME_AUTH}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+
+  ms-users-dev:
+    build: ./users
+    container_name: ms-users-dev
+    depends_on:
+      - postgres-dev
+      - eureka-dev
+    ports:
+      - "9082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_URL=http://eureka-dev:8761/eureka
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME_USER}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+
+volumes:
+  postgres_dev_data:

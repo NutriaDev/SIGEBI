@@ -23,7 +23,7 @@ public class JwtServiceImpl implements JwtService {
     @Value("${JWT_SECRET}")
     private String secret;
 
-    @Value("${JWT_EXPIRATION_MINUTES:15}")
+    @Value("${JWT_EXPIRATION_MINUTES:60}")
     private long expirationMinutes;
 
     private SecretKey key;
