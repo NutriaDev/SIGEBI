@@ -58,7 +58,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8088:8080"
+      - "9092:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: sigebi
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -85,7 +85,19 @@ services:
     depends_on:
       - eureka
     ports:
-      - "8080:8080"
+      - "${PORT_GATEWAY:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      EUREKA_URL: http://eureka:8761/eureka
+      AUTH_SERVICE_URL: http://ms-auth:8080
+      USERS_SERVICE_URL: http://ms-users:8080
+      EQUIPMENT_SERVICE_URL: http://ms-equipment:8080
+      CMS_SERVICE_URL: http://ms-cms:8080
+      INVENTORY_SERVICE_URL: http://ms-inventory:8080
+      MAINTENANCE_SERVICE_URL: http://ms-maintenance:8080
+      REPORTS_SERVICE_URL: http://ms-reportsandaudit:8080
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
   ####################################
   # AUTH
@@ -99,7 +111,7 @@ services:
       - eureka
       - redis
     ports:
-      - "8081:8080"
+      - "${PORT_AUTH:-9090}:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - EUREKA_URL=${EUREKA_URL}
@@ -121,13 +133,13 @@ services:
       - postgres
       - eureka
     ports:
-      - "8082:8080"
+      - "${PORT_USERS:-8090}:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - EUREKA_URL=${EUREKA_URL}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME_USER}
+      - DB_NAME=${DB_NAME_USERS}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
@@ -143,6 +155,18 @@ services:
       - postgres
       - eureka
       - kafka
+    ports:
+      - "${PORT_EQUIPMENT:-8091}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=${EUREKA_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME_EQUIPMENT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
 
   ####################################
   # INVENTORY
@@ -155,6 +179,18 @@ services:
       - postgres
       - eureka
       - kafka
+    ports:
+      - "${PORT_INVENTORY:-8083}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=${EUREKA_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME_INVENTORY}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
 
   ####################################
   # MAINTENANCE
@@ -167,6 +203,18 @@ services:
       - postgres
       - eureka
       - kafka
+    ports:
+      - "${PORT_MAINTENANCE:-8084}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=${EUREKA_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME_MAINTENANCE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
 
   ####################################
   # CMS
@@ -178,7 +226,20 @@ services:
     depends_on:
       - postgres
       - eureka
-
+    ports:
+      - "${PORT_CMS:-8082}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=${EUREKA_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME_CMS}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
   ####################################
   # REPORTS & AUDIT
   ####################################
@@ -191,7 +252,7 @@ services:
       - kafka
       - eureka
     ports:
-      - "8087:8080"
+      - "${PORT_REPORTS:-8087}:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - DB_HOST=${DB_HOST}
