@@ -91,7 +91,7 @@ services:
       EUREKA_URL: http://eureka:8761/eureka
       AUTH_SERVICE_URL: http://ms-auth:8080
       USERS_SERVICE_URL: http://ms-users:8080
-      EQUIPMENT_SERVICE_URL: http://ms-equipment:8080
+      EQUIPMENT_SERVICE_URL: http://ms-equipments:8080
       CMS_SERVICE_URL: http://ms-cms:8080
       INVENTORY_SERVICE_URL: http://ms-inventory:8080
       MAINTENANCE_SERVICE_URL: http://ms-maintenance:8080
@@ -148,9 +148,9 @@ services:
   # EQUIPMENT
   ####################################
 
-  ms-equipment:
+  ms-equipments:
     build: ./equipment
-    container_name: ms-equipment
+    container_name: ms-equipments
     depends_on:
       - postgres
       - eureka

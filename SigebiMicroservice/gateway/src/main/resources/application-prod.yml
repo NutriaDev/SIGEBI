@@ -5,9 +5,10 @@ spring:
   application:
     name: ms-gateway
 
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
 
   cloud:
     config:
@@ -54,7 +55,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 5
                 key-resolver: "#{@ipKeyResolver}"
 
-        # AUTH GENERAL (sin rate limit)
+        # AUTH GENERAL (sin rate limit)cd
         - id: ms-auth
           uri: ${AUTH_SERVICE_URL:http://localhost:9090}
           predicates:
@@ -67,7 +68,7 @@ spring:
             - Path=/api/users/**,/internal/auth/**
 
         # EQUIPMENT
-        - id: ms-equipment
+        - id: ms-equipments
           uri: ${EQUIPMENT_SERVICE_URL:http://localhost:8091}
           predicates:
             - Path=/api/equipments/**,/api/classifications/**,/api/equipments-area/**,/api/providers/**,/api/states/**,/api/locations/**
@@ -133,7 +134,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,env
   endpoint:
     health:
       show-details: never
